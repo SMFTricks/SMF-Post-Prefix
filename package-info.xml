@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>smftricks:postprefix</id>
+	<name>SMF Post Prefix</name>
+	<version>1.0</version>
+	<type>modification</type>
+	<install for="2.1 - 2.1.99, 2.1 Beta 1 - 3">
+
+		<!-- Mod Readme -->
+		<!-- <readme parsebbc="true">README.txt</readme> -->
+
+		<!-- PostPrefix Files -->
+		<require-dir name="Sources" destination="$boarddir">Source files</require-dir>
+
+		<!-- Templates and Languages -->
+		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>	
+
+		<!-- PP modifications -->
+		<modification type="file" format="xml">install.xml</modification>
+
+		<!-- Hooks -->
+		<code>hooks.php</code>
+
+		<!-- Database -->
+		<database>install.php</database>
+
+		<!-- Redirect -->
+		<redirect url="?action=admin;area=postprefix">redirect.txt</redirect>
+
+	</install>
+	
+	<uninstall for="2.1 - 2.1.99, 2.1 Beta 1 - 3">
+
+		<!-- Source Files -->
+		<remove-file name="$sourcedir/PostPrefixAdmin.php">Source admin</remove-file>
+		<remove-file name="$sourcedir/Subs-PostPrefix.php">Source Post Prefix</remove-file>
+
+		<!-- Languages -->
+		<remove-file name="$languagedir/PostPrefix.english.php">Language file</remove-file>
+
+		<!-- Scripts -->
+		<remove-file name="$themedir/scripts/colpick.js">Colpick</remove-file>
+
+		<!-- Styles -->
+		<remove-file name="$themedir/css/colpick.css">Colpick</remove-file>
+
+		<!-- Templates -->
+		<remove-file name="$themedir/PostPrefix.template.php">Admin template</remove-file>
+
+		<!-- PP modifications -->
+		<modification type="file" format="xml" reverse="true">install.xml</modification>
+
+		<!-- Hooks Remove -->
+		<code>remove.php</code>
+
+		<!-- Database -->
+		<database>install.php</database>
+
+	</uninstall>
+	
+</package-info>

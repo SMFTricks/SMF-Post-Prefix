@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+    <id>smftricks:postprefix</id>
+    <version>1.0</version>
+	
+	<file name="$sourcedir/Subs-Post.php">
+		<operation>
+			<search position="replace"><![CDATA[$topicOptions['sticky_mode'] !== null || $topicOptions['lock_mode'] !== null || $topicOptions['poll'] !== null]]></search>
+			<add><![CDATA[$topicOptions['sticky_mode'] !== null || $topicOptions['lock_mode'] !== null || $topicOptions['poll'] !== null || $topicOptions['id_prefix'] != null]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[id_poll = {raw:id_poll}]]></search>
+			<add><![CDATA[id_prefix = {raw:id_prefix},
+				id_poll = {raw:id_poll}]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['id_poll' => $topicOptions['poll'] === null ? 'id_poll' : (int) $topicOptions['poll'],]]></search>
+			<add><![CDATA['id_prefix' => $topicOptions['id_prefix'] === null ? 0 : (int) $topicOptions['id_prefix'],
+				'id_poll' => $topicOptions['poll'] === null ? 'id_poll' : (int) $topicOptions['poll'],]]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Display.php">
+		<operation>
+			<search position="replace"><![CDATA[t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,]]></search>
+			<add><![CDATA[t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$context['subject'] = $topicinfo['subject'];]]></search>
+			<add><![CDATA[$context['subject'] = $topicinfo['subject'];
+	$context['prefix_subject'] = PostPrefix::formatPrefix($topicinfo['id_prefix']). ' '.$topicinfo['subject'];]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/Display.template.php">
+		<operation>
+			<search position="replace"><![CDATA[', $context['subject'],]]></search>
+			<add><![CDATA[', $context['prefix_subject'],]]></add>
+		</operation>
+    </file>
+    <file name="$sourcedir/Post.php">
+		<operation>
+			<search position="replace"><![CDATA[m.id_member, m.modified_time, m.smileys_enabled, m.body,]]></search>
+			<add><![CDATA[m.id_member, m.modified_time, m.smileys_enabled, m.body, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,]]></search>
+			<add><![CDATA[m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$context['icon'] = $row['icon'];]]></search>
+			<add><![CDATA[$context['icon'] = $row['icon'];
+		$context['id_prefix'] = $row['id_prefix'];]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[// Check the subject and message.]]></search>
+			<add><![CDATA[// Check the subject and message.
+	if ((!isset($_POST['id_prefix']) || $_POST['id_prefix'] === 0 || empty($_POST['id_prefix'])) && (!empty($board_info['require_prefix'])))
+		$post_errors[] = 'no_prefix';]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['poll' => isset($_REQUEST['poll']) ? $id_poll : null,]]></search>
+			<add><![CDATA['id_prefix' => isset($_REQUEST['id_prefix']) ? $_REQUEST['id_prefix'] : 0,
+		'poll' => isset($_REQUEST['poll']) ? $id_poll : null,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[elseif (isset($_POST['subject']))
+	{
+		$post_errors[] = 'no_subject';
+		unset($_POST['subject']);
+	}]]></search>
+			<add><![CDATA[elseif (isset($_POST['subject']))
+	{
+		$post_errors[] = 'no_subject';
+		unset($_POST['subject']);
+	}
+
+	if (isset($_POST['id_prefix']) || $_POST['id_prefix'] == 0 || empty($_POST['id_prefix']))
+	{
+		$post_errors[] = 'no_prefix';
+		unset($_POST['id_prefix']);
+	}]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['error_in_subject' => in_array('no_subject', $post_errors),]]></search>
+			<add><![CDATA['error_in_subject' => in_array('no_subject', $post_errors),
+				'error_in_id_prefix' => in_array('no_prefix', $post_errors),]]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/MessageIndex.php">
+		<operation>
+			<search position="replace"><![CDATA[t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,]]></search>
+			<add><![CDATA[t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>']]></search>
+			<add><![CDATA['link' => PostPrefix::formatPrefix($row['id_prefix']). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>']]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Subs-Recent.php">
+		<operation>
+			<search position="replace"><![CDATA[m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg,]]></search>
+			<add><![CDATA[m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, t.id_prefix, t.id_first_msg,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>']]></search>
+			<add><![CDATA['link' => ($row['id_msg'] == $row['id_first_msg'] ? PostPrefix::formatPrefix($row['id_prefix']) : ''). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . ';topicseen#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>']]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Load.php">
+		<operation>
+			<search position="replace"><![CDATA[c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,]]></search>
+			<add><![CDATA[c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups, b.require_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['cur_topic_starter' => empty($topic) ? 0 : $row['id_member_started'],
+			);]]></search>
+			<add><![CDATA['cur_topic_starter' => empty($topic) ? 0 : $row['id_member_started'],
+				'require_prefix' => $row['require_prefix'],
+			);]]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Profile-View.php">
+		<operation>
+			<search position="replace"><![CDATA[t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg]]></search>
+			<add><![CDATA[t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg, t.id_prefix]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled,]]></search>
+			<add><![CDATA[t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['topic' => $row['id_topic'],
+			'subject' => $row['subject'],]]></search>
+			<add><![CDATA['topic' => $row['id_topic'],
+			'prefix' => $row['id_msg'] == $row['id_first_msg'] ? PostPrefix::formatPrefix($row['id_prefix']) : '',
+			'subject' => $row['subject'],]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/Profile.template.php">
+		<operation>
+			<search position="replace"><![CDATA[', $post['board']['name'], '</a> /]]></search>
+			<add><![CDATA[', $post['board']['name'], '</a> / ', $post['prefix'], ']]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Recent.php">
+		<operation>
+			<search position="replace"><![CDATA[m.id_msg, m.subject, m.smileys_enabled, m.poster_time, m.body, m.id_topic, t.id_board, b.id_cat,]]></search>
+			<add><![CDATA[m.id_msg, m.subject, m.smileys_enabled, m.poster_time, m.body, m.id_topic, t.id_board, b.id_cat, t.id_prefix,]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . shorten_subject($row['subject'], 30) . '</a>',]]></search>
+			<add><![CDATA['link' => ($row['id_msg'] == $row['id_first_msg'] ? PostPrefix::formatPrefix($row['id_prefix']) : ''). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . shorten_subject($row['subject'], 30) . '</a>',]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[if ($context['showing_all_topics'])
+	{]]></search>
+			<add><![CDATA[$select_clause .= ', t.id_prefix';
+
+	if ($context['showing_all_topics'])
+	{]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>',]]></search>
+			<add><![CDATA['link' => PostPrefix::formatPrefix($row['id_prefix']). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>']]></add>
+		</operation>
+	</file>
+	<file name="$themedir/Post.template.php">
+		<operation>
+			<search position="replace"><![CDATA[// Now show the subject box for this post.]]></search>
+			<add><![CDATA[// Prefixes
+	if (!empty($context['prefix']['post']) && $context['is_first_post'])
+	{
+		echo '
+						<dt class="clear">
+							<span', isset($context['post_error']['no_prefix']) ? ' class="error"' : '', ' id="caption_id_prefix">', $txt['PostPrefix_select_prefix'], '</span>
+						</dt>
+						<dd>
+							<select name="id_prefix" id="id_prefix">
+								<optgroup label="', $txt['PostPrefix_select_prefix'], '">
+									<option value="0"', ($context['id_prefix'] == 0) ? ' selected' : '' ,'>', $txt['PostPrefix_prefix_none'], '</option>';
+							foreach ($context['prefix']['post'] as $prefix)
+							{
+								echo '
+									<option value="', $prefix['id'], '"', $prefix['id'] == $context['id_prefix'] ? ' selected' : '' ,'>', $prefix['name'], '</option>';
+							}
+				echo '
+								</optgroup>
+							</select>
+						</dd>';
+	}
+
+	// Now show the subject box for this post.]]></add>
+		</operation>
+	</file>
+</modification>
