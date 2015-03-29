@@ -31,6 +31,7 @@ class PostPrefixAdmin
 			'add2' => 'self::add2',
 			'edit' => 'self::edit',
 			'edit2' => 'self::edit2',
+			'delete' => 'self::delete',
 			'ups' => 'self::updatestatus',
 			'require' => 'self::require_boards',
 			'require2' => 'self::require_boards2',
@@ -84,15 +85,19 @@ class PostPrefixAdmin
 		);
 
 		$context['prefix']['addup'] = '';
-		if (isset($_REQUEST['added']) && !isset($_REQUEST['updated']))
+		if (isset($_REQUEST['added']) && !isset($_REQUEST['updated']) && !isset($_REQUEST['deleted']))
 		{
 			$id = (int) $_REQUEST['added'];
 			$context['prefix']['addup'] .= '<div class="infobox">'.sprintf(PostPrefix::text('prefix_added'), PostPrefix::formatPrefix($id)).'</div>';
 		}
-		elseif (isset($_REQUEST['updated']) && !isset($_REQUEST['added']))
+		elseif (isset($_REQUEST['updated']) && !isset($_REQUEST['added']) && !isset($_REQUEST['deleted']))
 		{
 			$id = (int) $_REQUEST['updated'];
 			$context['prefix']['addup'] .= '<div class="infobox">'.sprintf(PostPrefix::text('prefix_updated'), PostPrefix::formatPrefix($id)).'</div>';
+		}
+		elseif (isset($_REQUEST['deleted']) && !isset($_REQUEST['added']) && !isset($_REQUEST['updated']))
+		{
+			$context['prefix']['addup'] .= '<div class="infobox">'.PostPrefix::text('prefix_deleted').'</div>';
 		}
 
 		// We need this files
@@ -229,7 +234,7 @@ class PostPrefixAdmin
 				),
 			),
 			'form' => array(
-				'href' => '?action=admin;area=shopitems;sa=items;sa=delete',
+				'href' => '?action=admin;area=postprefix;sa=delete',
 				'hidden_fields' => array(
 					$context['session_var'] => $context['session_id'],
 				),
@@ -239,7 +244,7 @@ class PostPrefixAdmin
 			'additional_rows' => array(
 				array(
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button_submit" />',
+					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button_submit" onclick="return confirm(\''.PostPrefix::text('prefix_delete_sure').'\');" />',
 				),
 				array(
 					'position' => 'above_column_headers',
@@ -740,6 +745,35 @@ class PostPrefixAdmin
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes;updated='. $id);
+
+	}
+
+	public static function delete()
+	{
+		global $context, $smcFunc;
+
+		// If nothing was chosen to delete (shouldn't happen, but meh)
+		if (!isset($_REQUEST['delete']))
+			fatal_error(PostPrefix::text('error_unable_tofind'));
+				
+		// Make sure all IDs are numeric
+		foreach ($_REQUEST['delete'] as $key => $value)
+			$_REQUEST['delete'][$key] = (int) $value;
+
+		// Delete all the items
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}postprefixes
+			WHERE id IN ({array_int:ids})',
+			array(
+				'ids' => $_REQUEST['delete'],
+			)
+		);
+
+		$order = isset($_REQUEST['desc']) ? 'desc;' : '';
+		$start = ($_REQUEST['start'] == 0 ? '' : $_REQUEST['start']);
+			
+		// Send the user to the items list with a message
+		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;sort=' .$_REQUEST['sort']. ';' . $order . $start);
 
 	}
 

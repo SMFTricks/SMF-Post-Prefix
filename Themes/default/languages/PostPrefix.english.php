@@ -55,8 +55,10 @@ $txt['PostPrefix_use_bgcolor'] = 'Use color as background color?';
 $txt['PostPrefix_prefix_boards_require'] = 'Require prefix on';
 $txt['PostPrefix_prefix_boards_require_desc'] = 'Boards where the prefix will be required';
 $txt['PostPrefix_required_updated'] = 'Required boards were successfully updated.';
-$txt['PostPrefix_prefix_added'] = 'The prefix %s was added successfully';
-$txt['PostPrefix_prefix_updated'] = 'The prefix %s was updated successfully';
+$txt['PostPrefix_prefix_added'] = 'The prefix %s was added successfully.';
+$txt['PostPrefix_prefix_updated'] = 'The prefix %s was updated successfully.';
+$txt['PostPrefix_prefix_delete_sure'] = 'Are you sure you want to delete the selected prefixes?';
+$txt['PostPrefix_prefix_deleted'] = 'The chosen prefixes were deleted successfully.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify at least the name of the prefix.';
