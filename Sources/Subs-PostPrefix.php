@@ -221,6 +221,13 @@ class PostPrefix
 		}
 	}
 
+	public function integrate_credits()
+	{
+		global $context;
+		
+		$context['copyrights']['mods']['postprefix'] = '<a href="http://smftricks.com" title="SMF Themes & Mods">SMF Post Prefix &copy Diego Andr&eacute;s & SMF Tricks</a>';
+	}
+
 	/**
 	 * PostPrefix::text()
 	 *

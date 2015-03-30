@@ -26,6 +26,7 @@
 		'integrate_modify_topic' => '$sourcedir/Subs-PostPrefix.php|PostPrefix::modify_topic#',
 		'integrate_before_create_topic' => '$sourcedir/Subs-PostPrefix.php|PostPrefix::before_create_topic#',
 		'integrate_post_errors' => '$sourcedir/Subs-PostPrefix.php|PostPrefix::post_errors#',
+		'integrate_credits' => '$sourcedir/Subs-PostPrefix.php|PostPrefix::integrate_credits#',
 	);
 
 	foreach ($hooks as $hook => $function)
