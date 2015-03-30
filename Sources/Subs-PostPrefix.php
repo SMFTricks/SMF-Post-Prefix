@@ -221,7 +221,7 @@ class PostPrefix
 		}
 	}
 
-	public function integrate_credits()
+	public static function integrate_credits()
 	{
 		global $context;
 		
