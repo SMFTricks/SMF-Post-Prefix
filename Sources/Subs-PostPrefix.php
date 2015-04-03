@@ -52,7 +52,7 @@ class PostPrefix
 
 	public static function admin_areas(&$admin_areas)
 	{
-		global $scripturl;
+		global $scripturl, $context;
 		
 		loadtemplate(self::$name);
 		loadLanguage(self::$name);
@@ -85,6 +85,13 @@ class PostPrefix
 			array_slice($admin_areas['layout']['areas'], $counter)
 		);
 
+		// Post Prefix copyright :)
+		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin' && isset($_REQUEST['area']) && $_REQUEST['area'] == 'postprefix')
+		{
+			$context['template_layers'][] = 'postprefix';
+			$context['copyright'] = self::copyright();
+		}
+
 	}
 
 	public static function create_post($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters)
@@ -110,12 +117,34 @@ class PostPrefix
 
 	public static function post_errors(&$post_errors, &$minor_errors)
 	{
-		global $context, $topic, $modSettings;
+		global $context, $topic, $modSettings, $smcFunc;
 
 		if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty($context['post_error']))
 			$context['id_prefix'] = isset($_REQUEST['id_prefix']) ? $_REQUEST['id_prefix'] : 0;
 		elseif (isset($_REQUEST['msg']) && !empty($topic))
-			$context['id_prefix'] = $context['id_prefix'];
+		{
+			$_REQUEST['msg'] = (int) $_REQUEST['msg'];
+
+			// Get the existing message. Editing.
+			$request = $smcFunc['db_query']('', '
+				SELECT
+					m.id_msg, t.id_prefix
+				FROM {db_prefix}messages AS m
+					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
+				WHERE m.id_msg = {int:id_msg}
+					AND m.id_topic = {int:current_topic}',
+				array(
+					'current_topic' => $topic,
+					'id_msg' => $_REQUEST['msg'],
+				)
+			);
+			// The message they were trying to edit was most likely deleted.
+			if ($smcFunc['db_num_rows']($request) == 0)
+				fatal_lang_error('no_message', false);
+			$row = $smcFunc['db_fetch_assoc']($request);
+			// Finally the information that we really need
+			$context['id_prefix'] = $row['id_prefix'];
+		}
 		else
 			$context['id_prefix'] = 0;
 
@@ -126,7 +155,7 @@ class PostPrefix
 		self::getPrefix($context['current_board']);
 	}
 
-	public static function formatPrefix($prefix)
+	public static function formatPrefix($prefix, $topicF = true)
 	{
 		global $smcFunc, $topic;
 
@@ -154,14 +183,16 @@ class PostPrefix
 			{
 				$format .= 'style="';
 
-				if (!empty($topic))
-					$format .= 'line-height: 35px;';
-				if ($row['bgcolor'] == 1 && !empty($row['color']))
+				if (!empty($topic) && $topicF)
+					$format .= 'line-height: 35px';
+				if ($row['bgcolor'] == 1 && !empty($row['color']) && $topicF)
 					$format .= 'padding: 4px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
+				elseif ($row['bgcolor'] == 1 && !empty($row['color']) && !$topicF)
+					$format .= 'padding: 2px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
 				elseif (!empty($row['color']) && empty($row['bgcolor']))
 					$format .= 'color: '. $row['color'];
 
-				$format .= '"';
+				$format .= '; text-shadow: none !important;"';
 			}
 
 			$format .= '>';
@@ -221,11 +252,17 @@ class PostPrefix
 		}
 	}
 
-	public static function integrate_credits()
+	public function integrate_credits()
 	{
 		global $context;
 		
 		$context['copyrights']['mods']['postprefix'] = '<a href="http://smftricks.com" title="SMF Themes & Mods">SMF Post Prefix &copy Diego Andr&eacute;s & SMF Tricks</a>';
+	}
+
+	public static function copyright()
+	{
+		$copy = '<div class="centertext"><a href="http://smftricks.com" target="_blank">Powered by SMF Post Prefix &copy; '. date('Y') . ' SMF Tricks</a></div>';
+		return $copy;
 	}
 
 	/**

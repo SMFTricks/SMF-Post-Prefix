@@ -20,8 +20,6 @@ class PostPrefixAdmin
 		// Set the title here
 		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_general');
 
-		require_once($sourcedir . '/ManageSettings.php');
-
 		$subActions = array(
 			'general' => 'self::general',
 			'prefixes' => 'self::prefixes',
@@ -37,8 +35,6 @@ class PostPrefixAdmin
 			'require2' => 'self::require_boards2',
 			'permissions' => 'self::permissions',
 		);
-
-		loadGeneralSettingParameters($subActions, 'general');
 
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'tabs' => array(
@@ -88,16 +84,16 @@ class PostPrefixAdmin
 		if (isset($_REQUEST['added']) && !isset($_REQUEST['updated']) && !isset($_REQUEST['deleted']))
 		{
 			$id = (int) $_REQUEST['added'];
-			$context['prefix']['addup'] .= '<div class="infobox">'.sprintf(PostPrefix::text('prefix_added'), PostPrefix::formatPrefix($id)).'</div>';
+			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.sprintf(PostPrefix::text('prefix_added'), PostPrefix::formatPrefix($id)).'</div>';
 		}
 		elseif (isset($_REQUEST['updated']) && !isset($_REQUEST['added']) && !isset($_REQUEST['deleted']))
 		{
 			$id = (int) $_REQUEST['updated'];
-			$context['prefix']['addup'] .= '<div class="infobox">'.sprintf(PostPrefix::text('prefix_updated'), PostPrefix::formatPrefix($id)).'</div>';
+			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.sprintf(PostPrefix::text('prefix_updated'), PostPrefix::formatPrefix($id)).'</div>';
 		}
 		elseif (isset($_REQUEST['deleted']) && !isset($_REQUEST['added']) && !isset($_REQUEST['updated']))
 		{
-			$context['prefix']['addup'] .= '<div class="infobox">'.PostPrefix::text('prefix_deleted').'</div>';
+			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.PostPrefix::text('prefix_deleted').'</div>';
 		}
 
 		// We need this files
@@ -290,9 +286,11 @@ class PostPrefixAdmin
 
 		// Count the items
 		$items = $smcFunc['db_query']('', '
-			SELECT COUNT(id)
+			SELECT id
 			FROM {db_prefix}postprefixes'
 		);
+
+		return $smcFunc['db_num_rows']($items);
 	}
 
 	public static function showgroups()
@@ -317,8 +315,8 @@ class PostPrefixAdmin
 				'id' => $prefix,
 			)
 		);
-		$mg = $smcFunc['db_fetch_assoc']($request)['member_groups'];
-		$groups = explode(',', $mg);
+		$mg = $smcFunc['db_fetch_assoc']($request);
+		$groups = explode(',', $mg['member_groups']);
 
 		$context['empty_groups'] = empty($mg) ? 1 : 0;
 
@@ -384,8 +382,8 @@ class PostPrefixAdmin
 				'id' => $prefix,
 			)
 		);
-		$brd = $smcFunc['db_fetch_assoc']($request)['boards'];
-		$boards = explode(',', $brd);
+		$brd = $smcFunc['db_fetch_assoc']($request);
+		$boards = explode(',', $brd['boards']);
 
 		$context['empty_boards'] = empty($brd) ? 1 : 0;
 
@@ -613,7 +611,7 @@ class PostPrefixAdmin
 			fatal_error(PostPrefix::text('error_unable_tofind'));
 
 		$request = $smcFunc['db_query']('', '
-			SELECT p.id, p.name, p.color, p.bgcolor, status, member_groups, deny_member_groups, boards
+			SELECT p.id, p.name, p.color, p.bgcolor, p.status, p.member_groups, p.deny_member_groups, p.boards
 			FROM {db_prefix}postprefixes AS p
 			WHERE p.id = {int:id}
 			LIMIT 1',
@@ -751,6 +749,13 @@ class PostPrefixAdmin
 	public static function delete()
 	{
 		global $context, $smcFunc;
+
+		// Set all the page stuff
+		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes');
+		$context[$context['admin_menu_name']]['tab_data'] = array(
+			'title' => $context['page_title'],
+			'description' => PostPrefix::text('tab_prefixes_desc'),
+		);
 
 		// If nothing was chosen to delete (shouldn't happen, but meh)
 		if (!isset($_REQUEST['delete']))
@@ -1028,6 +1033,8 @@ class PostPrefixAdmin
 			'description' => PostPrefix::text('tab_permissions_desc'),
 		);
 
+		require_once($sourcedir . '/ManageSettings.php');
+				loadGeneralSettingParameters();
 		require_once($sourcedir . '/ManageServer.php');
 
 		// PostPrefix mod do not play nice with guests. Permissions are already hidden for them, let's exterminate any hint of them in this section.

@@ -30,6 +30,19 @@
 			<add><![CDATA[$context['subject'] = $topicinfo['subject'];
 	$context['prefix_subject'] = PostPrefix::formatPrefix($topicinfo['id_prefix']). ' '.$topicinfo['subject'];]]></add>
 		</operation>
+		<operation>
+			<search position="replace"><![CDATA[// Build the link tree.
+	$context['linktree'][] = array(
+		'url' => $scripturl . '?topic=' . $topic . '.0',
+		'name' => $topicinfo['subject'],
+	);]]></search>
+			<add><![CDATA[// Build the link tree.
+	$context['linktree'][] = array(
+		'url' => $scripturl . '?topic=' . $topic . '.0',
+		'name' => $topicinfo['subject'],
+		'extra_before' => PostPrefix::formatPrefix($topicinfo['id_prefix'], false),
+	);]]></add>
+		</operation>
 	</file>
 	<file name="$themedir/Display.template.php">
 		<operation>
@@ -47,14 +60,9 @@
 			<add><![CDATA[m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body, t.id_prefix,]]></add>
 		</operation>
 		<operation>
-			<search position="replace"><![CDATA[$context['icon'] = $row['icon'];]]></search>
-			<add><![CDATA[$context['icon'] = $row['icon'];
-		$context['id_prefix'] = $row['id_prefix'];]]></add>
-		</operation>
-		<operation>
 			<search position="replace"><![CDATA[// Check the subject and message.]]></search>
 			<add><![CDATA[// Check the subject and message.
-	if ((!isset($_POST['id_prefix']) || $_POST['id_prefix'] === 0 || empty($_POST['id_prefix'])) && (!empty($board_info['require_prefix'])))
+	if ((!isset($_POST['id_prefix']) || $_POST['id_prefix'] === 0 || empty($_POST['id_prefix'])) && (!empty($board_info['require_prefix'])) && isset($_REQUEST['prefix_istopic']))
 		$post_errors[] = 'no_prefix';]]></add>
 		</operation>
 		<operation>
@@ -160,7 +168,7 @@
 	{]]></add>
 		</operation>
 		<operation>
-			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>',]]></search>
+			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>']]></search>
 			<add><![CDATA['link' => PostPrefix::formatPrefix($row['id_prefix']). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0;topicseen">' . $row['first_subject'] . '</a>']]></add>
 		</operation>
 	</file>
@@ -186,6 +194,7 @@
 				echo '
 								</optgroup>
 							</select>
+							<input type="hidden" name="prefix_istopic" value="1">
 						</dd>';
 	}
 

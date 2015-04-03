@@ -549,3 +549,14 @@ function template_require_prefix()
 		</form>
 	</div>';
 }
+
+function template_postprefix_above()
+{
+}
+
+function template_postprefix_below()
+{
+	global $context;
+	
+	echo $context['copyright'];
+}
