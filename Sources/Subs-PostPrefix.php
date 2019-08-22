@@ -15,6 +15,54 @@ class PostPrefix
 {
 	public static $version = '3.0';
 
+	public static function initialize()
+	{
+		self::setDefaults();
+		self::defineHooks();
+	}
+
+		/**
+	 * Shop::setDefaults()
+	 *
+	 * Sets almost every setting to a default value
+	 * @return void
+	 * @author Peter Spicer (Arantor)
+	 */
+	public static function setDefaults()
+	{
+		global $modSettings;
+
+		$defaults = array(
+			'PostPrefix_enable_filter' => 0,
+			'PostPrefix_select_order' => 900,
+			'PostPrefix_select_order_dir' => 0,
+		);
+		$modSettings = array_merge($defaults, $modSettings);
+	}
+
+	/**
+	 * Shop::defineHooks()
+	 *
+	 * Load hooks quietly
+	 * @return void
+	 * @author Peter Spicer (Arantor)
+	 */
+	public static function defineHooks()
+	{
+		$hooks = array(
+			'admin_areas' => 'self::admin_areas',
+			'load_permissions' => 'self::permissions',
+			'load_illegal_guest_permissions' => 'self::illegal_guest_permissions',
+			'create_post' => 'self::create_post',
+			'modify_post' => 'self::modify_post',
+			'modify_topic' => 'self::modify_topic',
+			'before_create_topic' => 'self::before_create_topic',
+			'post_errors' => 'Shop::post_errors',
+		);
+		foreach ($hooks as $point => $callable)
+			add_integration_function('integrate_' . $point, $callable, false);
+	}
+
 	/**
 	 * PostPrefix::permissions()
 	 *
@@ -107,11 +155,25 @@ class PostPrefix
 	public static function modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
 	{
 		$topicOptions['id_prefix'] = isset($topicOptions['id_prefix']) ? $topicOptions['id_prefix'] : null;
+
+		if ($topicOptions['id_prefix'] !== null)
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}topics
+				SET
+					id_prefix = {raw:id_prefix}
+				WHERE id_topic = {int:id_topic}',
+				array(
+					'id_prefix' => $topicOptions['id_prefix'] === null ? 0 : (int) $topicOptions['id_prefix'],
+					'id_topic' => $topicOptions['id'],
+				)
+			);
+		}
 	}
 
 	public static function modify_topic(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions)
 	{
-		$update_parameters = array_merge($update_parameters,array('id_prefix' => $topicOptions['id_prefix']));
+		$update_parameters = array_merge($update_parameters, array('id_prefix' => $topicOptions['id_prefix']));
 	}
 
 	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
@@ -342,13 +404,6 @@ class PostPrefix
 				template_filterPrefix();
 			}
 		}
-	}
-
-	public function integrate_credits()
-	{
-		global $context;
-		
-		$context['copyrights']['mods']['postprefix'] = '<a href="https://smftricks.com" title="SMF Themes & Mods">SMF Post Prefix &copy SMF Tricks</a>';
 	}
 
 	public static function copyright()

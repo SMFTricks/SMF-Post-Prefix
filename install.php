@@ -20,7 +20,6 @@
 
 	if (empty($context['uninstalling']))
 	{
-
 		// Post Prefixes
 		$tables[] = array(
 			'table_name' => '{db_prefix}postprefixes',
@@ -58,14 +57,27 @@
 				array(
 					'name' => 'member_groups',
 					'type' => 'varchar',
+					'size' => 255,
 				),
 				array(
 					'name' => 'deny_member_groups',
 					'type' => 'varchar',
+					'size' => 255,
 				),
 				array(
 					'name' => 'boards',
 					'type' => 'varchar',
+					'size' => 1024,
+				),
+				array(
+					'name' => 'icon',
+					'type' => 'smallint',
+					'default' => 0,
+				),
+				array(
+					'name' => 'icon_url',
+					'type' => 'varchar',
+					'size' => 500,
 				),
 			),
 			'indexes' => array(
@@ -102,5 +114,4 @@
 				'default' => 0,
 			)
 		);
-
 	}

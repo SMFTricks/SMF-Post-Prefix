@@ -104,8 +104,6 @@ function template_postprefix_add()
 	echo '
 	<div class="windowbg2">
 		<form name="PostPrefixAdd" id="PostPrefixAdd" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=add2">
-
-		
 			<dl class="settings">
 				<dt>
 					<a id="setting_name"></a>
@@ -123,7 +121,6 @@ function template_postprefix_add()
 					<input class="input_check" type="checkbox" name="status" id="status" value="1">
 				</dd>
 			</dl>
-
 			<dl class="settings">
 				<dt>
 					<a id="setting_color"></a>
@@ -141,7 +138,6 @@ function template_postprefix_add()
 					<input class="input_check" name="bgcolor" id="bgcolor" type="checkbox" value="1">
 				</dd>
 			</dl>
-
 			<dl class="settings">
 				<dt>
 					<a id="setting_groups"></a>
@@ -158,9 +154,7 @@ function template_postprefix_add()
 					', template_postprefix_boards_list(), '
 				</dd>
 			</dl>
-
 			<input class="button_submit floatleft" type="submit" value="', $txt['PostPrefix_add_prefix'], '">
-
 		</form>
 	</div>';
 }
@@ -172,8 +166,6 @@ function template_postprefix_edit()
 	echo '
 	<div class="windowbg2">
 		<form name="PostPrefixAdd" id="PostPrefixAdd" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=edit2;id=', $_REQUEST['id'], '">
-
-		
 			<dl class="settings">
 				<dt>
 					<a id="setting_name"></a>
@@ -182,7 +174,6 @@ function template_postprefix_edit()
 				<dd>
 					<input class="input_text" name="name" id="name" type="text" value="', $context['prefix']['name'], '" style="width: 200px">
 				</dd>
-
 				<dt>
 					<a id="setting_status"></a>
 					<span><label for="status">', $txt['PostPrefix_prefix_enable'], ':</label></span>
@@ -191,7 +182,6 @@ function template_postprefix_edit()
 					<input class="input_check" type="checkbox" name="status" id="status"', ($context['prefix']['status'] == 1 ? ' checked' : ''), ' value="1">
 				</dd>
 			</dl>
-
 			<dl class="settings">
 				<dt>
 					<a id="setting_color"></a>
@@ -209,7 +199,6 @@ function template_postprefix_edit()
 					<input class="input_check" name="bgcolor" id="bgcolor" type="checkbox"', ($context['prefix']['bgcolor'] == 1 ? ' checked' : ''), ' value="1">
 				</dd>
 			</dl>
-
 			<dl class="settings">
 				<dt>
 					<a id="setting_groups"></a>
@@ -226,9 +215,7 @@ function template_postprefix_edit()
 					', template_postprefix_boards_list(), '
 				</dd>
 			</dl>
-
 			<input class="button_submit floatleft" type="submit" value="', $txt['PostPrefix_save_prefix'], '">
-
 		</form>
 	</div>';
 }
@@ -239,90 +226,90 @@ function template_postprefix_groups_list($collapse = true)
 
 	// This looks really weird, but it keeps things nested properly...
 	echo '
-											<fieldset id="visible_groups">
-												<legend>', $txt['PostPrefix_prefix_groups_desc'], '</legend>';
+		<fieldset id="visible_groups">
+			<legend>', $txt['PostPrefix_prefix_groups_desc'], '</legend>';
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
-												<ul class="padding floatleft">';
+			<ul class="padding floatleft">';
 	else
 		echo '
-												<div class="information">', $txt['permissions_option_desc'], '</div>
-												<dl class="settings">
-													<dt>
-													</dt>
-													<dd>
-														<span class="perms"><strong>', $txt['permissions_option_on'], '</strong></span>
-														<span class="perms"><strong>', $txt['permissions_option_off'], '</strong></span>
-														<span class="perms red"><strong>', $txt['permissions_option_deny'], '</strong></span>
-													</dd>';
+				<div class="information">', $txt['permissions_option_desc'], '</div>
+				<dl class="settings">
+					<dt>
+					</dt>
+					<dd>
+						<span class="perms"><strong>', $txt['permissions_option_on'], '</strong></span>
+						<span class="perms"><strong>', $txt['permissions_option_off'], '</strong></span>
+						<span class="perms red"><strong>', $txt['permissions_option_deny'], '</strong></span>
+					</dd>';
 	foreach ($context['member_groups'] as $group)
 	{
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-													<dt>';
+					<dt>';
 		else
 			echo '
-													<li>';
+					<li>';
 
 		if (empty($modSettings['permission_enable_deny']))
 			echo '
-														<input type="checkbox" name="usegroup[', $group['id'], ']" value="', $group['id'], '"', $group['allow'] ? ' checked' : '', ' class="input_check">';
+						<input type="checkbox" name="usegroup[', $group['id'], ']" value="', $group['id'], '"', $group['allow'] ? ' checked' : '', ' class="input_check">';
 		else
 			echo '
-														<span', $group['is_post_group'] ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>', $group['name'], '</span>';
+						<span', $group['is_post_group'] ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>', $group['name'], '</span>';
 		
 		if (!empty($modSettings['permission_enable_deny']))
 			echo '
-													</dt>
-													<dd>
-														<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="allow"', $group['allow'] ? ' checked' : '', ' class="input_radio"></span>
-														<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="ignore"', !$group['allow'] && !$group['deny'] ? ' checked' : '', ' class="input_radio"></span>
-														<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="deny"', $group['deny'] ? ' checked' : '', ' class="input_radio"></span>
-													</dd>';
+					</dt>
+					<dd>
+						<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="allow"', $group['allow'] ? ' checked' : '', ' class="input_radio"></span>
+						<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="ignore"', !$group['allow'] && !$group['deny'] ? ' checked' : '', ' class="input_radio"></span>
+						<span class="perms"><input type="radio" name="usegroup[', $group['id'], ']" value="deny"', $group['deny'] ? ' checked' : '', ' class="input_radio"></span>
+					</dd>';
 		else
 			echo '
-														<span', $group['is_post_group'] ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>', $group['name'], '</span>
-													</li>';
+						<span', $group['is_post_group'] ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>', $group['name'], '</span>
+					</li>';
 	}
 
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
 
-												</ul>';
+				</ul>';
 	else
 		echo '
-												</dl>';
+			</dl>';
 
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
-												<br class="clear">
-												<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'usegroup\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
-											</fieldset>';
+			<br class="clear">
+			<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'usegroup\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+		</fieldset>';
 
 	else
 		echo '
-												<span class="select_all_box">
-													<em>', $txt['all'], ': </em>
-													<input type="radio" name="select_all" id="allow_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'allow\');"> <label for="allow_all">', $txt['board_perms_allow'], '</label>
-													<input type="radio" name="select_all" id="ignore_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'ignore\');"> <label for="ignore_all">', $txt['board_perms_ignore'], '</label>
-													<input type="radio" name="select_all" id="deny_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'deny\');"> <label for="deny_all">', $txt['board_perms_deny'], '</label>
-												</span>
-											</fieldset>
-											<script><!-- // --><![CDATA[
-												$(document).ready(function () {
-													$(".select_all_box").each(function () {
-														$(this).removeClass(\'select_all_box\');
-													});
-												});
-											// ]]></script>';
+			<span class="select_all_box">
+				<em>', $txt['all'], ': </em>
+				<input type="radio" name="select_all" id="allow_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'allow\');"> <label for="allow_all">', $txt['board_perms_allow'], '</label>
+				<input type="radio" name="select_all" id="ignore_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'ignore\');"> <label for="ignore_all">', $txt['board_perms_ignore'], '</label>
+				<input type="radio" name="select_all" id="deny_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'usegroup\', \'deny\');"> <label for="deny_all">', $txt['board_perms_deny'], '</label>
+			</span>
+		</fieldset>
+		<script><!-- // --><![CDATA[
+			$(document).ready(function () {
+				$(".select_all_box").each(function () {
+					$(this).removeClass(\'select_all_box\');
+				});
+			});
+		// ]]></script>';
 
 	if ($collapse)
 		echo '
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_groups\').style.display = \'block\'; document.getElementById(\'visible_groups_link\').style.display = \'none\'; return false;" id="visible_groups_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_groups'], ' ]</a>
-							<script><!-- // --><![CDATA[
-								document.getElementById("visible_groups_link").style.display = "";
-								document.getElementById("visible_groups").style.display = "none";
-							// ]]></script>';
+		<a href="javascript:void(0);" onclick="document.getElementById(\'visible_groups\').style.display = \'block\'; document.getElementById(\'visible_groups_link\').style.display = \'none\'; return false;" id="visible_groups_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_groups'], ' ]</a>
+		<script><!-- // --><![CDATA[
+			document.getElementById("visible_groups_link").style.display = "";
+			document.getElementById("visible_groups").style.display = "none";
+		// ]]></script>';
 }
 
 function template_postprefix_boards_list($collapse = true)
@@ -330,43 +317,43 @@ function template_postprefix_boards_list($collapse = true)
 	global $context, $txt, $modSettings;
 
 	echo '
-							<fieldset id="visible_boards">
-								<legend>', $txt['PostPrefix_prefix_boards_desc'], '</legend>
-								<ul class="padding floatleft">';
+		<fieldset id="visible_boards">
+			<legend>', $txt['PostPrefix_prefix_boards_desc'], '</legend>
+			<ul class="padding floatleft">';
 
 	foreach ($context['categories'] as $category)
 	{
 			echo '
-									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'PostPrefixAdd\'); return false;"><strong>', $category['name'], '</strong></a>
-										<ul style="width:100%">';
+				<li class="category">
+					<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'PostPrefixAdd\'); return false;"><strong>', $category['name'], '</strong></a>
+					<ul style="width:100%">';
 
 		foreach ($category['boards'] as $board)
 		{
 				echo '
-											<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-												<input type="checkbox" id="brd', $board['id'], '" name="useboard[', $board['id'], ']" value="', $board['id'], '"', $board['allow'] ? ' checked' : '', ' class="input_check"> <label for="useboard[', $board['id'], ']">', $board['name'], '</label>
-											</li>';
+						<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+							<input type="checkbox" id="brd', $board['id'], '" name="useboard[', $board['id'], ']" value="', $board['id'], '"', $board['allow'] ? ' checked' : '', ' class="input_check"> <label for="useboard[', $board['id'], ']">', $board['name'], '</label>
+						</li>';
 		}
 
 		echo '
-										</ul>
-									</li>';
+					</ul>
+				</li>';
 	}
 
 		echo '
-								</ul>
-								<br class="clear"><br>
-								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'useboard\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
-							</fieldset>';
+			</ul>
+			<br class="clear"><br>
+			<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'useboard\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+		</fieldset>';
 
 	if ($collapse)
 		echo '
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_boards'], ' ]</a>
-							<script><!-- // --><![CDATA[
-								document.getElementById("visible_boards_link").style.display = "";
-								document.getElementById("visible_boards").style.display = "none";
-							// ]]></script>';
+		<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_boards'], ' ]</a>
+		<script><!-- // --><![CDATA[
+			document.getElementById("visible_boards_link").style.display = "";
+			document.getElementById("visible_boards").style.display = "none";
+		// ]]></script>';
 }
 
 function template_postprefix_showgroups()
@@ -478,7 +465,6 @@ function template_postprefix_showboards()
 					<span style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;"><a class="subject" href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a></span>
 				</div>';
 			}
-
 		}
 	}
 
@@ -495,7 +481,9 @@ function template_require_prefix()
 	global $context, $txt, $scripturl;
 
 	// Updated?
-	echo $context['required']['updated'];
+	if (isset($_REQUEST['updated']))
+		echo '
+	<div class="infobox">'.$txt['PostPrefix_required_updated'].'</div>';
 
 	echo '
 	<div class="windowbg2">
@@ -507,52 +495,48 @@ function template_require_prefix()
 					<span><label for="boards">', $txt['PostPrefix_prefix_boards_require'], ':</label></span>
 				</dt>
 				<dd>
-							<fieldset id="visible_boards">
-								<legend>', $txt['PostPrefix_prefix_boards_require_desc'], '</legend>
-								<ul class="padding floatleft">';
+					<fieldset id="visible_boards">
+						<legend>', $txt['PostPrefix_prefix_boards_require_desc'], '</legend>
+						<ul class="padding floatleft">';
 
 	foreach ($context['categories'] as $category)
 	{
 			echo '
-									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'PostPrefixRequire\'); return false;"><strong>', $category['name'], '</strong></a>
-										<ul style="width:100%">';
+							<li class="category">
+								<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'PostPrefixRequire\'); return false;"><strong>', $category['name'], '</strong></a>
+								<ul style="width:100%">';
 
 		foreach ($category['boards'] as $board)
 		{
 				echo '
-											<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-												<input type="checkbox" id="brd', $board['id'], '" name="requireboard[', $board['id'], ']" value="', $board['id'], '"', $board['require'] ? ' checked' : '', ' class="input_check"> <label for="requireboard[', $board['id'], ']">', $board['name'], '</label>
-											</li>';
+									<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+										<input type="checkbox" id="brd', $board['id'], '" name="requireboard[', $board['id'], ']" value="', $board['id'], '"', $board['require'] ? ' checked' : '', ' class="input_check"> <label for="requireboard[', $board['id'], ']">', $board['name'], '</label>
+									</li>';
 		}
 
 		echo '
-										</ul>
-									</li>';
+								</ul>
+							</li>';
 	}
 
 		echo '
-								</ul>
-								<br class="clear"><br>
-								<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'requireboard\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
-							</fieldset>
-							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_boards'], ' ]</a>
-							<script><!-- // --><![CDATA[
-								document.getElementById("visible_boards_link").style.display = "";
-								document.getElementById("visible_boards").style.display = "none";
-							// ]]></script>
+						</ul>
+						<br class="clear"><br>
+						<input type="checkbox" id="checkall_check" class="input_check" onclick="invertAll(this, this.form, \'requireboard\');"> <label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+					</fieldset>
+					<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['PostPrefix_select_visible_boards'], ' ]</a>
+					<script><!-- // --><![CDATA[
+						document.getElementById("visible_boards_link").style.display = "";
+						document.getElementById("visible_boards").style.display = "none";
+					// ]]></script>
 				</dd>
 			</dl>
-
 			<input class="button_submit floatleft" type="submit" value="', $txt['save'], '">
-
 		</form>
 	</div>';
 }
 
-function template_postprefix_above()
-{
-}
+function template_postprefix_above(){}
 
 function template_postprefix_below()
 {
