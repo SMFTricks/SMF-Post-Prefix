@@ -13,19 +13,16 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $name = 'PostPrefix';
-	public static $version = '1.0';
+	public static $version = '3.0';
 
-	public static function load_theme()
-	{
-		// Color picker
-		if ((isset($_REQUEST['action']) && ($_REQUEST['action'] == 'admin')) && (isset($_REQUEST['area']) && ($_REQUEST['area'] == 'postprefix')) && (isset($_REQUEST['sa']) && (($_REQUEST['sa'] == 'add') || ($_REQUEST['sa'] == 'edit'))))
-		{
-			loadCSSFile('colpick.css', array('default_theme' => true));
-			loadJavascriptFile('colpick.js', array('default_theme' => true));
-		}
-	}
-
+	/**
+	 * PostPrefix::permissions()
+	 *
+	 * Permissions for manage prefixes and a global permission for use the prefixes
+	 * @param array $permissionGroups An array containing all possible permissions groups.
+	 * @param array $permissionList An associative array with all the possible permissions.
+	 * @return
+	 */
 	public static function permissions(&$permissionGroups, &$permissionList)
 	{
 		// We gotta load our language file.
@@ -37,8 +34,8 @@ class PostPrefix
 			$permissionList['membergroup'][$p] = array(false,'maintenance');
 
 		// Topic?
-		$permission2 = array('set_prefix');
-		foreach ($permission2 as $p)
+		$topic_permission = array('set_prefix');
+		foreach ($topic_permission as $p)
 			$permissionList['board'][$p] = array(false,'topic');
 	}
 	
@@ -47,15 +44,23 @@ class PostPrefix
 		global $context;
 
 		// Guests do not play nicely with this mod
-		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'],array('manage_prefixes','set_prefix'));
+		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'], array('manage_prefixes'));
 	}
 
+	/**
+	 * PostPrefix::admin_areas()
+	 *
+	 * Add our new section and load the language and template
+	 * @param array $admin_menu An array with all the admin settings buttons
+	 * @global $scripturl, $context
+	 * @return
+	 */
 	public static function admin_areas(&$admin_areas)
 	{
 		global $scripturl, $context;
 		
-		loadtemplate(self::$name);
-		loadLanguage(self::$name);
+		loadtemplate('PostPrefix');
+		loadLanguage('PostPrefix');
 
 		$insert = 'postsettings';
 		$counter = 0;
@@ -155,6 +160,15 @@ class PostPrefix
 		self::getPrefix($context['current_board']);
 	}
 
+	/**
+	 * PostPrefix::formatPrefix()
+	 *
+	 * Styling the prefix.
+	 * @param int $prefix the prefix id.
+	 * @global $smcFunc, $topic
+	 * @return
+	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
+	 */
 	public static function formatPrefix($prefix, $topicF = true)
 	{
 		global $smcFunc, $topic;
@@ -162,7 +176,7 @@ class PostPrefix
 		$prefix = (int) $prefix;
 
 		$request = $smcFunc['db_query']('', '
-			SELECT p.id, p.name, p.color, p.bgcolor
+			SELECT p.id, p.name, p.color, p.bgcolor, p.icon, p.icon_url
 			FROM {db_prefix}postprefixes AS p
 			WHERE p.id = {int:id}
 			LIMIT 1',
@@ -170,44 +184,50 @@ class PostPrefix
 				'id' => $prefix,
 			)
 		);
-
 		$row = $smcFunc['db_fetch_assoc']($request);
 
 		$format = '';
-
 		if (!empty($row))
 		{
-			$format .= '<span ';
-
-			if (!empty($topic) || $row['bgcolor'] == 1 || !empty($row['color']))
+			if (empty($row['icon']))
 			{
-				$format .= 'style="';
-
-				if (!empty($topic) && $topicF)
-					$format .= 'line-height: 35px';
-				if ($row['bgcolor'] == 1 && !empty($row['color']) && $topicF)
-					$format .= 'padding: 4px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
-				elseif ($row['bgcolor'] == 1 && !empty($row['color']) && !$topicF)
-					$format .= 'padding: 2px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
-				elseif (!empty($row['color']) && empty($row['bgcolor']))
-					$format .= 'color: '. $row['color'];
-
-				$format .= '; text-shadow: none !important;"';
+				$format .= '<span class="postprefix-all" id="postprefix-'. $row['id']. '" ';
+				if (!empty($topic) || $row['bgcolor'] == 1 || !empty($row['color']))
+				{
+					$format .= 'style="';
+					if ($row['bgcolor'] == 1 && !empty($row['color']))
+						$format .= 'padding: 4px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
+					elseif (!empty($row['color']) && empty($row['bgcolor']))
+						$format .= 'color: '. $row['color'];
+					$format .= '"';
+				}
+				$format .= '>';
+				$format .= $row['name'];
+				$format .= '</span>';
 			}
-
-			$format .= '>';
-			$format .= $row['name'];
-			$format .= '</span>';
+			else
+			{
+				$format = '<img class="postprefix-all" id="postprefix-'. $row['id']. '" style="vertical-align: middle;" src="'. $row['icon_url']. '" alt="'. $row['name']. '" title="'. $row['name']. '" />';
+			}
 		}
 
 		return $format;
 	}
 
+	/**
+	 * PostPrefix::getPrefix()
+	 *
+	 * It will return the list of prefixes.
+	 * @param int $board The board id.
+	 * @global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings
+	 * @return
+	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
+	 */
 	public static function getPrefix($board)
 	{
 		global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings;
 
-		loadLanguage(PostPrefix::$name);
+		loadLanguage('PostPrefix');
 
 		$board = (int) $board;
 
@@ -224,6 +244,21 @@ class PostPrefix
 			$postg = (int) $user_settings['id_post_group'];
 		}
 
+		// Order by thing
+		$orderby = $modSettings['PostPrefix_select_order'];
+		if ($orderby == 0)
+			$order = 'name';
+		elseif ($orderby == 1)
+			$order = 'id';
+		elseif ($orderby == 2)
+			$order = 'added';
+		// Direction
+		$direction = $modSettings['PostPrefix_select_order_dir'];
+		if ($direction == 0)
+			$dir = 'DESC';
+		else
+			$dir = 'ASC';
+
 		$context['prefix']['post'] = array();
 		if (allowedTo('set_prefix'))
 		{
@@ -232,12 +267,16 @@ class PostPrefix
 				FROM {db_prefix}postprefixes AS p
 				WHERE p.status = 1'. ($user_info['is_admin'] || allowedTo('manage_prefixes') ? '' : ('
 					AND (FIND_IN_SET({int:id_group}, p.member_groups) OR FIND_IN_SET({int:post_group}, p.member_groups))' . (!empty($modSettings['permission_enable_deny']) ? ('
-					AND (NOT FIND_IN_SET({int:id_group}, p.deny_member_groups) AND NOT FIND_IN_SET({int:post_group}, p.deny_member_groups))') : '') . '')) . '
-					AND FIND_IN_SET({int:board}, p.boards)',
+					AND (NOT FIND_IN_SET({int:id_group}, p.deny_member_groups) AND NOT FIND_IN_SET({int:post_group}, p.deny_member_groups))') : '') . '')) .
+					($all == true ? '' : '
+					AND FIND_IN_SET({int:board}, p.boards)
+				ORDER by p.{raw:order} {raw:dir}'),
 				array(
 					'id_group' => $group,
 					'post_group' => $postg,
 					'board' => $board,
+					'order' => $order,
+					'dir' => $dir,
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -252,43 +291,70 @@ class PostPrefix
 		}
 	}
 
+	/**
+	 * PostPrefix::countTopics()
+	 *
+	 * It will return the number of topics in X board
+	 * @param $board, $prefix
+	 * @global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings
+	 * @return
+	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
+	 */
+	public static function countTopics($board, $prefix)
+	{
+		global $smcFunc;
+
+		if (isset($_REQUEST['prefix']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_board, id_prefix
+				FROM {db_prefix}topics
+				WHERE id_prefix = {int:topic_prefix}
+					AND id_board = {int:board}',
+				array(
+					'topic_prefix' => $prefix,
+					'board' => $board,
+				)
+			);
+			return $smcFunc['db_num_rows']($request);
+		}
+	}
+
+	/**
+	 * PostPrefix::filter()
+	 *
+	 * Add the filter topics by prefix box on messageindex
+	 * @global $topic, $board, $modSettings, $context
+	 * @return
+	 */
+	public static function filter()
+	{
+		global $topic, $board, $modSettings, $context;
+
+		if (empty($_REQUEST['action']) && !empty($modSettings['PostPrefix_enable_filter']))
+		{
+			// Topic is empty, and action is empty.... MessageIndex!
+			if (!empty($board) && empty($topic))
+			{
+				// Get a list of prefixes
+				self::getPrefix($context['current_board']);
+				// Load the sub-template
+				template_filterPrefix();
+			}
+		}
+	}
+
 	public function integrate_credits()
 	{
 		global $context;
 		
-		$context['copyrights']['mods']['postprefix'] = '<a href="http://smftricks.com" title="SMF Themes & Mods">SMF Post Prefix &copy Diego Andr&eacute;s & SMF Tricks</a>';
+		$context['copyrights']['mods']['postprefix'] = '<a href="https://smftricks.com" title="SMF Themes & Mods">SMF Post Prefix &copy SMF Tricks</a>';
 	}
 
 	public static function copyright()
 	{
-		$copy = '<div class="centertext"><a href="http://smftricks.com" target="_blank">Powered by SMF Post Prefix &copy; '. date('Y') . ' SMF Tricks</a></div>';
+		$copy = '<div class="centertext"><a href="https://smftricks.com" target="_blank">Powered by SMF Post Prefix &copy; '. date('Y') . ' SMF Tricks</a></div>';
 		return $copy;
-	}
-
-	/**
-	 * PostPrefix::text()
-	 *
-	 * Gets a string key, and returns the associated text string.
-	 * @param string $var The text string key.
-	 * @global $txt
-	 * @return string|boolean
-	 * @author Jessica González <suki@missallsunday.com>
-	 */
-	public static function text($var)
-	{
-		global $txt;
-
-		if (empty($var))
-			return false;
-
-		// Load the mod's language file.
-		loadLanguage(self::$name);
-
-		if (!empty($txt[self::$name. '_' .$var]))
-			return $txt[self::$name. '_' .$var];
-
-		else
-			return false;
 	}
 
 	/**
@@ -303,23 +369,24 @@ class PostPrefix
 				'users' => array(
 					'diego' => array(
 						'name' => 'Diego Andr&eacute;s',
-						'site' => 'http://smftricks.com',
+						'site' => 'https://smftricks.com',
 					),
 				),
 			),
 			'scripts' => array(
 				'name' => 'Third Party Scripts',
 				'users' => array(
-					'feed' => array(
+					'jquery' => array(
+						'name' => 'jQuery',
+						'site' => 'http://jquery.com',
+					),
+					'colpick' => array(
 						'name' => 'ColPick',
 						'site' => 'http://colpick.com/plugin',
 					),
 				),
 			),
 		);
-
-		// Oh well, one can dream...
-		call_integration_hook('integrate_postprefix_credits', array(&$credits));
 
 		return $credits;
 	}

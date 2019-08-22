@@ -15,10 +15,10 @@ class PostPrefixAdmin
 {
 	public static function main()
 	{
-		global $context, $sourcedir;
+		global $context, $txt;
 
 		// Set the title here
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_general');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_general'];
 
 		$subActions = array(
 			'general' => 'self::general',
@@ -50,21 +50,20 @@ class PostPrefixAdmin
 		
 		// Call the sub-action
 		call_user_func($subActions[$_REQUEST['sa']]);
-
 	}
 
 	public static function general()
 	{
-		global $context, $user_info;
+		global $context, $txt;
 
 		$context['PostPrefix']['version'] = PostPrefix::$version;
 		$context['PostPrefix']['credits'] = PostPrefix::credits();
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_general');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_general'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_general_desc'),
+			'description' => $txt['PostPrefix_tab_general_desc'],
 		);
 		$context['sub_template'] = 'postprefix_general';
 	}
@@ -74,27 +73,11 @@ class PostPrefixAdmin
 		global $context, $sourcedir, $modSettings, $scripturl, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_desc'],
 		);
-
-		$context['prefix']['addup'] = '';
-		if (isset($_REQUEST['added']) && !isset($_REQUEST['updated']) && !isset($_REQUEST['deleted']))
-		{
-			$id = (int) $_REQUEST['added'];
-			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.sprintf(PostPrefix::text('prefix_added'), PostPrefix::formatPrefix($id)).'</div>';
-		}
-		elseif (isset($_REQUEST['updated']) && !isset($_REQUEST['added']) && !isset($_REQUEST['deleted']))
-		{
-			$id = (int) $_REQUEST['updated'];
-			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.sprintf(PostPrefix::text('prefix_updated'), PostPrefix::formatPrefix($id)).'</div>';
-		}
-		elseif (isset($_REQUEST['deleted']) && !isset($_REQUEST['added']) && !isset($_REQUEST['updated']))
-		{
-			$context['prefix']['addup'] .= '<br class="clear"><div class="infobox">'.PostPrefix::text('prefix_deleted').'</div>';
-		}
 
 		// We need this files
 		require_once($sourcedir . '/Subs-List.php');
@@ -102,7 +85,7 @@ class PostPrefixAdmin
 		// The entire list
 		$listOptions = array(
 			'id' => 'prefixes',
-			'title' => PostPrefix::text('tab_prefixes'),
+			'title' => $txt['PostPrefix_tab_prefixes'],
 			'items_per_page' => 15,
 			'base_href' => '?action=admin;area=postprefix;sa=prefixes',
 			'default_sort_col' => 'added',
@@ -112,16 +95,19 @@ class PostPrefixAdmin
 			'get_count' => array(
 				'function' => 'PostPrefixAdmin::CountPrefixes#',
 			),
-			'no_items_label' => PostPrefix::text('no_prefixes'),
+			'no_items_label' => $txt['PostPrefix_no_prefixes'],
 			'no_items_align' => 'center',
 			'columns' => array(
 				'status' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_status'),
+						'value' => $txt['PostPrefix_prefix_status'],
 						'class' => 'centertext',
 					),
 					'data' => array(
-						'function' => create_function('$row', 'global $scripturl; return ($row[\'status\'] == 1 ? \'<a href="\'. $scripturl. \'?action=admin;area=postprefix;sa=ups;id=\'. $row[\'id\']. \';status=0"><span class="generic_icons warning_watch"></span></a>\' : \'<a href="\'. $scripturl. \'?action=admin;area=postprefix;sa=ups;id=\'. $row[\'id\']. \';status=1"><span class="generic_icons warning_mute"></span></a>\');'),
+						'function' => function($row) {
+							global $scripturl;
+							return ($row['status'] == 1 ? '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=0"><span class="generic_icons warning_watch"></span></a>' : '<a href="'. $scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=1"><span class="generic_icons warning_mute"></span></a>');
+						},
 						'style' => 'width: 2%',
 						'class' => 'centertext',
 					),
@@ -132,10 +118,12 @@ class PostPrefixAdmin
 				),
 				'item_name' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_name'),
+						'value' => $txt['PostPrefix_prefix_name'],
 					),
 					'data' => array(
-						'function' => create_function('$row', 'return PostPrefix::formatPrefix($row[\'id\']);'),
+						'function' => function($row) {
+							 return PostPrefix::formatPrefix($row['id']);
+						},
 						'style' => 'width: 20%',
 					),
 					'sort' =>  array(
@@ -145,14 +133,14 @@ class PostPrefixAdmin
 				),
 				'boards' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_boards'),
+						'value' => $txt['PostPrefix_prefix_boards'],
 						'class' => 'centertext',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showboards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'board.png\');">'. PostPrefix::text('select_visible_boards'). '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showboards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'board.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
 							'params' => array(
-								'id' => true,
+								'id' => false,
 								'name' => true,
 							),
 						),
@@ -162,14 +150,14 @@ class PostPrefixAdmin
 				),
 				'groups' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_groups'),
+						'value' => $txt['PostPrefix_prefix_groups'],
 						'class' => 'centertext',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showgroups;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'icons/members.png\');">'. PostPrefix::text('select_visible_groups'). '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showgroups;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'icons/members.png\');">'. $txt['PostPrefix_select_visible_groups']. '</a>',
 							'params' => array(
-								'id' => true,
+								'id' => false,
 								'name' => true,
 							),
 						),
@@ -179,11 +167,13 @@ class PostPrefixAdmin
 				),
 				'added' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_date'),
+						'value' => $txt['PostPrefix_prefix_date'],
 						'class' => 'centertext',
 					),
 					'data' => array(
-						'function' => create_function('$row', 'return timeformat($row[\'added\']);'),
+						'function' => function($row) {
+							return timeformat($row['added']);
+						},
 						'class' => 'centertext',
 						'style' => 'width: 8%',
 					),
@@ -194,14 +184,14 @@ class PostPrefixAdmin
 				),
 				'modify' => array(
 					'header' => array(
-						'value' => PostPrefix::text('prefix_modify'),
+						'value' => $txt['PostPrefix_prefix_modify'],
 						'class' => 'centertext',
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=edit;id=%1$d">'. PostPrefix::text('prefix_modify'). '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=edit;id=%1$d">'. $txt['PostPrefix_prefix_modify']. '</a>',
 							'params' => array(
-								'id' => true,
+								'id' => false,
 							),
 						),
 						'style' => 'width: 5%',
@@ -238,17 +228,38 @@ class PostPrefixAdmin
 				'include_start' => true,
 			),
 			'additional_rows' => array(
-				array(
+				'delete' => array(
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button_submit" onclick="return confirm(\''.PostPrefix::text('prefix_delete_sure').'\');" />',
+					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button_submit" onclick="return confirm(\''.$txt['PostPrefix_prefix_delete_sure'].'\');" />',
 				),
 				array(
-					'position' => 'above_column_headers',
-					'value' => $context['prefix']['addup'],
+					'position' => 'top_of_list',
+					'value' => (!isset($_REQUEST['deleted']) ? (!isset($_REQUEST['added']) ? (!isset($_REQUEST['updated']) ? '' : '<div class="infobox">'. $txt['Shop_items_updated']. '</div>') : '<div class="infobox">'. $txt['Shop_items_added']. '</div>') : '<div class="infobox">'. $txt['Shop_items_deleted']. '</div>'),
 				),
 			),
 		);
 
+		if (isset($_REQUEST['added']) || isset($_REQUEST['updated']) || isset($_REQUEST['deleted']))
+		{
+			if (isset($_REQUEST['added']))
+			{
+				$id = (int) $_REQUEST['added'];
+				$message = '<div class="infobox">'.sprintf($txt['PostPrefix_prefix_added'], PostPrefix::formatPrefix($id)).'</div>';
+			}
+			elseif (isset($_REQUEST['updated']))
+			{
+				$id = (int) $_REQUEST['updated'];
+				$message = '<div class="infobox">'.sprintf($txt['PostPrefix_prefix_updated'], PostPrefix::formatPrefix($id)).'</div>';
+			}
+			elseif (isset($_REQUEST['deleted']))
+			{
+				$message = '<div class="infobox">'.$txt['PostPrefix_prefix_deleted'].'</div>';
+			}
+			$listOptions['additional_rows']['updated'] = array (
+				'position' => 'top_of_list',
+				'value' => $message,
+			);
+		}
 		// Let's finishem
 		createList($listOptions);
 		$context['sub_template'] = 'show_list';
@@ -262,7 +273,7 @@ class PostPrefixAdmin
 
 		// Get a list of all the item
 		$result = $smcFunc['db_query']('', '
-			SELECT id, name, status, color, added, member_groups, deny_member_groups, boards
+			SELECT id, name, status, color, added, member_groups, deny_member_groups, boards, icon, icon_url
 			FROM {db_prefix}postprefixes
 			ORDER by {raw:sort}
 			LIMIT {int:start}, {int:maxindex}',
@@ -289,8 +300,10 @@ class PostPrefixAdmin
 			SELECT id
 			FROM {db_prefix}postprefixes'
 		);
+		$count = $smcFunc['db_num_rows']($items);
+		$smcFunc['db_free_result']($items);
 
-		return $smcFunc['db_num_rows']($items);
+		return $count;
 	}
 
 	public static function showgroups()
@@ -305,6 +318,10 @@ class PostPrefixAdmin
 		// Help language
 		loadLanguage('Help');
 
+		// Check if there's an id
+		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
+
 		$prefix = (int) $_REQUEST['id'];
 
 		$request = $smcFunc['db_query']('', '
@@ -318,9 +335,7 @@ class PostPrefixAdmin
 		$mg = $smcFunc['db_fetch_assoc']($request);
 		$groups = explode(',', $mg['member_groups']);
 
-		$context['empty_groups'] = empty($mg) ? 1 : 0;
-
-		if ($context['empty_groups'] == 0)
+		if (!empty($mg['member_groups']))
 		{
 			// Get information on all the items selected to be deleted
 			$result = $smcFunc['db_query']('', '
@@ -355,9 +370,7 @@ class PostPrefixAdmin
 					'is_post_group' => $row['min_posts'] != -1,
 				);
 			$smcFunc['db_free_result']($result);
-
 		}
-
 	}
 
 	public static function showboards()
@@ -372,6 +385,10 @@ class PostPrefixAdmin
 		// Help language
 		loadLanguage('Help');
 
+		// Check if there's an id
+		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
+
 		$prefix = (int) $_REQUEST['id'];
 
 		$request = $smcFunc['db_query']('', '
@@ -385,9 +402,7 @@ class PostPrefixAdmin
 		$brd = $smcFunc['db_fetch_assoc']($request);
 		$boards = explode(',', $brd['boards']);
 
-		$context['empty_boards'] = empty($brd) ? 1 : 0;
-
-		if ($context['empty_boards'] == 0)
+		if (!empty($brd['boards'])) 
 		{
 			// Get the boards and categories
 			$request = $smcFunc['db_query']('', '
@@ -445,10 +460,10 @@ class PostPrefixAdmin
 		global $context, $smcFunc, $modSettings, $txt, $user_info;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes_add');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_add'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_add_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_add_desc'],
 		);
 		$context['sub_template'] = 'postprefix_add';
 
@@ -459,6 +474,8 @@ class PostPrefixAdmin
 			loadLanguage('ManageBoards');
 		}
 
+		loadCSSFile('colpick.css', array('default_theme' => true));
+		loadJavascriptFile('colpick.js', array('default_theme' => true));
 		addInlineJavascript('
 		$(document).ready(function (){
 			$(\'#color\').colpick({
@@ -485,18 +502,18 @@ class PostPrefixAdmin
 
 	public static function add2()
 	{
-		global $smcFunc, $context, $modSettings;
+		global $smcFunc, $context, $modSettings, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes_add');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_add'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_add_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_add_desc'],
 		);
 
 		// We need at least the 'name'
 		if (!isset($_REQUEST['name']) || empty($_REQUEST['name']))
-			fatal_error(PostPrefix::text('error_noprefix'));
+			fatal_error($txt['PostPrefix_error_noprefix'], false);
 
 		$name = $smcFunc['htmlspecialchars']($_REQUEST['name'], ENT_QUOTES);
 		$status = isset($_REQUEST['status']) ? 1 : 0;
@@ -511,6 +528,16 @@ class PostPrefixAdmin
 		{
 			$color = '';
 			$bgcolor = 0;
+		}
+		if (isset($_REQUEST['icon']) && ($_REQUEST['icon'] == 1))
+		{
+			$icon = (int) $_REQUEST['icon'];
+			$icon_url = $_REQUEST['icon_url'];
+		}
+		else
+		{
+			$icon = 0;
+			$icon_url = '';
 		}
 		$boards = (empty($_REQUEST['useboard']) ? '' : implode(',', $_REQUEST['useboard']));
 		$member_groups = '';
@@ -543,8 +570,6 @@ class PostPrefixAdmin
 			$deny_member_groups .= '';
 		}
 
-	
-
 		// Insert the actual item
 		$smcFunc['db_insert']('',
 			'{db_prefix}postprefixes',
@@ -554,6 +579,8 @@ class PostPrefixAdmin
 				'added' => 'int',
 				'color' => 'string',
 				'bgcolor' => 'int',
+				'icon' => 'int',
+				'icon_url' => 'string',
 				'member_groups' => 'string',
 				'deny_member_groups' => 'string',
 				'boards' => 'string',
@@ -564,6 +591,8 @@ class PostPrefixAdmin
 				'added' => $added,
 				'color' => $color,
 				'bgcolor' => $bgcolor,
+				'icon' => $icon,
+				'icon_url' => $icon_url,
 				'member_groups' => $member_groups,
 				'deny_member_groups' => $deny_member_groups,
 				'boards' => $boards,
@@ -572,25 +601,22 @@ class PostPrefixAdmin
 		);
 
 		// Get the new id
-		$Getid = $smcFunc['db_insert_id']('{db_prefix}postprefixes', 'id');
-		$id = (int) $Getid;
+		$id = $smcFunc['db_insert_id']('{db_prefix}postprefixes', 'id');
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes;added='. $id);
-
-
 	}
 
 	public static function edit()
 	{
-		global $context, $smcFunc, $modSettings, $txt, $user_info;
+		global $context, $smcFunc, $modSettings, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes_edit');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'];
 		$context[$context['admin_menu_name']]['current_subsection'] = 'prefixes';
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_edit_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_edit_desc'],
 		);
 		$context['sub_template'] = 'postprefix_edit';
 
@@ -604,14 +630,14 @@ class PostPrefixAdmin
 		$prefix = (int) $_REQUEST['id'];
 
 		if (!isset($prefix) || empty($prefix))
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 		// Does the prefix exist?
 		$find = self::FindPrefix($prefix);
 		if ($find == false)
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT p.id, p.name, p.color, p.bgcolor, p.status, p.member_groups, p.deny_member_groups, p.boards
+			SELECT p.id, p.name, p.color, p.bgcolor, p.status, p.member_groups, p.deny_member_groups, p.boards, p.icon, p.icon_url
 			FROM {db_prefix}postprefixes AS p
 			WHERE p.id = {int:id}
 			LIMIT 1',
@@ -623,6 +649,8 @@ class PostPrefixAdmin
 		$context['prefix'] = $smcFunc['db_fetch_assoc']($request);
 		$context['prefix']['color'] = str_replace('#', '', $context['prefix']['color']);
 
+		loadCSSFile('colpick.css', array('default_theme' => true));
+		loadJavascriptFile('colpick.js', array('default_theme' => true));
 		addInlineJavascript('
 		$(document).ready(function (){
 			$(\'#color\').colpick({
@@ -645,32 +673,31 @@ class PostPrefixAdmin
 
 		// Boards
 		self::getCategories(true);
-
 	}
 
 	public static function edit2()
 	{
-		global $smcFunc, $context, $modSettings;
+		global $smcFunc, $context, $modSettings, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes_edit');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_edit_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_edit_desc'],
 		);
 
 		$id = (int) $_REQUEST['id'];
 
 		if (!isset($id) || empty($id))
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 		// Does the prefix exist?
 		$find = self::FindPrefix($id);
 		if ($find == false)
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
 		// We need at least the 'name'
 		if (!isset($_REQUEST['name']) || empty($_REQUEST['name']))
-			fatal_error(PostPrefix::text('error_noprefix'));
+			fatal_error($txt['PostPrefix_error_noprefix'], false);
 
 		$name = $smcFunc['htmlspecialchars']($_REQUEST['name'], ENT_QUOTES);
 		$status = isset($_REQUEST['status']) ? 1 : 0;
@@ -684,6 +711,16 @@ class PostPrefixAdmin
 		{
 			$color = '';
 			$bgcolor = 0;
+		}
+		if (isset($_REQUEST['icon']) && ($_REQUEST['icon'] == 1))
+		{
+			$icon = (int) $_REQUEST['icon'];
+			$icon_url = $_REQUEST['icon_url'];
+		}
+		else
+		{
+			$icon = 0;
+			$icon_url = '';
 		}
 		$boards = (empty($_REQUEST['useboard']) ? '' : implode(',', $_REQUEST['useboard']));
 		$member_groups = '';
@@ -720,13 +757,15 @@ class PostPrefixAdmin
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}postprefixes
 			SET
-				name = {string:name}, 
-				status = {int:status},
-				color = {string:color},
-				bgcolor = {int:bgcolor},
-				member_groups = {string:member_groups},
-				deny_member_groups = {string:deny_member_groups},
-				boards = {string:boards}
+			name = {string:name}, 
+			status = {int:status},
+			color = {string:color},
+			bgcolor = {int:bgcolor},
+			icon = {int:icon},
+			icon_url = {string:icon_url},
+			member_groups = {string:member_groups},
+			deny_member_groups = {string:deny_member_groups},
+			boards = {string:boards}
 			WHERE id = {int:id}
 			LIMIT 1',
 			array(
@@ -734,6 +773,8 @@ class PostPrefixAdmin
 				'status' => $status,
 				'color' => $color,
 				'bgcolor' => $bgcolor,
+				'icon' => $icon,
+				'icon_url' => $icon_url,
 				'member_groups' => $member_groups,
 				'deny_member_groups' => $deny_member_groups,
 				'boards' => $boards,
@@ -743,23 +784,22 @@ class PostPrefixAdmin
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes;updated='. $id);
-
 	}
 
 	public static function delete()
 	{
-		global $context, $smcFunc;
+		global $context, $smcFunc, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_desc'],
 		);
 
 		// If nothing was chosen to delete (shouldn't happen, but meh)
 		if (!isset($_REQUEST['delete']))
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 				
 		// Make sure all IDs are numeric
 		foreach ($_REQUEST['delete'] as $key => $value)
@@ -779,7 +819,6 @@ class PostPrefixAdmin
 			
 		// Send the user to the items list with a message
 		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;sort=' .$_REQUEST['sort']. ';' . $order . $start);
-
 	}
 
 	public static function FindPrefix($id)
@@ -806,24 +845,24 @@ class PostPrefixAdmin
 
 	public static function updatestatus()
 	{
-		global $smcFunc, $context, $modSettings;
+		global $smcFunc, $context, $modSettings, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_prefixes_edit');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_edit_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_edit_desc'],
 		);
 
 		$id = (int) $_REQUEST['id'];
 		$status = (int) (!isset($_REQUEST['status']) || empty($_REQUEST['status']) ? 0 : $_REQUEST['status']);
 
 		if (!isset($id) || empty($id))
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 		// Does the prefix exist?
 		$find = self::FindPrefix($id);
 		if ($find == false)
-			fatal_error(PostPrefix::text('error_unable_tofind'));
+			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
 		// Update the item information
 		$smcFunc['db_query']('', '
@@ -840,7 +879,6 @@ class PostPrefixAdmin
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
-
 	}
 
 	public static function getGroups($allow = true, $deny = true)
@@ -970,24 +1008,19 @@ class PostPrefixAdmin
 			// Include a list of boards per category for easy toggling.
 			$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
 		}
-
 	}
 
 	public static function require_boards()
 	{
-		global $context;
+		global $context, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_require');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_require'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_require_desc'),
+			'description' => $txt['PostPrefix_tab_require_desc'],
 		);
 		$context['sub_template'] = 'require_prefix';
-
-		$context['required']['updated'] = '';
-		if (isset($_REQUEST['updated']))
-			$context['required']['updated'] .= '<div class="infobox">'.PostPrefix::text('required_updated').'</div>';
 
 		// Boards
 		self::getCategories(false);
@@ -995,13 +1028,13 @@ class PostPrefixAdmin
 
 	public static function require_boards2()
 	{
-		global $smcFunc, $context, $modSettings;
+		global $smcFunc, $context, $modSettings, $txt;
 
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_require');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_require'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_prefixes_require_desc'),
+			'description' => $txt['PostPrefix_tab_prefixes_require_desc'],
 		);
 
 		// Make sure all IDs are numeric
@@ -1027,18 +1060,14 @@ class PostPrefixAdmin
 		global $context, $scripturl, $sourcedir, $txt;
 		
 		// Set all the page stuff
-		$context['page_title'] = PostPrefix::text('main') . ' - '. PostPrefix::text('tab_permissions');
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_permissions'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => PostPrefix::text('tab_permissions_desc'),
+			'description' => $txt['PostPrefix_tab_permissions_desc'],
 		);
-
-		require_once($sourcedir . '/ManageSettings.php');
-				loadGeneralSettingParameters();
 		require_once($sourcedir . '/ManageServer.php');
 
 		// PostPrefix mod do not play nice with guests. Permissions are already hidden for them, let's exterminate any hint of them in this section.
-		$context['permissions_excluded'] = array(-1);
 		$config_vars = array(
 			array('permissions', 'manage_prefixes', 'subtext' => $txt['permissionhelp_manage_prefixes']),
 			'',
@@ -1047,7 +1076,6 @@ class PostPrefixAdmin
 
 		if ($return_config)
 			return $config_vars;
-
 		$context['post_url'] = $scripturl . '?action=admin;area=postprefix;sa=permissions;save';
 
 		// Saving?
@@ -1057,7 +1085,15 @@ class PostPrefixAdmin
 			saveDBSettings($config_vars);
 			redirectexit('action=admin;area=postprefix;sa=permissions');
 		}
-
 		prepareDBSettingContext($config_vars);
+
+		$permissions = array(
+			-1 => array(
+				'manage_prefixes',
+			),
+		);
+		foreach ($permissions as $group => $perm_list)
+			foreach ($perm_list as $perm)
+				unset ($context[$perm][$group]);
 	}
 }
