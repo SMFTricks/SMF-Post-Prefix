@@ -34,7 +34,7 @@ class PostPrefix
 
 		$defaults = array(
 			'PostPrefix_enable_filter' => 0,
-			'PostPrefix_select_order' => 900,
+			'PostPrefix_select_order' => 1,
 			'PostPrefix_select_order_dir' => 0,
 		);
 		$modSettings = array_merge($defaults, $modSettings);
@@ -50,14 +50,19 @@ class PostPrefix
 	public static function defineHooks()
 	{
 		$hooks = array(
-			'admin_areas' => 'self::admin_areas',
-			'load_permissions' => 'self::permissions',
-			'load_illegal_guest_permissions' => 'self::illegal_guest_permissions',
-			'create_post' => 'self::create_post',
-			'modify_post' => 'self::modify_post',
-			'modify_topic' => 'self::modify_topic',
-			'before_create_topic' => 'self::before_create_topic',
-			'post_errors' => 'Shop::post_errors',
+			'admin_areas' => 'PostPrefix::admin_areas',
+			'load_permissions' => 'PostPrefix::permissions',
+			'load_illegal_guest_permissions' => 'PostPrefix::illegal_guest_permissions',
+			'load_board_info' => 'PostPrefix::load_board_info',
+			'before_create_topic' => 'PostPrefix::before_create_topic',
+			'create_post' => 'PostPrefix::create_post',
+			'modify_post' => 'PostPrefix::modify_post',
+			'post2_start' => 'PostPrefix::post2_start',
+			'post_end' => 'PostPrefix::post_end',
+			'post_errors' => 'PostPrefix::post_errors',
+			'pre_messageindex' => 'PostPrefix::pre_messageindex',
+			'message_index' => 'PostPrefix::message_index',
+			'messageindex_buttons' => 'PostPrefix::filter',
 		);
 		foreach ($hooks as $point => $callable)
 			add_integration_function('integrate_' . $point, $callable, false);
@@ -74,7 +79,7 @@ class PostPrefix
 	public static function permissions(&$permissionGroups, &$permissionList)
 	{
 		// We gotta load our language file.
-		loadLanguage(self::$name);
+		loadLanguage('PostPrefix');
 
 		// Manage prefix
 		$permission = array('manage_prefixes');
@@ -105,7 +110,7 @@ class PostPrefix
 	 */
 	public static function admin_areas(&$admin_areas)
 	{
-		global $scripturl, $context;
+		global $scripturl, $context, $txt;
 		
 		loadtemplate('PostPrefix');
 		loadLanguage('PostPrefix');
@@ -121,17 +126,18 @@ class PostPrefix
 			array_slice($admin_areas['layout']['areas'], 0, $counter),
 			array(
 				'postprefix' => array(
-					'label' => self::text('main'),
+					'label' => $txt['PostPrefix_main'],
 					'icon' => 'reports',
 					'file' => 'PostPrefixAdmin.php',
 					'function' => 'PostPrefixAdmin::main#',
 					'permission' => array('manage_prefixes'),
 					'subsections' => array(
-						'general' => array(self::text('tab_general')),
-						'prefixes' => array(self::text('tab_prefixes')),
-						'add' => array(self::text('tab_prefixes_add')),
-						'require' => array(self::text('tab_require')),
-						'permissions' => array(self::text('tab_permissions')),
+						'general' => array($txt['PostPrefix_tab_general']),
+						'prefixes' => array($txt['PostPrefix_tab_prefixes']),
+						'add' => array($txt['PostPrefix_tab_prefixes_add']),
+						'require' => array($txt['PostPrefix_tab_require']),
+						'permissions' => array($txt['PostPrefix_tab_permissions']),
+						'settings' => array($txt['PostPrefix_tab_settings']),
 					),
 				),
 			),
@@ -147,15 +153,19 @@ class PostPrefix
 
 	}
 
-	public static function create_post($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters)
+	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
-		$topicOptions['id_prefix'] = isset($topicOptions['id_prefix']) ? $topicOptions['id_prefix'] : 0;
+		$topic_columns = array_merge($topic_columns, array('id_prefix' => 'int'));
+		$topic_parameters = array_merge($topic_parameters, array($topicOptions['id_prefix'] == null ? 0 : $topicOptions['id_prefix']));
 	}
 
 	public static function modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
 	{
-		$topicOptions['id_prefix'] = isset($topicOptions['id_prefix']) ? $topicOptions['id_prefix'] : null;
+		global $smcFunc;
 
+		$topicOptions['id_prefix'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null;
+
+		// Lock and or sticky the post.
 		if ($topicOptions['id_prefix'] !== null)
 		{
 			$smcFunc['db_query']('', '
@@ -164,34 +174,99 @@ class PostPrefix
 					id_prefix = {raw:id_prefix}
 				WHERE id_topic = {int:id_topic}',
 				array(
-					'id_prefix' => $topicOptions['id_prefix'] === null ? 0 : (int) $topicOptions['id_prefix'],
+					'id_prefix' => $topicOptions['id_prefix'] === null ? 'id_prefix' : (int) $topicOptions['id_prefix'],
 					'id_topic' => $topicOptions['id'],
 				)
 			);
 		}
 	}
 
-	public static function modify_topic(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions)
+	public static function create_post(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters)
 	{
-		$update_parameters = array_merge($update_parameters, array('id_prefix' => $topicOptions['id_prefix']));
+		$topicOptions['id_prefix'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null;
 	}
 
-	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
+	public static function post_end()
 	{
-		$topic_columns = array_merge($topic_columns,array('id_prefix' => 'int'));
-		$topic_parameters = array_merge($topic_parameters,array($topicOptions['id_prefix'] == null ? 0 : $topicOptions['id_prefix']));
+		global $txt, $context;
+
+		if (!empty($context['prefix']['post']) && $context['is_first_post'])
+		{
+			$context['posting_fields']['topic_prefix'] = array(
+				'label' => array(
+					'text' => $txt['PostPrefix_select_prefix'], // required
+					'class' => isset($context['post_error']['no_prefix']) ? 'error' : '',
+				),
+				'input' => array(
+					'type' => 'select', // required
+					'attributes' => array(
+						'name' => 'id_prefix', // optional, defaults to posting field's key
+					),
+					'options' => array(
+						'PostPrefix_select_prefix' => array(
+							'label' => $txt['PostPrefix_select_prefix'],
+							'options' => array(
+								'none' => array(
+									'label' => $txt['PostPrefix_prefix_none'],
+									'value' => 0,
+									'selected' => $context['id_prefix'] == 0 ? true : false,
+								),
+							),
+						),
+					),
+				),
+			);
+			foreach ($context['prefix']['post'] as $prefix)
+				$context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'][$prefix['id']] = array(
+					'label' => $prefix['name'],
+					'value' => $prefix['id'],
+					'selected' => $prefix['id'] == $context['id_prefix'] ? true : false,
+				);
+
+			$context['posting_fields']['prefix_istopic'] = array(
+				'label' => array(
+					'html' => '',
+					'text' => '',
+				),
+				'input' => array(
+					'html' => '<input type="hidden" name="prefix_istopic" value="1">',
+					'type' => '',
+				),
+			);
+		}
+	}
+
+	public static function post2_start(&$post_errors)
+	{
+		global $board, $board_info, $smcFunc;
+
+		$request = $smcFunc['db_query']('', '
+			SELECT b.id_board, b.require_prefix
+			FROM {db_prefix}boards AS b
+			WHERE b.id_board = {int:board}
+			LIMIT 1',
+			array(
+				'board' => $board,
+			)
+		);
+		$board_info['require_prefix'] = $smcFunc['db_fetch_assoc']($request)['require_prefix'];
+		$smcFunc['db_free_result']($request);
+
+		if ((!isset($_POST['id_prefix']) || $_POST['id_prefix'] === 0 || empty($_POST['id_prefix'])) && (!empty($board_info['require_prefix'])) && isset($_REQUEST['prefix_istopic']))
+		{
+			$post_errors[] = 'no_prefix';
+		}
 	}
 
 	public static function post_errors(&$post_errors, &$minor_errors)
 	{
-		global $context, $topic, $modSettings, $smcFunc;
+		global $context, $board_info, $topic, $modSettings, $smcFunc;
 
 		if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty($context['post_error']))
 			$context['id_prefix'] = isset($_REQUEST['id_prefix']) ? $_REQUEST['id_prefix'] : 0;
 		elseif (isset($_REQUEST['msg']) && !empty($topic))
 		{
 			$_REQUEST['msg'] = (int) $_REQUEST['msg'];
-
 			// Get the existing message. Editing.
 			$request = $smcFunc['db_query']('', '
 				SELECT
@@ -209,6 +284,7 @@ class PostPrefix
 			if ($smcFunc['db_num_rows']($request) == 0)
 				fatal_lang_error('no_message', false);
 			$row = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
 			// Finally the information that we really need
 			$context['id_prefix'] = $row['id_prefix'];
 		}
@@ -220,6 +296,75 @@ class PostPrefix
 
 		// Get the prefixes
 		self::getPrefix($context['current_board']);
+		$_SESSION['require_prefix'] = (!empty($board_info['require_prefix']) ? $board_info['require_prefix'] : 0);
+	}
+
+	/**
+	 * PostPrefix::filter()
+	 *
+	 * Add the filter topics by prefix box on messageindex
+	 * @global $topic, $board, $modSettings, $context
+	 * @return
+	 */
+	public static function filter()
+	{
+		global $topic, $board, $modSettings, $context;
+
+		if (empty($_REQUEST['action']) && !empty($modSettings['PostPrefix_enable_filter']))
+		{
+			// Topic is empty, and action is empty.... MessageIndex!
+			if (!empty($board) && empty($topic))
+			{
+				// Get a list of prefixes
+				self::getPrefix($context['current_board']);
+				// Load our template as well
+				loadTemplate('PostPrefix');
+				// Load the sub-template
+				$context['template_layers'][] = 'prefixfilter';
+			}
+		}
+	}
+
+	public static function pre_messageindex(&$sort_methods, &$sort_methods_table)
+	{
+		global $board_info, $context;
+
+		// How many topics do we have in total?
+		if (!isset($_REQUEST['prefix']))
+			$board_info['total_topics'] = allowedTo('approve_posts') ? $board_info['num_topics'] + $board_info['unapproved_topics'] : $board_info['num_topics'] + $board_info['unapproved_user_topics'];
+		else
+			$board_info['total_topics'] = allowedTo('approve_posts') ? PostPrefix::countTopics($board_info['id'], $_REQUEST['prefix']) + $board_info['unapproved_topics'] : PostPrefix::countTopics($board_info['id'], $_REQUEST['prefix']) + $board_info['unapproved_user_topics'];
+
+		
+	}
+
+	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
+	{
+		global $board_info, $scripturl, $context, $scripturl, $board;
+
+		// Make sure the starting place makes sense and construct the page index.
+		if (isset($_REQUEST['sort']))
+			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''.(isset($_REQUEST['prefix']) ? ';prefix='.$_REQUEST['prefix'] : '')), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
+		else
+			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d'.(isset($_REQUEST['prefix']) ? ';prefix='.$_REQUEST['prefix'] : ''), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
+		$context['start'] = &$_REQUEST['start'];
+
+		print_r($context['maxindex']);
+		print_r(' ');
+		print_r($_REQUEST['start']);
+
+		// Select
+		$message_index_selects += array('t.id_prefix');
+		if (isset($_REQUEST['prefix']))
+		{
+			$message_index_topic_wheres += array('t.id_prefix = {int:topic_prefix}');
+			//$message_index_wheres += array('t.id_prefix = {int:topic_prefix}');
+			$message_index_parameters += array(
+				'topic_prefix' => $_REQUEST['prefix'],
+			);
+
+		}
+
 	}
 
 	/**
@@ -285,7 +430,7 @@ class PostPrefix
 	 * @return
 	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
 	 */
-	public static function getPrefix($board)
+	public static function getPrefix($board, $all = false)
 	{
 		global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings;
 
@@ -325,7 +470,7 @@ class PostPrefix
 		if (allowedTo('set_prefix'))
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT p.id, p.status, p.name, p.boards, p.member_groups, p.deny_member_groups
+				SELECT p.id, p.status, p.name, p.added, p.boards, p.member_groups, p.deny_member_groups
 				FROM {db_prefix}postprefixes AS p
 				WHERE p.status = 1'. ($user_info['is_admin'] || allowedTo('manage_prefixes') ? '' : ('
 					AND (FIND_IN_SET({int:id_group}, p.member_groups) OR FIND_IN_SET({int:post_group}, p.member_groups))' . (!empty($modSettings['permission_enable_deny']) ? ('
@@ -369,40 +514,17 @@ class PostPrefix
 		if (isset($_REQUEST['prefix']))
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT id_board, id_prefix
+				SELECT id_board, id_prefix, approved
 				FROM {db_prefix}topics
-				WHERE id_prefix = {int:topic_prefix}
-					AND id_board = {int:board}',
+				WHERE id_prefix = {int:topic_prefix} 
+					AND id_board = {int:board} 
+					AND approved = 1',
 				array(
 					'topic_prefix' => $prefix,
 					'board' => $board,
 				)
 			);
 			return $smcFunc['db_num_rows']($request);
-		}
-	}
-
-	/**
-	 * PostPrefix::filter()
-	 *
-	 * Add the filter topics by prefix box on messageindex
-	 * @global $topic, $board, $modSettings, $context
-	 * @return
-	 */
-	public static function filter()
-	{
-		global $topic, $board, $modSettings, $context;
-
-		if (empty($_REQUEST['action']) && !empty($modSettings['PostPrefix_enable_filter']))
-		{
-			// Topic is empty, and action is empty.... MessageIndex!
-			if (!empty($board) && empty($topic))
-			{
-				// Get a list of prefixes
-				self::getPrefix($context['current_board']);
-				// Load the sub-template
-				template_filterPrefix();
-			}
 		}
 	}
 
@@ -415,7 +537,7 @@ class PostPrefix
 	/**
 	 * @return array
 	 */
-	public function credits()
+	public static function credits()
 	{
 		// Dear contributor, please feel free to add yourself here.
 		$credits = array(

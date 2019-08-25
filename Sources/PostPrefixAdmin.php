@@ -34,6 +34,7 @@ class PostPrefixAdmin
 			'require' => 'self::require_boards',
 			'require2' => 'self::require_boards2',
 			'permissions' => 'self::permissions',
+			'settings' => 'self::settings',
 		);
 
 		$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -43,6 +44,7 @@ class PostPrefixAdmin
 				'add' => array(),
 				'require' => array(),
 				'permissions' => array(),
+				'settings' => array(),
 			),
 		);
 
@@ -106,7 +108,7 @@ class PostPrefixAdmin
 					'data' => array(
 						'function' => function($row) {
 							global $scripturl;
-							return ($row['status'] == 1 ? '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=0"><span class="generic_icons warning_watch"></span></a>' : '<a href="'. $scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=1"><span class="generic_icons warning_mute"></span></a>');
+							return ($row['status'] == 1 ? '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=0"><span class="main_icons warning_watch"></span></a>' : '<a href="'. $scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=1"><span class="main_icons warning_mute"></span></a>');
 						},
 						'style' => 'width: 2%',
 						'class' => 'centertext',
@@ -138,7 +140,7 @@ class PostPrefixAdmin
 					),
 					'data' => array(
 						'sprintf' => array(
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showboards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'board.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showboards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'/icons/modify_inline.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
 							'params' => array(
 								'id' => false,
 								'name' => true,
@@ -230,11 +232,7 @@ class PostPrefixAdmin
 			'additional_rows' => array(
 				'delete' => array(
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button_submit" onclick="return confirm(\''.$txt['PostPrefix_prefix_delete_sure'].'\');" />',
-				),
-				array(
-					'position' => 'top_of_list',
-					'value' => (!isset($_REQUEST['deleted']) ? (!isset($_REQUEST['added']) ? (!isset($_REQUEST['updated']) ? '' : '<div class="infobox">'. $txt['Shop_items_updated']. '</div>') : '<div class="infobox">'. $txt['Shop_items_added']. '</div>') : '<div class="infobox">'. $txt['Shop_items_deleted']. '</div>'),
+					'value' => '<input type="submit" size="18" value="'.$txt['delete']. '" class="button" onclick="return confirm(\''.$txt['PostPrefix_prefix_delete_sure'].'\');" />',
 				),
 			),
 		);
@@ -334,6 +332,7 @@ class PostPrefixAdmin
 		);
 		$mg = $smcFunc['db_fetch_assoc']($request);
 		$groups = explode(',', $mg['member_groups']);
+		$context['empty_groups'] = empty($mg['member_groups']) ? 0 : 1;
 
 		if (!empty($mg['member_groups']))
 		{
@@ -401,6 +400,7 @@ class PostPrefixAdmin
 		);
 		$brd = $smcFunc['db_fetch_assoc']($request);
 		$boards = explode(',', $brd['boards']);
+		$context['empty_boards'] = empty($brd['boards']) ? 0 : 1;
 
 		if (!empty($brd['boards'])) 
 		{
@@ -1034,9 +1034,12 @@ class PostPrefixAdmin
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_require'];
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $context['page_title'],
-			'description' => $txt['PostPrefix_tab_prefixes_require_desc'],
+			'description' => $txt['PostPrefix_tab_require_desc'],
 		);
 
+		if (empty($_REQUEST['requireboard']) || !isset($_REQUEST['requireboard']))
+			$_REQUEST['requireboard'] = array();
+		
 		// Make sure all IDs are numeric
 		foreach ($_REQUEST['requireboard'] as $key => $value)
 			$_REQUEST['requireboard'][$key] = (int) $value;
@@ -1065,6 +1068,8 @@ class PostPrefixAdmin
 			'title' => $context['page_title'],
 			'description' => $txt['PostPrefix_tab_permissions_desc'],
 		);
+		loadTemplate('Admin');
+		$context['sub_template'] = 'show_settings';
 		require_once($sourcedir . '/ManageServer.php');
 
 		// PostPrefix mod do not play nice with guests. Permissions are already hidden for them, let's exterminate any hint of them in this section.
@@ -1095,5 +1100,53 @@ class PostPrefixAdmin
 		foreach ($permissions as $group => $perm_list)
 			foreach ($perm_list as $perm)
 				unset ($context[$perm][$group]);
+	}
+
+	public static function settings($return_config = false)
+	{
+		global $context, $scripturl, $sourcedir, $txt;
+
+		require_once($sourcedir . '/ManageServer.php');
+		loadTemplate('Admin');
+		$context['sub_template'] = 'show_settings';
+
+		// Set all the page stuff
+		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_settings'];
+		$context[$context['admin_menu_name']]['tab_data'] = array(
+			'title' => $context['page_title'],
+			'description' => $txt['PostPrefix_tab_settings_desc'],
+		);
+
+		$config_vars = array(
+			array('check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']),
+			array('select', 'PostPrefix_select_order', array(
+					$txt['PostPrefix_prefix_name'],
+					$txt['PostPrefix_prefix_id'],
+					$txt['PostPrefix_prefix_date'],
+				),
+				'subtext' => $txt['PostPrefix_select_order_desc']
+			),
+			array('select', 'PostPrefix_select_order_dir', array(
+					$txt['PostPrefix_DESC'],
+					$txt['PostPrefix_ASC'],
+				),
+				'subtext' => $txt['PostPrefix_select_order_dir_desc']
+			),
+		);
+
+		if ($return_config)
+			return $config_vars;
+
+		$context['post_url'] = $scripturl . '?action=admin;area=postprefix;sa=settings;save';
+
+		// Saving?
+		if (isset($_GET['save']))
+		{
+			checkSession();
+			saveDBSettings($config_vars);
+			redirectexit('action=admin;area=postprefix;sa=settings');
+		}
+
+		prepareDBSettingContext($config_vars);
 	}
 }

@@ -58,7 +58,7 @@ function template_postprefix_general()
 
 	// Show the Breeze version.
 	echo '
-			<div id="supportVersionsTable" class="floatright">
+			<div id="support_info" class="floatright">
 				<div class="cat_bar">
 					<h3 class="catbg">
 						', $txt['support_title'], '
@@ -81,10 +81,11 @@ function template_postprefix_general()
 						<h4 class="titlebg">', $txt['PostPrefix_donate_title'], '
 					</div>
 					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="text-align: center">
+						<br />
 						<input type="hidden" name="cmd" value="_s-xclick">
 						<input type="hidden" name="hosted_button_id" value="YP3KXRJ2Q3ZJU">
-						<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-						<img alt="" border="0" src="https://www.paypalobjects.com/es_XC/i/scr/pixel.gif" width="1" height="1">
+						<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+						<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 					</form>
 					<span class="botslice"><span></span></span>
 				</div>
@@ -94,15 +95,49 @@ function template_postprefix_general()
 		</div>
 	</div>
 	<br />';
-
 }
+
+function template_prefixfilter_above()
+{
+	global $context, $modSettings, $scripturl, $txt;
+
+	// Prefix
+	if (!empty($modSettings['PostPrefix_enable_filter']) && !empty($context['prefix']['post']))
+	{
+			
+		echo'
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['PostPrefix_filter'],'
+				</h3>
+			</div>
+			<div class="windowbg">
+				<span class="topslice"><span></span></span>
+					<div class="content">';
+
+				// Show all the prefixes for this board.
+				foreach ($context['prefix']['post'] as $prefix)
+					echo'
+						<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::formatPrefix($prefix['id']) . '</a>, ';
+			
+			echo'
+						<a href="', $scripturl, '?board=', $context['current_board'], '.0;prefix=0">', $txt['PostPrefix_filter_noprefix'], '</a>, 
+						<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['PostPrefix_filter_all'], '</a>
+					</div>
+				<span class="botslice"><span></span></span>
+			</div>
+			<br class="clear" />';
+	}
+}
+
+function template_prefixfilter_below(){}
 
 function template_postprefix_add()
 {
 	global $context, $txt, $scripturl, $modSettings, $boardurl;
 
 	echo '
-	<div class="windowbg2">
+	<div class="windowbg">
 		<form name="PostPrefixAdd" id="PostPrefixAdd" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=add2">
 			<dl class="settings">
 				<dt>
@@ -154,7 +189,7 @@ function template_postprefix_add()
 					', template_postprefix_boards_list(), '
 				</dd>
 			</dl>
-			<input class="button_submit floatleft" type="submit" value="', $txt['PostPrefix_add_prefix'], '">
+			<input class="button floatleft" type="submit" value="', $txt['PostPrefix_add_prefix'], '">
 		</form>
 	</div>';
 }
@@ -164,7 +199,7 @@ function template_postprefix_edit()
 	global $context, $txt, $scripturl, $modSettings, $boardurl;
 
 	echo '
-	<div class="windowbg2">
+	<div class="windowbg">
 		<form name="PostPrefixAdd" id="PostPrefixAdd" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=edit2;id=', $_REQUEST['id'], '">
 			<dl class="settings">
 				<dt>
@@ -215,7 +250,7 @@ function template_postprefix_edit()
 					', template_postprefix_boards_list(), '
 				</dd>
 			</dl>
-			<input class="button_submit floatleft" type="submit" value="', $txt['PostPrefix_save_prefix'], '">
+			<input class="button floatleft" type="submit" value="', $txt['PostPrefix_save_prefix'], '">
 		</form>
 	</div>';
 }
@@ -382,7 +417,7 @@ function template_postprefix_showgroups()
 				</thead>
 				<tbody>';
 
-	if ($context['empty_groups'] == 1)
+	if (empty($context['empty_groups']))
 	{
 		echo '
 					<tr class="up_contain">
@@ -439,7 +474,7 @@ function template_postprefix_showboards()
 				</h4>
 			</div>';
 
-	if ($context['empty_boards'] == 1)
+	if (empty($context['empty_boards']))
 	{
 		echo '
 			<div class="up_contain">
@@ -486,7 +521,7 @@ function template_require_prefix()
 	<div class="infobox">'.$txt['PostPrefix_required_updated'].'</div>';
 
 	echo '
-	<div class="windowbg2">
+	<div class="windowbg">
 		<form name="PostPrefixRequire" id="PostPrefixRequire" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=require2">
 
 			<dl class="settings">
@@ -531,7 +566,7 @@ function template_require_prefix()
 					// ]]></script>
 				</dd>
 			</dl>
-			<input class="button_submit floatleft" type="submit" value="', $txt['save'], '">
+			<input class="button floatleft" type="submit" value="', $txt['save'], '">
 		</form>
 	</div>';
 }
