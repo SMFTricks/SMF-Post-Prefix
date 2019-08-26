@@ -129,7 +129,7 @@ class PostPrefix
 					'label' => $txt['PostPrefix_main'],
 					'icon' => 'reports',
 					'file' => 'PostPrefixAdmin.php',
-					'function' => 'PostPrefixAdmin::main#',
+					'function' => 'PostPrefixAdmin::main',
 					'permission' => array('manage_prefixes'),
 					'subsections' => array(
 						'general' => array($txt['PostPrefix_tab_general']),
