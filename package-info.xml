@@ -6,9 +6,8 @@
 	<version>3.0</version>
 	<type>modification</type>
 	<install for="2.1 - 2.1.99, 2.1 Beta 1 - 3">
-
 		<!-- Mod Readme -->
-		<readme lang="english" parsebbc="true" type="file">readme.txt</readme>
+		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
 		<!-- Credits -->
 		<credits url="https://smftricks.com" license="MPL 2.0" copyright="SMF Tricks" licenseurl="https://www.mozilla.org/en-US/MPL/2.0/">SMF Post Prefix</credits>
 		<!-- License -->
@@ -17,13 +16,13 @@
 			License, v. 2.0. If a copy of the MPL was not distributed with this
 			file, You can obtain one at https://www.mozilla.org/en-US/MPL/2.0/.
 		</license>
-		<!-- PostPrefix Files -->
+		<!-- Source Files -->
 		<require-dir name="Sources" destination="$boarddir">Source files</require-dir>
 		<!-- Templates and Languages -->
 		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
 		<!-- Hooks -->
-		<hook hook="integrate_pre_include" function="$sourcedir/Subs-PostPrefix.php" />
-		<hook hook="integrate_pre_load" function="PostPrefix::initialize" file="$sourcedir/Subs-PostPrefix.php" />
+		<hook hook="integrate_pre_include" function="$sourcedir/PostPrefix.php" />
+		<hook hook="integrate_pre_load" function="PostPrefix::initialize" file="$sourcedir/PostPrefix.php" />
 		<!-- Database -->
 		<database>install.php</database>
 		<!-- Redirect -->
@@ -33,19 +32,19 @@
 	<uninstall for="2.1 - 2.1.99, 2.1 Beta 1 - 3">
 
 		<!-- Source Files -->
-		<remove-file name="$sourcedir/PostPrefixAdmin.php">Source admin</remove-file>
-		<remove-file name="$sourcedir/Subs-PostPrefix.php">Source Post Prefix</remove-file>
+		<remove-file name="$sourcedir/PostPrefix-Admin.php">Source files</remove-file>
+		<remove-file name="$sourcedir/PostPrefix.php">Source files</remove-file>
 		<!-- Languages -->
-		<remove-file name="$languagedir/PostPrefix.english.php">Language file</remove-file>
+		<remove-dir name="$languagedir/PostPrefix">Language files</remove-dir>
 		<!-- Scripts -->
 		<remove-file name="$themedir/scripts/colpick.js">Colpick</remove-file>
 		<!-- Styles -->
 		<remove-file name="$themedir/css/colpick.css">Colpick</remove-file>
 		<!-- Templates -->
-		<remove-file name="$themedir/PostPrefix.template.php">Admin template</remove-file>
+		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
 		<!-- Hooks -->
-		<hook hook="integrate_pre_include" function="$sourcedir/Subs-PostPrefix.php" reverse="true" />
-		<hook hook="integrate_pre_load" function="PostPrefix::initialize" file="$sourcedir/Subs-PostPrefix.php" reverse="true" />
+		<hook hook="integrate_pre_include" file="$sourcedir/PostPrefix.php" reverse="true" />
+		<hook hook="integrate_pre_load" function="PostPrefix::initialize" file="$sourcedir/PostPrefix.php" reverse="true" />
 		<!-- Database -->
 		<database>install.php</database>
 	</uninstall>
