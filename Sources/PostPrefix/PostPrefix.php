@@ -2,11 +2,13 @@
 
 /**
  * @package SMF Post Prefix
- * @version 1.0
+ * @version 3.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2014, Diego Andrés
- * @license http://www.mozilla.org/MPL/MPL-1.1.html
+ * @copyright Copyright (c) 2020, SMF Tricks
+ * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
+
+namespace PostPrefix;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -17,31 +19,30 @@ class PostPrefix
 
 	public static function initialize()
 	{
-		self::setDefaults();
 		self::defineHooks();
+		self::setDefaults();
 	}
 
-		/**
-	 * Shop::setDefaults()
+	/**
+	 * PostPrefix::setDefaults()
 	 *
 	 * Sets almost every setting to a default value
 	 * @return void
-	 * @author Peter Spicer (Arantor)
 	 */
 	public static function setDefaults()
 	{
 		global $modSettings;
 
-		$defaults = array(
+		$defaults = [
 			'PostPrefix_enable_filter' => 0,
 			'PostPrefix_select_order' => 1,
 			'PostPrefix_select_order_dir' => 0,
-		);
+		];
 		$modSettings = array_merge($defaults, $modSettings);
 	}
 
 	/**
-	 * Shop::defineHooks()
+	 * PostPrefix::defineHooks()
 	 *
 	 * Load hooks quietly
 	 * @return void
@@ -49,113 +50,56 @@ class PostPrefix
 	 */
 	public static function defineHooks()
 	{
-		$hooks = array(
-			'admin_areas' => 'PostPrefix::admin_areas',
-			'load_permissions' => 'PostPrefix::permissions',
-			'load_illegal_guest_permissions' => 'PostPrefix::illegal_guest_permissions',
-			'load_board_info' => 'PostPrefix::load_board_info',
-			'before_create_topic' => 'PostPrefix::before_create_topic',
-			'create_post' => 'PostPrefix::create_post',
-			'modify_post' => 'PostPrefix::modify_post',
-			'post2_start' => 'PostPrefix::post2_start',
-			'post_end' => 'PostPrefix::post_end',
-			'post_errors' => 'PostPrefix::post_errors',
-			'pre_messageindex' => 'PostPrefix::pre_messageindex',
-			'message_index' => 'PostPrefix::message_index',
-			'messageindex_buttons' => 'PostPrefix::filter',
-		);
+		$hooks = [
+			'autoload' => 'autoload',
+			'actions' => 'hookActions',
+			'load_board_info' => 'load_board_info',
+			'before_create_topic' => 'before_create_topic',
+			'create_post' => 'create_post',
+			'modify_post' => 'modify_post',
+			'post2_start' => 'post2_start',
+			'post_end' => 'post_end',
+			'post_errors' => 'post_errors',
+			'pre_messageindex' => 'pre_messageindex',
+			'message_index' => 'message_index',
+			'messageindex_buttons' => 'filter',
+		];
 		foreach ($hooks as $point => $callable)
-			add_integration_function('integrate_' . $point, $callable, false);
+			add_integration_function('integrate_' . $point, __CLASS__ . '::'.$callable, false);
 	}
 
 	/**
-	 * PostPrefix::permissions()
+	 * PostPrefix::autoload()
 	 *
-	 * Permissions for manage prefixes and a global permission for use the prefixes
-	 * @param array $permissionGroups An array containing all possible permissions groups.
-	 * @param array $permissionList An associative array with all the possible permissions.
-	 * @return
+	 * @param array $classMap
+	 * @return void
 	 */
-	public static function permissions(&$permissionGroups, &$permissionList)
+	public static function autoload(&$classMap)
 	{
-		// We gotta load our language file.
-		loadLanguage('PostPrefix');
-
-		// Manage prefix
-		$permission = array('manage_prefixes');
-		foreach ($permission as $p)
-			$permissionList['membergroup'][$p] = array(false,'maintenance');
-
-		// Topic?
-		$topic_permission = array('set_prefix');
-		foreach ($topic_permission as $p)
-			$permissionList['board'][$p] = array(false,'topic');
-	}
-	
-	public static function illegal_guest_permissions()
-	{
-		global $context;
-
-		// Guests do not play nicely with this mod
-		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'], array('manage_prefixes'));
+		$classMap['PostPrefix\\'] = 'PostPrefix/';
 	}
 
 	/**
-	 * PostPrefix::admin_areas()
+	 * PostPrefix::hookActions()
 	 *
-	 * Add our new section and load the language and template
-	 * @param array $admin_menu An array with all the admin settings buttons
-	 * @global $scripturl, $context
-	 * @return
+	 * Insert the actions needed by this mod
+	 * @param array $actions An array containing all possible SMF actions. This includes loading different hooks for certain areas.
+	 * @return void
+	 * @author Peter Spicer (Arantor)
 	 */
-	public static function admin_areas(&$admin_areas)
+	public static function hookActions(&$actions)
 	{
-		global $scripturl, $context, $txt;
-		
-		loadtemplate('PostPrefix');
-		loadLanguage('PostPrefix');
-
-		$insert = 'postsettings';
-		$counter = 0;
-
-		foreach ($admin_areas['layout']['areas'] as $area => $dummy)
-			if (++$counter && $area == $insert )
+		// Add some hooks by action
+		switch ($_REQUEST['action']) {
+			case 'admin':
+				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas', false, '$sourcedir/PostPrefix/Settings.php');
 				break;
-
-		$admin_areas['layout']['areas'] = array_merge(
-			array_slice($admin_areas['layout']['areas'], 0, $counter),
-			array(
-				'postprefix' => array(
-					'label' => $txt['PostPrefix_main'],
-					'icon' => 'reports',
-					'file' => 'PostPrefixAdmin.php',
-					'function' => 'PostPrefixAdmin::main',
-					'permission' => array('manage_prefixes'),
-					'subsections' => array(
-						'general' => array($txt['PostPrefix_tab_general']),
-						'prefixes' => array($txt['PostPrefix_tab_prefixes']),
-						'add' => array($txt['PostPrefix_tab_prefixes_add']),
-						'require' => array($txt['PostPrefix_tab_require']),
-						'permissions' => array($txt['PostPrefix_tab_permissions']),
-						'settings' => array($txt['PostPrefix_tab_settings']),
-					),
-				),
-			),
-			array_slice($admin_areas['layout']['areas'], $counter)
-		);
-
-		// Post Prefix copyright :)
-		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin' && isset($_REQUEST['area']) && $_REQUEST['area'] == 'postprefix')
-		{
-			$context['template_layers'][] = 'postprefix';
-			$context['copyright'] = self::copyright();
 		}
-
 	}
 
 	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
-		$topic_columns = array_merge($topic_columns, array('id_prefix' => 'int'));
+		$topic_columns = array_merge($topic_columns, ['id_prefix' => 'int']);
 		$topic_parameters = array_merge($topic_parameters, array($topicOptions['id_prefix'] == null ? 0 : $topicOptions['id_prefix']));
 	}
 

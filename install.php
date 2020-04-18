@@ -48,17 +48,18 @@
 				),
 				array(
 					'name' => 'bgcolor',
-					'type' => 'int',
+					'type' => 'smallint',
 					'default' => 0,
 					'null' => false,
 				),
 				array(
-					'name' => 'member_groups',
-					'type' => 'text',
+					'name' => 'invert_color',
+					'type' => 'smallint',
+					'default' => 0,
 					'null' => false,
 				),
 				array(
-					'name' => 'deny_member_groups',
+					'name' => 'groups',
 					'type' => 'text',
 					'null' => false,
 				),
