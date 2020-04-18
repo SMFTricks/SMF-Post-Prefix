@@ -97,6 +97,7 @@ class Settings
 			'edit' => 'Manage::set_prefix',
 			'save' => 'Manage::save',
 			'delete' => 'Manage::delete',
+			'status' => 'Manage::status',
 			//'ups' => 'updatestatus',
 			//'require' => 'require_boards',
 			//'require2' => 'require_boards2',

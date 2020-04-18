@@ -100,7 +100,7 @@ class PostPrefix
 	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{
 		$topic_columns = array_merge($topic_columns, ['id_prefix' => 'int']);
-		$topic_parameters = array_merge($topic_parameters, array($topicOptions['id_prefix'] == null ? 0 : $topicOptions['id_prefix']));
+		$topic_parameters = array_merge($topic_parameters, [$topicOptions['id_prefix'] == null ? 0 : $topicOptions['id_prefix']]);
 	}
 
 	public static function modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
@@ -117,10 +117,10 @@ class PostPrefix
 				SET
 					id_prefix = {raw:id_prefix}
 				WHERE id_topic = {int:id_topic}',
-				array(
+				[
 					'id_prefix' => $topicOptions['id_prefix'] === null ? 'id_prefix' : (int) $topicOptions['id_prefix'],
 					'id_topic' => $topicOptions['id'],
-				)
+				]
 			);
 		}
 	}
@@ -347,9 +347,9 @@ class PostPrefix
 				{
 					$format .= 'style="';
 					if ($row['bgcolor'] == 1 && !empty($row['color']))
-						$format .= 'padding: 4px; border-radius: 2px; color: #f5f5f5; background-color: '. $row['color'];
+						$format .= 'padding: 4px; border-radius: 2px; color: #f5f5f5; background-color: #'. $row['color'];
 					elseif (!empty($row['color']) && empty($row['bgcolor']))
-						$format .= 'color: '. $row['color'];
+						$format .= 'color: #'. $row['color'];
 					$format .= '"';
 				}
 				$format .= '>';
@@ -363,83 +363,6 @@ class PostPrefix
 		}
 
 		return $format;
-	}
-
-	/**
-	 * PostPrefix::getPrefix()
-	 *
-	 * It will return the list of prefixes.
-	 * @param int $board The board id.
-	 * @global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings
-	 * @return
-	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
-	 */
-	public static function getPrefix($board, $all = false)
-	{
-		global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings;
-
-		loadLanguage('PostPrefix');
-
-		$board = (int) $board;
-
-		$temp = loadMemberData($user_info['id'], false, 'profile');
-		if (empty($temp))
-		{
-			$group = '';
-			$postg = '';
-		}
-		else
-		{
-			loadMemberContext($user_info['id']);
-			$group = (int) $memberContext[$user_info['id']]['group_id'];
-			$postg = (int) $user_settings['id_post_group'];
-		}
-
-		// Order by thing
-		$orderby = $modSettings['PostPrefix_select_order'];
-		if ($orderby == 0)
-			$order = 'name';
-		elseif ($orderby == 1)
-			$order = 'id';
-		elseif ($orderby == 2)
-			$order = 'added';
-		// Direction
-		$direction = $modSettings['PostPrefix_select_order_dir'];
-		if ($direction == 0)
-			$dir = 'DESC';
-		else
-			$dir = 'ASC';
-
-		$context['prefix']['post'] = array();
-		if (allowedTo('set_prefix'))
-		{
-			$request = $smcFunc['db_query']('', '
-				SELECT p.id, p.status, p.name, p.added, p.boards, p.member_groups, p.deny_member_groups
-				FROM {db_prefix}postprefixes AS p
-				WHERE p.status = 1'. ($user_info['is_admin'] || allowedTo('manage_prefixes') ? '' : ('
-					AND (FIND_IN_SET({int:id_group}, p.member_groups) OR FIND_IN_SET({int:post_group}, p.member_groups))' . (!empty($modSettings['permission_enable_deny']) ? ('
-					AND (NOT FIND_IN_SET({int:id_group}, p.deny_member_groups) AND NOT FIND_IN_SET({int:post_group}, p.deny_member_groups))') : '') . '')) .
-					($all == true ? '' : '
-					AND FIND_IN_SET({int:board}, p.boards)
-				ORDER by p.{raw:order} {raw:dir}'),
-				array(
-					'id_group' => $group,
-					'post_group' => $postg,
-					'board' => $board,
-					'order' => $order,
-					'dir' => $dir,
-				)
-			);
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$context['prefix']['post'][] = array(
-					'id' => $row['id'],
-					'name' => $row['name'],
-					'boards' => explode(',', $row['boards']),
-					'groups' => explode(',', $row['member_groups']),
-					'deny_groups' => explode(',', $row['deny_member_groups']),
-				);
-			$smcFunc['db_free_result']($request);
-		}
 	}
 
 	/**

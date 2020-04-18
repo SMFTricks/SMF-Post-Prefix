@@ -59,7 +59,7 @@ class Manage
 					'data' => [
 						'function' => function($row) {
 							global $scripturl;
-							return ($row['status'] == 1 ? '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=0"><span class="main_icons warning_watch"></span></a>' : '<a href="'. $scripturl.'?action=admin;area=postprefix;sa=ups;id='. $row['id'].';status=1"><span class="main_icons warning_mute"></span></a>');
+							return '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=status;id='. $row['id'].'"><span class="main_icons warning_' . ($row['status'] == 1 ? 'watch' : 'mute') . '"></span></a>';
 						},
 						'style' => 'width: 2%',
 						'class' => 'centertext',
@@ -75,7 +75,7 @@ class Manage
 					],
 					'data' => [
 						'function' => function($row) {
-							 return PostPrefix::formatPrefix($row['id']);
+							 return self::format($row);
 						},
 						'style' => 'width: 20%',
 					],
@@ -178,6 +178,24 @@ class Manage
 		createList($listOptions);
 	}
 
+	private static function format($prefix)
+	{
+		if (empty($prefix['icon']))
+		{
+			$format = '<span class="postprefix-all" id="postprefix-'. $prefix['id']. '"';
+			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
+				if ($prefix['bgcolor'] == 1 && !empty($prefix['color']))
+					$format .= ' style="display:inline-block;padding: 2px 5px;border-radius: 3px;color: #f5f5f5;background-color:#'. $prefix['color'] . '">';
+				elseif (!empty($prefix['color']) && empty($prefix['bgcolor']))
+					$format .= ' style="color: #'. $prefix['color'] . ';">';
+			$format .= $prefix['name']. '</span>';
+		}
+		else
+			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['id']. '" style="vertical-align: middle;" src="'. $prefix['icon_url']. '" alt="'. $prefix['name']. '" title="'. $prefix['name']. '" />';
+
+		return $format;
+	}
+
 	public static function set_prefix()
 	{
 		global $txt, $context;
@@ -185,6 +203,10 @@ class Manage
 		// Essential bits
 		$context['sub_template'] = 'postprefix';
 		$context[$context['admin_menu_name']]['current_subsection'] = 'add';
+		$context[$context['admin_menu_name']]['tab_data'] = [
+			'title' => $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_add'],
+			'description' => $txt['PostPrefix_tab_prefixes_add_desc'],
+		];
 		$context['prefix']['boards'] = [];
 		$context['prefix']['groups'] = [];
 
@@ -213,8 +235,8 @@ class Manage
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $context[$context['admin_menu_name']]['tab_data']['title'];
 
 		// Colorpicker
-		loadCSSFile('colpick.css', ['default_theme' => true]);
-		loadJavascriptFile('colpick.js', ['default_theme' => true]);
+		loadCSSFile('colpick.min.css', ['default_theme' => true]);
+		loadJavascriptFile('colpick.min.js', ['default_theme' => true]);
 		addInlineJavascript('
 			$(document).ready(function (){
 				$(\'#color\').colpick({
@@ -340,54 +362,35 @@ class Manage
 			$_REQUEST['delete'][$key] = (int) $value;
 
 		// Delete all the items
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}postprefixes
-			WHERE id IN ({array_int:ids})',
-			array(
-				'ids' => $_REQUEST['delete'],
-			)
-		);
-
-		$order = isset($_REQUEST['desc']) ? 'desc;' : '';
-		$start = ($_REQUEST['start'] == 0 ? '' : $_REQUEST['start']);
+		Helper::Delete(self::$table, 'id', $_REQUEST['delete']);
 			
 		// Send the user to the items list with a message
-		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;sort=' .$_REQUEST['sort']. ';' . $order . $start);
+		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;');
 	}
 
-	public static function updatestatus()
+	public static function status()
 	{
 		global $smcFunc, $context, $modSettings, $txt;
 
 		// Set all the page stuff
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'];
-		$context[$context['admin_menu_name']]['tab_data'] = array(
+		$context[$context['admin_menu_name']]['tab_data'] = [
 			'title' => $context['page_title'],
 			'description' => $txt['PostPrefix_tab_prefixes_edit_desc'],
-		);
+		];
 
 		$id = (int) $_REQUEST['id'];
 		$status = (int) (!isset($_REQUEST['status']) || empty($_REQUEST['status']) ? 0 : $_REQUEST['status']);
 
-		if (!isset($id) || empty($id))
-			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
-		// Does the prefix exist?
-		$find = self::FindPrefix($id);
-		if ($find == false)
+		// Verifiy
+		if (!isset($id) || empty($id) || empty(Helper::Find(self::$table . ' AS pp', 'pp.id', $id)))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
+		// Get the prefix info
+		$context['prefix'] = Helper::Get('', '', '', self::$table . ' AS pp', self::$columns, 'WHERE pp.id = "'. (int) (isset($_REQUEST['id']) ? $_REQUEST['id'] : 0) . '"', true);
+
 		// Update the item information
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}postprefixes
-			SET
-				status = {int:status}
-			WHERE id = {int:id}
-			LIMIT 1',
-			array(
-				'status' => $status,
-				'id' => $id,
-			)
-		);
+		Helper::Update(self::$table, ['id' => $id, 'status' => (!empty($context['prefix']['status']) ? 0 : 1)], 'id = {int:id}, status = {int:status},', 'WHERE id = ' . $id);
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
@@ -468,56 +471,6 @@ class Manage
 		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
-		$prefix = (int) $_REQUEST['id'];
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id, member_groups
-			FROM {db_prefix}postprefixes
-			WHERE id = {int:id}',
-			array(
-				'id' => $prefix,
-			)
-		);
-		$mg = $smcFunc['db_fetch_assoc']($request);
-		$groups = explode(',', $mg['member_groups']);
-		$context['empty_groups'] = empty($mg['member_groups']) ? 0 : 1;
-
-		if (!empty($mg['member_groups']))
-		{
-			// Get information on all the items selected to be deleted
-			$result = $smcFunc['db_query']('', '
-				SELECT mg.id_group, mg.group_name, mg.min_posts
-				FROM {db_prefix}membergroups AS mg
-				WHERE mg.id_group IN ({array_int:groups})',
-				array(
-					'groups' => $groups,
-				)
-			);
-
-			if (!empty($mg))
-			{
-				if (in_array(0, $groups))
-				{
-					$context['member_groups'] = array(
-						0 => array(
-							'id' => 0,
-							'name' => $txt['membergroups_members'],
-							'is_post_group' => false,
-						),
-					);
-				}
-			}
-
-			// Loop through all the results...
-			while ($row = $smcFunc['db_fetch_assoc']($result))
-				// ... and add them to the array
-				$context['member_groups'][] = array(
-					'id' => $row['id_group'],
-					'name' => $row['group_name'],
-					'is_post_group' => $row['min_posts'] != -1,
-				);
-			$smcFunc['db_free_result']($result);
-		}
 	}
 
 	public static function showboards()
@@ -535,71 +488,5 @@ class Manage
 		// Check if there's an id
 		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
-
-		$prefix = (int) $_REQUEST['id'];
-
-		$request = $smcFunc['db_query']('', '
-			SELECT id, boards
-			FROM {db_prefix}postprefixes
-			WHERE id = {int:id}',
-			array(
-				'id' => $prefix,
-			)
-		);
-		$brd = $smcFunc['db_fetch_assoc']($request);
-		$boards = explode(',', $brd['boards']);
-		$context['empty_boards'] = empty($brd['boards']) ? 0 : 1;
-
-		if (!empty($brd['boards'])) 
-		{
-			// Get the boards and categories
-			$request = $smcFunc['db_query']('', '
-				SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level, b.member_groups
-				FROM {db_prefix}boards AS b
-					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-				WHERE b.id_board IN ({array_int:boards})'. (allowedTo('manage_boards') ? '' : '
-					AND {query_see_board}'). '
-				ORDER BY board_order',
-				array(
-					'boards' => $boards,
-				)
-			);
-			$context['num_boards'] = $smcFunc['db_num_rows']($request);
-
-			$context['categories'] = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-			{
-				// This category hasn't been set up yet..
-				if (!isset($context['categories'][$row['id_cat']]))
-					$context['categories'][$row['id_cat']] = array(
-						'id' => $row['id_cat'],
-						'name' => $row['cat_name'],
-						'boards' => array()
-					);
-
-				// Set this board up, and let the template know when it's a child.  (indent them..)
-				$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
-					'id' => $row['id_board'],
-					'name' => $row['name'],
-					'child_level' => $row['child_level'],
-				);
-
-			}
-			$smcFunc['db_free_result']($request);
-
-			// Now, let's sort the list of categories into the boards for templates that like that.
-			$temp_boards = array();
-			foreach ($context['categories'] as $category)
-			{
-				$temp_boards[] = array(
-					'name' => $category['name'],
-					'child_ids' => array_keys($category['boards'])
-				);
-				$temp_boards = array_merge($temp_boards, array_values($category['boards']));
-
-				// Include a list of boards per category for easy toggling.
-				$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
-			}
-		}
 	}
 }
