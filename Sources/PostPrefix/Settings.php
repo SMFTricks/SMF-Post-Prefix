@@ -42,12 +42,11 @@ class Settings
 					'label' => $txt['PostPrefix_main'],
 					'icon' => 'reports',
 					'function' => __NAMESPACE__ . '\Settings::index',
-					'permission' => ['manage_prefixes'],
+					'permission' => ['postprefix_manage'],
 					'subsections' => [
 						'prefixes' => [$txt['PostPrefix_tab_prefixes']],
 						'add' => [$txt['PostPrefix_tab_prefixes_add']],
-						'require' => [$txt['PostPrefix_tab_require']],
-						'settings' => [$txt['PostPrefix_tab_settings']],
+						'options' => [$txt['PostPrefix_tab_options']],
 					],
 				],
 			],
@@ -70,9 +69,9 @@ class Settings
 	public static function permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
 	{
 		// Manage prefix
-		$permissionList['membergroup']['manage_prefixes'] = [false, 'maintenance'];
+		$permissionList['membergroup']['postprefix_manage'] = [false, 'maintenance'];
 		// Topic?
-		$permissionList['board']['set_prefix'] = [false, 'topic'];
+		$permissionList['board']['postprefix_set'] = [false, 'topic'];
 	}
 	
 	public static function illegal_guest_permissions()
@@ -80,7 +79,7 @@ class Settings
 		global $context;
 
 		// Guests do not play nicely with this mod
-		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'], array('manage_prefixes'));
+		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'], ['postprefix_manage']);
 	}
 
 	public static function index()
@@ -91,17 +90,14 @@ class Settings
 
 		$subactions = [
 			'prefixes' => 'Manage::prefixes',
-			'showgroups' => 'showgroups',
-			'showboards' => 'showboards',
 			'add' => 'Manage::set_prefix',
 			'edit' => 'Manage::set_prefix',
 			'save' => 'Manage::save',
 			'delete' => 'Manage::delete',
 			'status' => 'Manage::status',
-			//'ups' => 'updatestatus',
-			//'require' => 'require_boards',
-			//'require2' => 'require_boards2',
-			//'settings' => 'settings',
+			'options' => 'Settings::options',
+			//'showgroups' => 'showgroups',
+			//'showboards' => 'showboards',
 		];
 		$sa = isset($_GET['sa'], $subactions[$_GET['sa']]) ? $_GET['sa'] : 'prefixes';
 
@@ -112,151 +108,40 @@ class Settings
 			'tabs' => [
 				'prefixes' => ['description' => $txt['PostPrefix_tab_prefixes_desc']],
 				'add' => ['description' => $txt['PostPrefix_tab_prefixes_add_desc']],
-				'require' => ['description' => $txt['PostPrefix_tab_require_desc']],
-				'settings' => ['description' => $txt['PostPrefix_tab_settings_desc']],
+				'options' => ['description' => $txt['PostPrefix_tab_options_desc']],
 			],
 		];
 		call_helper(__NAMESPACE__ . '\\' . $subactions[$sa]);
 	}
 
-	public static function require_boards()
+	public static function options($return_config = false)
 	{
-		global $context, $txt;
-
-		// Set all the page stuff
-		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_require'];
-		$context[$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $context['page_title'],
-			'description' => $txt['PostPrefix_tab_require_desc'],
-		);
-		$context['sub_template'] = 'require_prefix';
-
-		// Boards
-		self::getCategories(false);
-	}
-
-	public static function require_boards2()
-	{
-		global $smcFunc, $context, $modSettings, $txt;
-
-		// Set all the page stuff
-		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_require'];
-		$context[$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $context['page_title'],
-			'description' => $txt['PostPrefix_tab_require_desc'],
-		);
-
-		if (empty($_REQUEST['requireboard']) || !isset($_REQUEST['requireboard']))
-			$_REQUEST['requireboard'] = array();
-		
-		// Make sure all IDs are numeric
-		foreach ($_REQUEST['requireboard'] as $key => $value)
-			$_REQUEST['requireboard'][$key] = (int) $value;
-
-		// Update the item information
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}boards
-			SET
-				require_prefix = CASE WHEN id_board IN ({array_int:ids}) THEN 1 ELSE 0 END',
-			array(
-				'ids' => empty($_REQUEST['requireboard']) ? array(0) : $_REQUEST['requireboard'],
-			)
-		);
-		
-		// Send him to the items list
-		redirectexit('action=admin;area=postprefix;sa=require;updated');
-	}
-
-
-	public static function permissions2($return_config = false)
-	{
-		global $context, $scripturl, $sourcedir, $txt;
-		
-		// Set all the page stuff
-		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_permissions'];
-		$context[$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $context['page_title'],
-			'description' => $txt['PostPrefix_tab_permissions_desc'],
-		);
-		loadTemplate('Admin');
-		$context['sub_template'] = 'show_settings';
-		require_once($sourcedir . '/ManageServer.php');
-
-		// PostPrefix mod do not play nice with guests. Permissions are already hidden for them, let's exterminate any hint of them in this section.
-		$config_vars = array(
-			array('permissions', 'manage_prefixes', 'subtext' => $txt['permissionhelp_manage_prefixes']),
-			'',
-			array('permissions', 'set_prefix', 'subtext' => $txt['permissionhelp_set_prefix']),
-		);
-
-		if ($return_config)
-			return $config_vars;
-		$context['post_url'] = $scripturl . '?action=admin;area=postprefix;sa=permissions;save';
-
-		// Saving?
-		if (isset($_GET['save']))
-		{
-			checkSession();
-			saveDBSettings($config_vars);
-			redirectexit('action=admin;area=postprefix;sa=permissions');
-		}
-		prepareDBSettingContext($config_vars);
-
-		$permissions = array(
-			-1 => array(
-				'manage_prefixes',
-			),
-		);
-		foreach ($permissions as $group => $perm_list)
-			foreach ($perm_list as $perm)
-				unset ($context[$perm][$group]);
-	}
-
-	public static function settings($return_config = false)
-	{
-		global $context, $scripturl, $sourcedir, $txt;
+		global $context, $txt, $sourcedir;
 
 		require_once($sourcedir . '/ManageServer.php');
-		loadTemplate('Admin');
-		$context['sub_template'] = 'show_settings';
+		loadLanguage('ManageSettings');
 
 		// Set all the page stuff
-		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_settings'];
-		$context[$context['admin_menu_name']]['tab_data'] = array(
-			'title' => $context['page_title'],
-			'description' => $txt['PostPrefix_tab_settings_desc'],
-		);
+		$context['sub_template'] = 'show_settings';
+		$context['page_title'] = $txt['PostPrefix_main']. ' - ' . $txt['PostPrefix_tab_options'];
+		$context[$context['admin_menu_name']]['tab_data']['title'] = $context['page_title'];
 
-		$config_vars = array(
-			array('check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']),
-			array('select', 'PostPrefix_select_order', array(
+		$config_vars = [
+			['title', 'PostPrefix_tab_options'],
+			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
+			['select', 'PostPrefix_select_order', [
 					$txt['PostPrefix_prefix_name'],
 					$txt['PostPrefix_prefix_id'],
-					$txt['PostPrefix_prefix_date'],
-				),
+			],
 				'subtext' => $txt['PostPrefix_select_order_desc']
-			),
-			array('select', 'PostPrefix_select_order_dir', array(
-					$txt['PostPrefix_DESC'],
-					$txt['PostPrefix_ASC'],
-				),
-				'subtext' => $txt['PostPrefix_select_order_dir_desc']
-			),
-		);
+			],
+			'',
+			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
+			['permissions', 'postprefix_manage', 'subtext' => $txt['permissionhelp_teampage_canAccess']],
+			['permissions', 'postprefix_set', 'subtext' => $txt['permissionhelp_teampage_canAccess']],
+		];
 
-		if ($return_config)
-			return $config_vars;
-
-		$context['post_url'] = $scripturl . '?action=admin;area=postprefix;sa=settings;save';
-
-		// Saving?
-		if (isset($_GET['save']))
-		{
-			checkSession();
-			saveDBSettings($config_vars);
-			redirectexit('action=admin;area=postprefix;sa=settings');
-		}
-
-		prepareDBSettingContext($config_vars);
+		// Save!
+		Helper::Save($config_vars, $return_config, 'options');
 	}
 }

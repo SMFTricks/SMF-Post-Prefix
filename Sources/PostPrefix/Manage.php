@@ -19,7 +19,7 @@ class Manage
 	public  static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon', 'pp.icon_url'];
 	private static $cats_columns = ['c.id_cat', 'c.name AS cat_name', 'c.cat_order'];
 	private static $boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
-	private static $groups_columns = ['group_name', 'id_group', 'min_posts'];
+	private static $groups_columns = ['group_name', 'id_group', 'min_posts', 'online_color'];
 	private static $fields_data = [];
 	private static $fields_type = [];
 
@@ -184,10 +184,14 @@ class Manage
 		{
 			$format = '<span class="postprefix-all" id="postprefix-'. $prefix['id']. '"';
 			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
+			{
 				if ($prefix['bgcolor'] == 1 && !empty($prefix['color']))
-					$format .= ' style="display:inline-block;padding: 2px 5px;border-radius: 3px;color: #f5f5f5;background-color:#'. $prefix['color'] . '">';
+					$format .= ' style="display:inline-block;padding: 2px 5px;border-radius: 3px;color: #f5f5f5;background-color:'. $prefix['color'] . '">';
 				elseif (!empty($prefix['color']) && empty($prefix['bgcolor']))
-					$format .= ' style="color: #'. $prefix['color'] . ';">';
+					$format .= ' style="color:'. $prefix['color'] . ';">';
+			}
+			else
+				$format .= '>';
 			$format .= $prefix['name']. '</span>';
 		}
 		else
@@ -287,7 +291,7 @@ class Manage
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,
 			'name' => (string) isset($_REQUEST['name']) ? $smcFunc['htmlspecialchars']($_REQUEST['name'], ENT_QUOTES) : '',
 			'status' => (int) isset($_REQUEST['status']) ? 1 : 0,
-			'color' => (string) isset($_REQUEST['color']) ? $smcFunc['htmlspecialchars']($_REQUEST['color'], ENT_QUOTES) : '',
+			'color' => (string) isset($_REQUEST['color']) ? (((strpos($_REQUEST['color'], '#') === false && !empty($_REQUEST['color'])) ? '#' : '') . $smcFunc['htmlspecialchars']($_REQUEST['color'], ENT_QUOTES)) : '',
 			'bgcolor' => (int) isset($_REQUEST['bgcolor']) ? 1 : 0,
 			'invert_color' => (int) isset($_REQUEST['invert_color']) ? 1 : 0,
 			'groups' => (string) isset($_REQUEST['groups']) && !empty($_REQUEST['groups']) && is_array($_REQUEST['groups']) ? implode(',', $_REQUEST['groups']) : '',
@@ -394,65 +398,6 @@ class Manage
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
-	}
-
-	public static function getGroups($allow = true, $deny = true)
-	{
-		global $context, $smcFunc, $modSettings, $txt;
-
-		if ($allow)
-		{
-			$prefix = (int) $_REQUEST['id'];
-
-			$request = $smcFunc['db_query']('', '
-				SELECT id, member_groups, deny_member_groups
-				FROM {db_prefix}postprefixes
-				WHERE id = {int:id}',
-				array(
-					'id' => $prefix,
-				)
-			);
-			$mg = $smcFunc['db_fetch_assoc']($request);
-			$groups = explode(',', $mg['member_groups']);
-			$dgroups = explode(',', $mg['deny_member_groups']);
-		}
-
-		// Get information on all the items selected to be deleted
-		$result = $smcFunc['db_query']('', '
-			SELECT mg.id_group, mg.group_name, mg.min_posts
-			FROM {db_prefix}membergroups AS mg
-			WHERE mg.id_group NOT IN (1, 3)
-				AND mg.id_parent = {int:not_inherited}' . (empty($modSettings['permission_enable_postgroups']) ? '
-				AND mg.min_posts = {int:min_posts}' : '') . '
-			ORDER BY mg.min_posts, CASE WHEN mg.id_group < {int:newbie_group} THEN mg.id_group ELSE 4 END, mg.group_name',
-			array(
-				'not_inherited' => -2,
-				'min_posts' => -1,
-				'newbie_group' => 4,
-			)
-		);
-
-		// Loop through all the results...
-		// OMG Look what I had to do for the deny and allow thing.. pff
-		$context['member_groups'] = array(
-			0 => array(
-				'id' => 0,
-				'name' => $txt['membergroups_members'],
-				'is_post_group' => false,
-				'allow' => ($allow ? (!empty($mg['member_groups']) ? (in_array(0, $groups) ? true : '') : '') : ''),
-				'deny' => ($deny ? (!empty($mg['deny_member_groups']) ? (in_array(0, $dgroups) ? true : '') : '') : ''),
-			),
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($result))
-			// ... and add them to the array
-			$context['member_groups'][] = array(
-				'id' => $row['id_group'],
-				'name' => $row['group_name'],
-				'is_post_group' => $row['min_posts'] != -1,
-				'allow' => ($allow ? (in_array($row['id_group'], $groups) ? true : '') : ''),
-				'deny' => ($deny ? (in_array($row['id_group'], $dgroups) ? true : '') : ''),
-			);
-		$smcFunc['db_free_result']($result);
 	}
 
 	public static function showgroups()
