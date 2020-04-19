@@ -112,6 +112,7 @@
 				'name' => 'id_prefix',
 				'type' => 'int',
 				'default' => 0,
+				'null' => false,
 			)
 		);
 	}
