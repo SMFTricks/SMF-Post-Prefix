@@ -16,7 +16,7 @@ if (!defined('SMF'))
 class Manage
 {
 	public  static $table = 'postprefixes';
-	public  static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon', 'pp.icon_url'];
+	public  static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon_url'];
 	private static $cats_columns = ['c.id_cat', 'c.name AS cat_name', 'c.cat_order'];
 	private static $boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
 	private static $groups_columns = ['group_name', 'id_group', 'min_posts', 'online_color'];
@@ -180,7 +180,7 @@ class Manage
 
 	private static function format($prefix)
 	{
-		if (empty($prefix['icon']))
+		if (empty($prefix['icon_url']))
 		{
 			$format = '<span class="postprefix-all" id="postprefix-'. $prefix['id']. '"';
 			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
@@ -296,8 +296,7 @@ class Manage
 			'invert_color' => (int) isset($_REQUEST['invert_color']) ? 1 : 0,
 			'groups' => (string) isset($_REQUEST['groups']) && !empty($_REQUEST['groups']) && is_array($_REQUEST['groups']) ? implode(',', $_REQUEST['groups']) : '',
 			'boards' => (string) isset($_REQUEST['boardset']) && !empty($_REQUEST['boardset']) && is_array($_REQUEST['boardset']) ? implode(',', $_REQUEST['boardset']) : '',
-			'icon' => (int) isset($_REQUEST['icon']) ? 1 : 0,
-			'icon_url' => (string) isset($_REQUEST['icon_url']) ? $smcFunc['htmlspecialchars']($_REQUEST['icon_url'], ENT_QUOTES) : '',
+			'icon_url' => (string) isset($_REQUEST['icon_url']) && isset($_REQUEST['icon']) ? $smcFunc['htmlspecialchars']($_REQUEST['icon_url'], ENT_QUOTES) : '',
 		];
 
 		// Validate info
