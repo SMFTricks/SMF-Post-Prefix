@@ -15,7 +15,6 @@ function template_prefixfilter_above()
 	// Prefix
 	if (!empty($modSettings['PostPrefix_enable_filter']) && !empty($context['prefix']['post']))
 	{
-			
 		echo'
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -68,33 +67,32 @@ function template_postprefix()
 				<dd>
 					<input class="input_check" type="checkbox" name="status" id="status"', !empty($context['prefix']['status']) ? ' checked' : '', ' value="1">
 				</dd>
-			</dl>
-			<dl class="settings">
 				<dt>
 					<a id="setting_usecolor"></a>
 					<span><label for="usecolor">', $txt['PostPrefix_prefix_color'], ':</label></span>
 				</dt>
 				<dd>
 					<input class="input_check" type="checkbox" name="usecolor" value="1"', !empty($context['prefix']['color']) ? ' checked' : '', ' onclick="document.getElementById(\'color\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor2\').style.display = this.checked ? \'block\' : \'none\';">
-					<input class="input_text" name="color" id="color" type="text" style="border-width: 1px 1px 1px 25px;', empty($context['prefix']['color']) ? 'display:none;"' : 'display:block;border-color:#'.$context['prefix']['color'].';" value="'.$context['prefix']['color'].'"', '>
+					<input class="input_text" name="color" id="color" type="text" style="border-width: 1px 1px 1px 25px;', empty($context['prefix']['color']) ? 'display:none;"' : 'display:block;border-color:'.$context['prefix']['color'].';" value="'.$context['prefix']['color'].'"', '>
 				</dd>
 				<dt id="bgcolor1"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
 					<a id="setting_bgcolor"></a>
 					<span><label for="bgcolor">', $txt['PostPrefix_use_bgcolor'], ':</label></span>
 				</dt>
 				<dd id="bgcolor2"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
-					<input class="input_check" name="bgcolor" id="bgcolor" type="checkbox" value="1">
+					<input class="input_check" name="bgcolor" id="bgcolor"', !empty($context['prefix']['bgcolor']) ? ' checked' : '', ' type="checkbox" value="1">
 				</dd>
 				<dt>
 					<a id="setting_icon"></a>
 					<span><label for="icon">', $txt['PostPrefix_use_icon'], ':</label></span>
-					<span><label for="icon_url" id="lab_icon_url"', empty($context['prefix']['icon_url']) ? 'style="display:none;"' : '', '>', $txt['PostPrefix_icon_url'], ':</label></span>
+					<span><label for="icon_url" id="lab_icon_url"', empty($context['prefix']['icon_url']) ? 'style="display:none;"' : 'style="display:block;"', '>', $txt['PostPrefix_icon_url'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_check" type="checkbox" name="icon" value="1"', !empty($context['prefix']['icon_url']) ? ' checked' : '', 'onclick="document.getElementById(\'icon_url\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'lab_icon_url\').style.display = this.checked ? \'block\' : \'none\';">
-					<input class="input_text" name="icon_url" id="icon_url" type="text" style="width:100%;', empty($context['prefix']['icon_url']) ? 'display:none;"' : '" value="'.$context['prefix']['icon_url'].'"', '">
+					<input class="input_check" type="checkbox" name="icon" value="1"', !empty($context['prefix']['icon_url']) ? ' checked' : '', ' onclick="document.getElementById(\'icon_url\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'lab_icon_url\').style.display = this.checked ? \'block\' : \'none\';">
+					<input class="input_text" name="icon_url" id="icon_url" type="text" style="width:100%;', empty($context['prefix']['icon_url']) ? 'display:none;' : 'display:block;', '" value="', !empty($context['prefix']['icon_url']) ? $context['prefix']['icon_url'] : '', '">
 				</dd>
 			</dl>
+			<hr>
 			<dl class="settings">
 				<dt>
 					<a id="setting_groups"></a>
@@ -111,13 +109,13 @@ function template_postprefix()
 					', boards_list(), '
 				</dd>
 			</dl>
-			<input class="button floatleft" type="submit" value="', $txt['PostPrefix_save_prefix'], '">
+			<input class="button" type="submit" value="', $txt['PostPrefix_save_prefix'], '">
 		</form>
 	</div>';
 }
 
 /**
- * The template for determining which boards a group has access to.
+ * The template for determining which groups can access a board.
  * 
  * @author Simple Machines https://www.simplemachines.org
  * @copyright 2020 Simple Machines and individual contributors
@@ -385,13 +383,4 @@ function template_require_prefix()
 			<input class="button floatleft" type="submit" value="', $txt['save'], '">
 		</form>
 	</div>';
-}
-
-function template_postprefix_above(){}
-
-function template_postprefix_below()
-{
-	global $context;
-	
-	echo $context['copyright'];
 }
