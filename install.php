@@ -69,12 +69,6 @@
 					'null' => false,
 				),
 				array(
-					'name' => 'icon',
-					'type' => 'smallint',
-					'default' => 0,
-					'null' => false,
-				),
-				array(
 					'name' => 'icon_url',
 					'type' => 'text',
 					'null' => false,
