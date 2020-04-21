@@ -35,8 +35,9 @@ class PostPrefix
 
 		$defaults = [
 			'PostPrefix_enable_filter' => 0,
-			'PostPrefix_select_order' => 1,
-			'PostPrefix_select_order_dir' => 0,
+			'PostPrefix_filter_boards' => '',
+			'PostPrefix_select_order' => 0,
+			'PostPrefix_prefix_boards_require' => '',
 		];
 		$modSettings = array_merge($defaults, $modSettings);
 	}
@@ -46,7 +47,6 @@ class PostPrefix
 	 *
 	 * Load hooks quietly
 	 * @return void
-	 * @author Peter Spicer (Arantor)
 	 */
 	public static function defineHooks()
 	{
@@ -54,11 +54,11 @@ class PostPrefix
 			'autoload',
 			'actions',
 			'message_index',
-			//'load_board_info',
-			//'pre_messageindex',
+			'pre_messageindex',
 			'messageindex_buttons',
 			'display_topic',
 			'display_message_list',
+			'load_theme',
 		];
 		foreach ($hooks as $point )
 			add_integration_function('integrate_' . $point, __CLASS__ . '::'.$point, false);
@@ -75,6 +75,12 @@ class PostPrefix
 		$classMap['PostPrefix\\'] = 'PostPrefix/';
 	}
 
+	public static function load_theme()
+	{
+		// Load prefixes css
+		loadCSSFile('postprefix.css', ['default_theme' => true]);
+	}
+
 	/**
 	 * PostPrefix::actions()
 	 *
@@ -85,6 +91,7 @@ class PostPrefix
 	 */
 	public static function actions(&$actions)
 	{
+
 		// Add some hooks by action
 		switch ($_REQUEST['action']) {
 			case 'admin':
@@ -162,7 +169,7 @@ class PostPrefix
 			loadLanguage('PostPrefix/');
 
 			// Load the prefixes
-			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), Manage::$table . ' AS pp', Manage::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards) AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET(', $user_info['groups']) . ', pp.groups))');
+			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), Manage::$table . ' AS pp', Manage::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
 		}
 	}
 
@@ -219,27 +226,25 @@ class PostPrefix
 	{
 		if (empty($prefix['icon_url']))
 		{
-			$format = '<span class="postprefix-all" id="postprefix-'. $prefix['id']. '"';
+			$format = '<span id="postprefix-'. $prefix['id']. '" class="postprefix-all';
 			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
 			{
-				if ($prefix['bgcolor'] == 1 && !empty($prefix['color']))
-					$format .= ' style="display:inline-block;padding:2px 5px;border-radius: 3px;color: #f5f5f5;background-color:'. $prefix['color'] . $styles . '">';
+				if (!empty($prefix['bgcolor']) && !empty($prefix['color']))
+					$format .= ' text-'. (!empty($prefix['invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['color'];
 				elseif (!empty($prefix['color']) && empty($prefix['bgcolor']))
-					$format .= ' style="color:'. $prefix['color'] . $styles . ';">';
+					$format .= '" style="color:'. $prefix['color'];
 			}
-			else
-				$format .= '>';
-			$format .= $prefix['name']. '</span> ';
+			$format .= $styles . '">' . $prefix['name'] . '</span>';
 		}
 		else
-			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['id']. '" style="vertical-align: middle;" src="'. $prefix['icon_url']. '" alt="'. $prefix['name']. '" title="'. $prefix['name']. '" /> ';
+			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['id']. '" src="'. $prefix['icon_url']. '" alt="'. $prefix['name']. '" title="'. $prefix['name']. '" />';
 
 		return $format;
 	}
 
 	public static function messageindex_buttons()
 	{
-		global $modSettings, $context;
+		global $modSettings, $context, $user_info, $board;
 
 		// Rewrite the biach
 		$context['postprefix_topics'] = [];
@@ -248,30 +253,32 @@ class PostPrefix
 			$context['postprefix_topics'][$topic] = $context['topics'][$topic];
 
 			// Topic has a prefix?
-			if (!empty($context['topics'][$topic]['id_prefix']))
+			if (!empty($context['topics'][$topic]['id_prefix']) && !empty($context['postprefix_topics'][$topic]['postprefix_status']))
 			{
-				$context['postprefix_topics'][$topic]['prefix'] = [
-					'id' => $context['postprefix_topics'][$topic]['postprefix_id'],
-					'name' => $context['postprefix_topics'][$topic]['postprefix_name'],
-					'color' => $context['postprefix_topics'][$topic]['postprefix_color'],
-					'bgcolor' => $context['postprefix_topics'][$topic]['postprefix_bgcolor'],
-					'icon_url' => $context['postprefix_topics'][$topic]['postprefix_icon_url'],
-				];
-				$context['postprefix_topics'][$topic]['first_post']['link'] = self::format($context['postprefix_topics'][$topic]['prefix']) . $context['topics'][$topic]['first_post']['link'];
+				$context['postprefix_topics'][$topic]['prefix'] = self::prefix_array(Manage::$columns);
+				foreach ($context['postprefix_topics'][$topic]['prefix'] as $prefix)
+					$context['postprefix_topics'][$topic]['prefix'][$prefix] = $context['postprefix_topics'][$topic]['postprefix_'.$prefix];
+		
+				$context['postprefix_topics'][$topic]['first_post']['link'] = self::format($context['postprefix_topics'][$topic]['prefix']) . ' ' . $context['topics'][$topic]['first_post']['link'];
 			}
 		}
 		// Yo wassup :P
 		$context['topics'] = $context['postprefix_topics'];
 
-		/*if (empty($_REQUEST['action']) && !empty($modSettings['PostPrefix_enable_filter']))
+		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set'))
 		{
 			// Get a list of prefixes
-			self::getPrefix($context['current_board']);
+			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), Manage::$table . ' AS pp', Manage::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
+
+			// Load language
+			loadLanguage('PostPrefix/');
+
 			// Load our template as well
 			loadTemplate('PostPrefix');
+
 			// Load the sub-template
 			$context['template_layers'][] = 'prefixfilter';
-		}*/
+		}
 	}
 
 	public static function prefix_alias($columns)
@@ -283,33 +290,61 @@ class PostPrefix
 		return $alias;
 	}
 
+	public static function prefix_array($columns)
+	{
+		$array_of_the_pps = [];
+		foreach (Manage::$columns as $index => $column)
+			$array_of_the_pps[$index] = str_replace('pp.', '', $column);
+
+		return $array_of_the_pps;
+	}
+
 	public static function pre_messageindex(&$sort_methods, &$sort_methods_table)
 	{
-		global $board_info, $context;
+		global $board_info, $context, $modSettings;
 
 		// How many topics do we have in total?
-		if (!isset($_REQUEST['prefix']))
-			$board_info['total_topics'] = allowedTo('approve_posts') ? $board_info['num_topics'] + $board_info['unapproved_topics'] : $board_info['num_topics'] + $board_info['unapproved_user_topics'];
-		else
-			$board_info['total_topics'] = allowedTo('approve_posts') ? PostPrefix::countTopics($board_info['id'], $_REQUEST['prefix']) + $board_info['unapproved_topics'] : PostPrefix::countTopics($board_info['id'], $_REQUEST['prefix']) + $board_info['unapproved_user_topics'];
+		if (isset($_REQUEST['prefix']))
+			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = ' . $_REQUEST['prefix'] . ' AND id_board = ' . $board_info['id'] . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : (' AND (approved = 1' . ($user_info['is_guest'] ? '' : ' OR id_member_started = ' . $user_info['id'])) . ')'));
 	}
 
 	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
 	{
-		global $board_info, $scripturl, $context, $scripturl;
+		global $board_info, $scripturl, $context, $scripturl, $board, $txt;
 
+		// Add the prefix
 		$message_index_selects = array_merge($message_index_selects, array_merge(['t.id_prefix'], self::prefix_alias(Manage::$columns)));
 		$message_index_tables = array_merge($message_index_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
-		
-		/*if (isset($_REQUEST['prefix']))
-		{
-			$message_index_topic_wheres += array('t.id_prefix = {int:topic_prefix}');
-			//$message_index_wheres += array('t.id_prefix = {int:topic_prefix}');
-			$message_index_parameters += array(
-				'topic_prefix' => $_REQUEST['prefix'],
-			);
 
-		}*/
+		// Filtering prefixes?
+		if (isset($_REQUEST['prefix']))
+		{
+			$message_index_topic_wheres = array_merge($message_index_topic_wheres, ['t.id_prefix = {int:topic_prefix}']);
+			$message_index_wheres = array_merge($message_index_wheres, ['t.id_prefix = {int:topic_prefix}']);
+			$message_index_parameters = array_merge($message_index_parameters, ['topic_prefix' => $_REQUEST['prefix']]);
+			
+			// Add the prefix to the pageindex
+			if (!empty($board_info['total_topics']) && isset($_REQUEST['prefix']))
+			{
+				// They didn't pick one, default to by last post descending.
+				if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
+				{
+					$context['sort_by'] = 'last_post';
+					$_REQUEST['sort'] = 'id_last_msg';
+					$ascending = isset($_REQUEST['asc']);
+					$_REQUEST['desc'] = 'desc';
+				}
+
+				// Another trick for our amusement
+				$context['prefix_headers'] = [];
+				foreach ($context['topics_headers'] as $key => $val)
+					$context['prefix_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . ';prefix=' . $_REQUEST['prefix'] . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
+				$context['topics_headers'] = $context['prefix_headers'];
+
+				$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $board_info['total_topics'] : $context['topics_per_page'];
+				$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'] . ';sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
+			}
+		}
 	}
 
 	public static function display_topic(&$topic_selects, &$topic_tables, &$topic_parameters)
@@ -323,52 +358,18 @@ class PostPrefix
 		global $context, $topic, $scripturl;
 
 		// This topic has a prefix?
-		if (!empty($context['topicinfo']['id_prefix']))
+		if (!empty($context['topicinfo']['id_prefix']) && !empty($context['topicinfo']['postprefix_status']))
 		{
 			// Sort it?
-			$context['topicinfo']['prefix'] = [
-				'id' => $context['topicinfo']['postprefix_id'],
-				'name' => $context['topicinfo']['postprefix_name'],
-				'color' => $context['topicinfo']['postprefix_color'],
-				'bgcolor' => $context['topicinfo']['postprefix_bgcolor'],
-				'icon_url' => $context['topicinfo']['postprefix_icon_url'],
-			];
+			$context['topicinfo']['prefix'] = self::prefix_array(Manage::$columns);
+			foreach ($context['topicinfo']['prefix'] as $prefix)
+				$context['topicinfo']['prefix'][$prefix] = $context['topicinfo']['postprefix_'.$prefix];
 
 			// Add the prefix to the title
-			$context['subject'] = self::format($context['topicinfo']['prefix']) . $context['topicinfo']['subject'];
+			$context['subject'] = self::format($context['topicinfo']['prefix']) . ' ' . $context['topicinfo']['subject'];
 
 			// Add the prefix to the linktree
 			$context['linktree'][count($context['linktree'])-1]['extra_before'] = self::format($context['topicinfo']['prefix'], ';text-shadow:none;padding-top:0;padding-bottom:0;');
-		}
-	}
-
-	/**
-	 * PostPrefix::countTopics()
-	 *
-	 * It will return the number of topics in X board
-	 * @param $board, $prefix
-	 * @global $smcFunc, $context, $user_info, $memberContext, $user_settings, $modSettings
-	 * @return
-	 * @author Diego Andrés <diegoandres_cortes@outlook.com>
-	 */
-	public static function countTopics($board, $prefix)
-	{
-		global $smcFunc;
-
-		if (isset($_REQUEST['prefix']))
-		{
-			$request = $smcFunc['db_query']('', '
-				SELECT id_board, id_prefix, approved
-				FROM {db_prefix}topics
-				WHERE id_prefix = {int:topic_prefix} 
-					AND id_board = {int:board} 
-					AND approved = 1',
-				array(
-					'topic_prefix' => $prefix,
-					'board' => $board,
-				)
-			);
-			return $smcFunc['db_num_rows']($request);
 		}
 	}
 }

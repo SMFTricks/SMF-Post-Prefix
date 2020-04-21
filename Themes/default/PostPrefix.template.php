@@ -8,12 +8,14 @@
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
+use PostPrefix\PostPrefix;
+
 function template_prefixfilter_above()
 {
 	global $context, $modSettings, $scripturl, $txt;
 
 	// Prefix
-	if (!empty($modSettings['PostPrefix_enable_filter']) && !empty($context['prefix']['post']))
+	if (!empty($context['prefix']['post']))
 	{
 		echo'
 			<div class="cat_bar">
@@ -22,21 +24,18 @@ function template_prefixfilter_above()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<span class="topslice"><span></span></span>
-					<div class="content">';
+				<div class="content">';
 
-				// Show all the prefixes for this board.
-				foreach ($context['prefix']['post'] as $prefix)
-					echo'
-						<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::formatPrefix($prefix['id']) . '</a>, ';
-			
-			echo'
-						<a href="', $scripturl, '?board=', $context['current_board'], '.0;prefix=0">', $txt['PostPrefix_filter_noprefix'], '</a>, 
-						<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['PostPrefix_filter_all'], '</a>
-					</div>
-				<span class="botslice"><span></span></span>
-			</div>
-			<br class="clear" />';
+			// Show all the prefixes for this board.
+			foreach ($context['prefix']['post'] as $prefix)
+				echo'
+					<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::format($prefix) . '</a>,';
+
+				echo '
+					<a href="', $scripturl, '?board=', $context['current_board'], '.0;prefix=0">', $txt['PostPrefix_filter_noprefix'], '</a>, 
+					<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['PostPrefix_filter_all'], '</a>
+				</div>
+			</div>';
 	}
 }
 
@@ -44,7 +43,7 @@ function template_prefixfilter_below(){}
 
 function template_postprefix()
 {
-	global $context, $txt, $scripturl, $modSettings, $boardurl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div class="windowbg">
@@ -72,7 +71,7 @@ function template_postprefix()
 					<span><label for="usecolor">', $txt['PostPrefix_prefix_color'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_check" type="checkbox" name="usecolor" value="1"', !empty($context['prefix']['color']) ? ' checked' : '', ' onclick="document.getElementById(\'color\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor2\').style.display = this.checked ? \'block\' : \'none\';">
+					<input class="input_check" type="checkbox" name="usecolor" value="1"', !empty($context['prefix']['color']) ? ' checked' : '', ' onclick="document.getElementById(\'color\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor2\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert2\').style.display = this.checked ? \'block\' : \'none\';">
 					<input class="input_text" name="color" id="color" type="text" style="border-width: 1px 1px 1px 25px;', empty($context['prefix']['color']) ? 'display:none;"' : 'display:block;border-color:'.$context['prefix']['color'].';" value="'.$context['prefix']['color'].'"', '>
 				</dd>
 				<dt id="bgcolor1"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
@@ -81,6 +80,14 @@ function template_postprefix()
 				</dt>
 				<dd id="bgcolor2"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
 					<input class="input_check" name="bgcolor" id="bgcolor"', !empty($context['prefix']['bgcolor']) ? ' checked' : '', ' type="checkbox" value="1">
+				</dd>
+				<dt id="invert1"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
+					<a id="setting_invert"></a>
+					<span><label for="invert">', $txt['PostPrefix_invert_color'], ':</label></span><br>
+					<span class="smalltext">', $txt['PostPrefix_invert_color_desc'], '</span>
+				</dt>
+				<dd id="invert2"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
+					<input class="input_check" name="invert" id="invert"', !empty($context['prefix']['invert_color']) ? ' checked' : '', ' type="checkbox" value="1">
 				</dd>
 				<dt>
 					<a id="setting_icon"></a>
@@ -120,9 +127,10 @@ function template_postprefix()
  * @author Simple Machines https://www.simplemachines.org
  * @copyright 2020 Simple Machines and individual contributors
  */
+
 function groups_list()
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt;
 
 	echo '
 				<fieldset id="visible_groups">
@@ -161,7 +169,7 @@ function groups_list()
  */
 function boards_list($collapse = true, $form_id = 'set_prefix')
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt;
 
 	echo '
 							<fieldset id="visible_boards">
@@ -207,7 +215,7 @@ function boards_list($collapse = true, $form_id = 'set_prefix')
 
 function template_postprefix_showgroups()
 {
-	global $context, $boardurl, $settings, $modSettings, $txt;
+	global $context, $settings, $modSettings, $txt;
 
 	echo '
 <!DOCTYPE html>

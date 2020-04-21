@@ -129,6 +129,7 @@ class Settings
 		$config_vars = [
 			['title', 'PostPrefix_tab_options'],
 			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
+			['boards', 'PostPrefix_filter_boards', 'subtext' => $txt['PostPrefix_filter_boards_desc']],
 			['select', 'PostPrefix_select_order', [
 					$txt['PostPrefix_prefix_name'],
 					$txt['PostPrefix_prefix_id'],

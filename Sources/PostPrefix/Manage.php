@@ -37,7 +37,7 @@ class Manage
 		$listOptions = [
 			'id' => 'prefixlist',
 			'title' => $txt['PostPrefix_tab_prefixes'],
-			'items_per_page' => 15,
+			'items_per_page' => 25,
 			'base_href' => '?action=admin;area=postprefix;sa=prefixes',
 			'default_sort_col' => 'modify',
 			'get_items' => [
@@ -75,7 +75,7 @@ class Manage
 					],
 					'data' => [
 						'function' => function($row) {
-							 return self::format($row);
+							 return PostPrefix::format($row);
 						},
 						'style' => 'width: 20%',
 					],
@@ -178,28 +178,6 @@ class Manage
 		createList($listOptions);
 	}
 
-	private static function format($prefix)
-	{
-		if (empty($prefix['icon_url']))
-		{
-			$format = '<span class="postprefix-all" id="postprefix-'. $prefix['id']. '"';
-			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
-			{
-				if ($prefix['bgcolor'] == 1 && !empty($prefix['color']))
-					$format .= ' style="display:inline-block;padding: 2px 5px;border-radius: 3px;color: #f5f5f5;background-color:'. $prefix['color'] . '">';
-				elseif (!empty($prefix['color']) && empty($prefix['bgcolor']))
-					$format .= ' style="color:'. $prefix['color'] . ';">';
-			}
-			else
-				$format .= '>';
-			$format .= $prefix['name']. '</span>';
-		}
-		else
-			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['id']. '" style="vertical-align: middle;" src="'. $prefix['icon_url']. '" alt="'. $prefix['name']. '" title="'. $prefix['name']. '" />';
-
-		return $format;
-	}
-
 	public static function set_prefix()
 	{
 		global $txt, $context;
@@ -293,7 +271,7 @@ class Manage
 			'status' => (int) isset($_REQUEST['status']) ? 1 : 0,
 			'color' => (string) isset($_REQUEST['color']) ? (((strpos($_REQUEST['color'], '#') === false && !empty($_REQUEST['color'])) ? '#' : '') . $smcFunc['htmlspecialchars']($_REQUEST['color'], ENT_QUOTES)) : '',
 			'bgcolor' => (int) isset($_REQUEST['bgcolor']) ? 1 : 0,
-			'invert_color' => (int) isset($_REQUEST['invert_color']) ? 1 : 0,
+			'invert_color' => (int) isset($_REQUEST['invert']) ? 1 : 0,
 			'groups' => (string) isset($_REQUEST['groups']) && !empty($_REQUEST['groups']) && is_array($_REQUEST['groups']) ? implode(',', $_REQUEST['groups']) : '',
 			'boards' => (string) isset($_REQUEST['boardset']) && !empty($_REQUEST['boardset']) && is_array($_REQUEST['boardset']) ? implode(',', $_REQUEST['boardset']) : '',
 			'icon_url' => (string) isset($_REQUEST['icon_url']) && isset($_REQUEST['icon']) ? $smcFunc['htmlspecialchars']($_REQUEST['icon_url'], ENT_QUOTES) : '',
