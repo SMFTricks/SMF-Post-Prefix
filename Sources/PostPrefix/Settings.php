@@ -56,6 +56,8 @@ class Settings
 		// Permissions
 		add_integration_function('integrate_load_permissions', __CLASS__.'::permissions', false);
 		add_integration_function('integrate_load_illegal_guest_permissions', __CLASS__.'::illegal_guest_permissions', false);
+		add_integration_function('integrate_edit_board', __CLASS__.'::edit_board', false);
+		add_integration_function('integrate_modify_board', __CLASS__.'::modify_board', false);
 	}
 
 	/**
@@ -144,5 +146,46 @@ class Settings
 
 		// Save!
 		Helper::Save($config_vars, $return_config, 'options');
+	}
+
+	public static function edit_board()
+	{
+		global $context, $txt, $modSettings;
+
+		$context['custom_board_settings']['PostPrefix_enable_filter'] = array(
+			'dt' => '<strong>'. $txt['PostPrefix_enable_filter']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_enable_filter_desc']. '</span>',
+			'dd' => '<input type="checkbox" name="PostPrefix_enable_filter" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) ? ' checked="checked"' : ''). '>',
+		);
+
+		$context['custom_board_settings']['PostPrefix_prefix_boards_require'] = array(
+			'dt' => '<strong>'. $txt['PostPrefix_prefix_boards_require']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_prefix_boards_require_desc']. '</span>',
+			'dd' => '<input type="checkbox" name="PostPrefix_prefix_boards_require" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? ' checked="checked"' : ''). '>',
+		);
+	}
+
+	public static function modify_board($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
+	{
+		global $modSettings;
+
+		$boardOptions['PostPrefix_enable_filter'] = isset($_POST['PostPrefix_enable_filter']);
+		$boardOptions['PostPrefix_prefix_boards_require'] = isset($_POST['PostPrefix_prefix_boards_require']);
+
+		// Enable filter
+		if (isset($boardOptions['PostPrefix_enable_filter']))
+		{
+			if (!empty($boardOptions['PostPrefix_enable_filter']) && !in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+				updateSettings(['PostPrefix_filter_boards' => implode(',', array_merge(explode(',', $modSettings['PostPrefix_filter_boards']), [$id]))]);
+			elseif (empty($boardOptions['PostPrefix_enable_filter']) && in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+				updateSettings(['PostPrefix_filter_boards' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_filter_boards']), [$id]))]);
+		}
+
+		// Require prefix
+		if (isset($boardOptions['PostPrefix_prefix_boards_require']))
+		{
+			if (!empty($boardOptions['PostPrefix_prefix_boards_require']) && !in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+				updateSettings(['PostPrefix_prefix_boards_require' => implode(',', array_merge(explode(',', $modSettings['PostPrefix_prefix_boards_require']), [$id]))]);
+			elseif (empty($boardOptions['PostPrefix_prefix_boards_require']) && in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+				updateSettings(['PostPrefix_prefix_boards_require' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_prefix_boards_require']), [$id]))]);
+		}
 	}
 }

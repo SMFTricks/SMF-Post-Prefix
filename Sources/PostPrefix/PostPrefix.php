@@ -265,7 +265,7 @@ class PostPrefix
 		// Yo wassup :P
 		$context['topics'] = $context['postprefix_topics'];
 
-		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set'))
+		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set') && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 		{
 			// Get a list of prefixes
 			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), Manage::$table . ' AS pp', Manage::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
@@ -304,20 +304,20 @@ class PostPrefix
 		global $board_info, $context, $modSettings;
 
 		// How many topics do we have in total?
-		if (isset($_REQUEST['prefix']))
+		if (isset($_REQUEST['prefix']) && in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])))
 			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = ' . $_REQUEST['prefix'] . ' AND id_board = ' . $board_info['id'] . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : (' AND (approved = 1' . ($user_info['is_guest'] ? '' : ' OR id_member_started = ' . $user_info['id'])) . ')'));
 	}
 
 	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
 	{
-		global $board_info, $scripturl, $context, $scripturl, $board, $txt;
+		global $board_info, $scripturl, $context, $scripturl, $board, $txt, $modSettings;
 
 		// Add the prefix
 		$message_index_selects = array_merge($message_index_selects, array_merge(['t.id_prefix'], self::prefix_alias(Manage::$columns)));
 		$message_index_tables = array_merge($message_index_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
 
 		// Filtering prefixes?
-		if (isset($_REQUEST['prefix']))
+		if (isset($_REQUEST['prefix']) && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 		{
 			$message_index_topic_wheres = array_merge($message_index_topic_wheres, ['t.id_prefix = {int:topic_prefix}']);
 			$message_index_wheres = array_merge($message_index_wheres, ['t.id_prefix = {int:topic_prefix}']);
