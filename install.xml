@@ -4,16 +4,6 @@
     <id>smftricks:postprefix</id>
     <version>1.0</version>
 
-	<file name="$sourcedir/MessageIndex.php">
-		<operation>
-			<search position="replace"><![CDATA[t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,]]></search>
-			<add><![CDATA[t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board, t.id_prefix,]]></add>
-		</operation>
-		<operation>
-			<search position="replace"><![CDATA['link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>']]></search>
-			<add><![CDATA['link' => PostPrefix::formatPrefix($row['id_prefix']). ' <a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>']]></add>
-		</operation>
-	</file>
 	<file name="$sourcedir/Subs-Recent.php">
 		<operation>
 			<search position="replace"><![CDATA[m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg,]]></search>
