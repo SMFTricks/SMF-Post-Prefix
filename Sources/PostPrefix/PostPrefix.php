@@ -23,12 +23,6 @@ class PostPrefix
 		self::setDefaults();
 	}
 
-	/**
-	 * PostPrefix::setDefaults()
-	 *
-	 * Sets almost every setting to a default value
-	 * @return void
-	 */
 	public static function setDefaults()
 	{
 		global $modSettings;
@@ -42,12 +36,6 @@ class PostPrefix
 		$modSettings = array_merge($defaults, $modSettings);
 	}
 
-	/**
-	 * PostPrefix::defineHooks()
-	 *
-	 * Load hooks quietly
-	 * @return void
-	 */
 	public static function defineHooks()
 	{
 		$hooks = [
@@ -64,12 +52,6 @@ class PostPrefix
 			add_integration_function('integrate_' . $point, __CLASS__ . '::'.$point, false);
 	}
 
-	/**
-	 * PostPrefix::autoload()
-	 *
-	 * @param array $classMap
-	 * @return void
-	 */
 	public static function autoload(&$classMap)
 	{
 		$classMap['PostPrefix\\'] = 'PostPrefix/';
@@ -77,23 +59,13 @@ class PostPrefix
 
 	public static function load_theme()
 	{
-		// Load prefixes css
 		loadCSSFile('postprefix.css', ['default_theme' => true]);
 	}
 
-	/**
-	 * PostPrefix::actions()
-	 *
-	 * Insert the actions needed by this mod
-	 * @param array $actions An array containing all possible SMF actions. This includes loading different hooks for certain areas.
-	 * @return void
-	 * @author Peter Spicer (Arantor)
-	 */
 	public static function actions(&$actions)
 	{
-
-		// Add some hooks by action
-		switch ($_REQUEST['action']) {
+		switch ($_REQUEST['action'])
+		{
 			case 'admin':
 				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas', false, '$sourcedir/PostPrefix/Settings.php');
 				break;

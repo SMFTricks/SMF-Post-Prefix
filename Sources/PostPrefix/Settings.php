@@ -15,13 +15,6 @@ if (!defined('SMF'))
 
 class Settings
 {
-	/**
-	 * Manage::admin_areas()
-	 *
-	 * Add our new section and load the language and template
-	 * @param array $admin_menu An array with all the admin settings buttons
-	 * @return
-	 */
 	public static function hookAreas(&$admin_areas)
 	{
 		global $scripturl, $txt;
@@ -62,14 +55,6 @@ class Settings
 		add_integration_function('integrate_modify_board', __CLASS__.'::modify_board', false);
 	}
 
-	/**
-	 * Manage::permissions()
-	 *
-	 * Permissions for manage prefixes and a global permission for use the prefixes
-	 * @param array $permissionGroups An array containing all possible permissions groups.
-	 * @param array $permissionList An associative array with all the possible permissions.
-	 * @return
-	 */
 	public static function permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
 	{
 		// Manage prefix
@@ -154,27 +139,24 @@ class Settings
 	{
 		global $context, $txt, $modSettings;
 
+		// Enable filter
 		$context['custom_board_settings']['PostPrefix_enable_filter'] = array(
 			'dt' => '<strong>'. $txt['PostPrefix_enable_filter']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_enable_filter_desc']. '</span>',
 			'dd' => '<input type="checkbox" name="PostPrefix_enable_filter" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) ? ' checked="checked"' : ''). '>',
 		);
-
+		// Require prefix
 		$context['custom_board_settings']['PostPrefix_prefix_boards_require'] = array(
 			'dt' => '<strong>'. $txt['PostPrefix_prefix_boards_require']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_prefix_boards_require_desc']. '</span>',
 			'dd' => '<input type="checkbox" name="PostPrefix_prefix_boards_require" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? ' checked="checked"' : ''). '>',
 		);
-
-		print_r($context['board']['id']);
 	}
 
 	public static function modify_board($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
 	{
 		global $modSettings;
 
-		$boardOptions['PostPrefix_enable_filter'] = isset($_POST['PostPrefix_enable_filter']);
-		$boardOptions['PostPrefix_prefix_boards_require'] = isset($_POST['PostPrefix_prefix_boards_require']);
-
 		// Enable filter
+		$boardOptions['PostPrefix_enable_filter'] = isset($_POST['PostPrefix_enable_filter']);
 		if (isset($boardOptions['PostPrefix_enable_filter']))
 		{
 			if (!empty($boardOptions['PostPrefix_enable_filter']) && !in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
@@ -184,6 +166,7 @@ class Settings
 		}
 
 		// Require prefix
+		$boardOptions['PostPrefix_prefix_boards_require'] = isset($_POST['PostPrefix_prefix_boards_require']);
 		if (isset($boardOptions['PostPrefix_prefix_boards_require']))
 		{
 			if (!empty($boardOptions['PostPrefix_prefix_boards_require']) && !in_array($id, explode(',', $modSettings['PostPrefix_prefix_boards_require'])))

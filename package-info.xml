@@ -37,9 +37,10 @@
 		<!-- Languages -->
 		<remove-dir name="$languagedir/PostPrefix">Language files</remove-dir>
 		<!-- Scripts -->
-		<remove-file name="$themedir/scripts/colpick.js">Colpick</remove-file>
+		<remove-file name="$themedir/scripts/colpick.min.js">JS files</remove-file>
 		<!-- Styles -->
-		<remove-file name="$themedir/css/colpick.css">Colpick</remove-file>
+		<remove-file name="$themedir/css/colpick.min.css">CSS files</remove-file>
+		<remove-file name="$themedir/css/postprefix.css">CSS file</remove-file>
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
 		<!-- Hooks -->
