@@ -1,49 +1,57 @@
-﻿[center][url=http://smftricks.com][img]http://smftricks.com/Themes/SMFHispano/images/theme/logo.png[/img][/url][/center]
-[hr]
+﻿[center][url=https://smftricks.com][img]https://smftricks.com/logos/logo.png[/img][/url][/center]
 
-[center][b][size=14pt]Team Page[/size][/b]
-[img]http://www.simplemachines.org/site_images/lang/spanish_es.gif[/img] [img]http://www.simplemachines.org/site_images/lang/english.gif[/img]
-[size=8pt]Developed by [url=http://smfhispano.net/index.php?action=profile;u=1]Diego Andrés[/url][/center]
+[img]https://img.shields.io/badge/License-MPL 2.0-a05a3f?style=flat-square[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0?style=flat-square[/img] [img]https://img.shields.io/badge/SMF-2.0-996ee1?style=flat-square[/img]
 
-[hr]
-
-[size=12pt][color=red]Introduction[/color][/size]
-[size=8pt]Team Page enable a customizable page to show the members of the team of your forum. You can choose which membergroups to show in your team page, and also change some settings for the page.[/size]
+[b][size=14pt]SMF Post Prefix[/size][/b]
+[size=8pt]Developed by [url=https://smftricks.com/index.php?action=profile;u=1]Diego Andrés[/url][/size]
 
 [hr]
 
-[size=12pt][color=red]Features[/color][/size]
+[size=12pt][color=navy]Introduction[/color][/size]
+[size=8pt]SMF Post Prefix mod allows you to set prefixes for your topics and easily customize them with colors or replace them with icons..[/size]
+
+[hr]
+
+[size=8pt][color=teal]Features[/color][/size]
 [list]
-[li][size=8pt]Enable Team Page[/size][/li]
-[li][size=8pt]Create different pages to show in the Team Page action[/size]
+[li][size=8pt]Add/Edit prefixes[/size]
 [list]
-[li][size=8pt]Groups page[/size][/li]
-[li][size=8pt]BBC Text Page[/size][/li]
-[li][size=8pt]HTML Text Page[/size][/li]
-[li][size=8pt]You can also give a name and a subaction name to your pages[/size][/li]
+[li][size=8pt]Enable/Disable prefix[/size][/li]
+[li][size=8pt]Select a color for the prefix[/size]
+[list]
+[li][size=8pt]Text color[/size][/li]
+[li][size=8pt]Background color[/size]
+[list]
+[li][size=8pt]Invert color (white/black)[/size][/li]
 [/list]
 [/li]
-[li][size=8pt]Moderators subpage (A dedicated subaction in the Team Page to show your forum moderators and which boards they moderate.)[/size][/li]
-[li][size=8pt]Groups badges[/size][/li]
-[li][size=8pt]Avatars[/size][/li]
-[li][size=8pt]Groups descriptions[/size][/li]
-[li][size=8pt]Show members in their secondary groups[/size][/li]
-[li][size=8pt]Permissions to view the Team Page[/size][/li]
+[/list]
+[/li]
+[li][size=8pt]Use an icon instead of text[/size][/li]
+[li][size=8pt]Select allowed groups to use specific prefix[/size][/li]
+[li][size=8pt]Select boards where the prefix can be used[/size][/li]
+[/list]
+[/li]
+[li][size=8pt]Select boards where the prefix will be required (forced)[/size][/li]
+[li][size=8pt]Permissions[/size]
+[list]
+[li][size=8pt]Manage prefixes[/size][/li]
+[li][size=8pt]Use prefixes (Global permission)[/size][/li]
+[/list]
+[/li]
+[li][size=8pt]Filter Topics by prefix[/size]
+[list]
+[li][size=8pt]Enable the filter box on selected boards[/size][/li]
+[/list]
+[/li]
 [/list]
 
+[size=12pt][color=maroon]Languages[/color][/size]
+[img]https://www.simplemachines.org/site_images/lang/english.gif[/img] [img]https://www.simplemachines.org/site_images/lang/spanish.gif[/img]
+
+[size=12pt][color=red]*NOTE[/color][/size]
+[size=10pt]Version [i]3.0[/i] and above are only compatible with [b]SMF 2.1[/b][/size]
 [hr]
 
-[size=12pt][color=red]License[/color][/size]
-[code]This Source Code Form is subject to the terms of the Mozilla Public License, v. 1.1.
-If a copy of the MPL was not distributed with this file,
-You can obtain one at http://mozilla.org/MPL/
-
-The contents of this package are subject to the Mozilla Public License Version
-1.1 (the "License"); you may not use this package except in compliance with
-the License. You may obtain a copy of the License at
-http://www.mozilla.org/MPL/
- *
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-for the specific language governing rights and limitations under the
-License.[/code]
+[size=12pt][color=navy][url=https://smftricks.com/index.php?topic=795.0]Changelog[/url][/color][/size]
+[size=12pt][color=purple][url=https://github.com/SMFTricks/SMF-Post-Prefix]GitHub[/url][/color][/size]
