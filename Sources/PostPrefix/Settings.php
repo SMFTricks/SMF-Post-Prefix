@@ -127,8 +127,8 @@ class Settings
 			],
 			'',
 			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
-			['permissions', 'postprefix_manage', 'subtext' => $txt['permissionhelp_teampage_canAccess']],
-			['permissions', 'postprefix_set', 'subtext' => $txt['permissionhelp_teampage_canAccess']],
+			['permissions', 'postprefix_manage', 'subtext' => $txt['permissionhelp_postprefix_manage']],
+			['permissions', 'postprefix_set', 'subtext' => $txt['permissionhelp_postprefix_set']],
 		];
 
 		// Save!
