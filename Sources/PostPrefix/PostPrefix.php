@@ -59,7 +59,7 @@ class PostPrefix
 
 	public static function load_theme()
 	{
-		loadCSSFile('postprefix.css', ['default_theme' => true]);
+		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false]);
 	}
 
 	public static function actions(&$actions)
