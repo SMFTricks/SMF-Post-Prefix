@@ -84,9 +84,9 @@ class Settings
 			'save' => 'Manage::save',
 			'delete' => 'Manage::delete',
 			'status' => 'Manage::status',
+			'groups' => 'Manage::groups',
+			'boards' => 'Manage::boards',
 			'options' => 'Settings::options',
-			//'showgroups' => 'showgroups',
-			//'showboards' => 'showboards',
 		];
 		$sa = isset($_GET['sa'], $subactions[$_GET['sa']]) ? $_GET['sa'] : 'prefixes';
 
@@ -140,15 +140,16 @@ class Settings
 		global $context, $txt, $modSettings;
 
 		// Enable filter
-		$context['custom_board_settings']['PostPrefix_enable_filter'] = array(
-			'dt' => '<strong>'. $txt['PostPrefix_enable_filter']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_enable_filter_desc']. '</span>',
-			'dd' => '<input type="checkbox" name="PostPrefix_enable_filter" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) ? ' checked="checked"' : ''). '>',
-		);
+		if (!empty($modSettings['PostPrefix_enable_filter']))
+			$context['custom_board_settings']['PostPrefix_enable_filter'] = [
+				'dt' => '<strong>'. $txt['PostPrefix_enable_filter']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_enable_filter_desc']. '</span>',
+				'dd' => '<input type="checkbox" name="PostPrefix_enable_filter" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) ? ' checked="checked"' : ''). '>',
+			];
 		// Require prefix
-		$context['custom_board_settings']['PostPrefix_prefix_boards_require'] = array(
+		$context['custom_board_settings']['PostPrefix_prefix_boards_require'] = [
 			'dt' => '<strong>'. $txt['PostPrefix_prefix_boards_require']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_prefix_boards_require_desc']. '</span>',
 			'dd' => '<input type="checkbox" name="PostPrefix_prefix_boards_require" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? ' checked="checked"' : ''). '>',
-		);
+		];
 	}
 
 	public static function modify_board($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
@@ -156,13 +157,16 @@ class Settings
 		global $modSettings;
 
 		// Enable filter
-		$boardOptions['PostPrefix_enable_filter'] = isset($_POST['PostPrefix_enable_filter']);
-		if (isset($boardOptions['PostPrefix_enable_filter']))
+		if (!empty($modSettings['PostPrefix_enable_filter']))
 		{
-			if (!empty($boardOptions['PostPrefix_enable_filter']) && !in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
-				updateSettings(['PostPrefix_filter_boards' => !empty($modSettings['PostPrefix_filter_boards']) ? implode(',', array_merge(explode(',', $modSettings['PostPrefix_filter_boards']), [$id])) : $id]);
-			elseif (empty($boardOptions['PostPrefix_enable_filter']) && in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
-				updateSettings(['PostPrefix_filter_boards' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_filter_boards']), [$id]))]);
+			$boardOptions['PostPrefix_enable_filter'] = isset($_POST['PostPrefix_enable_filter']);
+			if (isset($boardOptions['PostPrefix_enable_filter']))
+			{
+				if (!empty($boardOptions['PostPrefix_enable_filter']) && !in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+					updateSettings(['PostPrefix_filter_boards' => !empty($modSettings['PostPrefix_filter_boards']) ? implode(',', array_merge(explode(',', $modSettings['PostPrefix_filter_boards']), [$id])) : $id]);
+				elseif (empty($boardOptions['PostPrefix_enable_filter']) && in_array($id, explode(',', $modSettings['PostPrefix_filter_boards'])))
+					updateSettings(['PostPrefix_filter_boards' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_filter_boards']), [$id]))]);
+			}
 		}
 
 		// Require prefix

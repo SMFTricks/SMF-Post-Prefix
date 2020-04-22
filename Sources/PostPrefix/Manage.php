@@ -57,8 +57,10 @@ class Manage
 						'class' => 'centertext',
 					],
 					'data' => [
-						'function' => function($row) {
+						'function' => function($row)
+						{
 							global $scripturl;
+
 							return '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=status;id='. $row['id'].'"><span class="main_icons warning_' . ($row['status'] == 1 ? 'watch' : 'mute') . '"></span></a>';
 						},
 						'style' => 'width: 2%',
@@ -74,7 +76,8 @@ class Manage
 						'value' => $txt['PostPrefix_prefix_name'],
 					],
 					'data' => [
-						'function' => function($row) {
+						'function' => function($row)
+						{
 							 return PostPrefix::format($row);
 						},
 						'style' => 'width: 20%',
@@ -91,7 +94,7 @@ class Manage
 					],
 					'data' => [
 						'sprintf' => [
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showboards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'/icons/modify_inline.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=boards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'/icons/modify_inline.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
 							'params' => [
 								'id' => false,
 								'name' => true,
@@ -108,7 +111,7 @@ class Manage
 					],
 					'data' => [
 						'sprintf' => [
-							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=showgroups;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'icons/members.png\');">'. $txt['PostPrefix_select_visible_groups']. '</a>',
+							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=groups;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'icons/members.png\');">'. $txt['PostPrefix_select_visible_groups']. '</a>',
 							'params' => [
 								'id' => false,
 								'name' => true,
@@ -377,38 +380,89 @@ class Manage
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
 	}
 
-	public static function showgroups()
+	public static function show_define($type = 'boards')
 	{
 		global $smcFunc, $context, $txt;
 
-		// Show them
-		$context['template_layers'] = array();
+		// Load the info
+		$context[$context['admin_menu_name']]['current_subsection'] = 'prefixes';
+		$context[$context['admin_menu_name']]['tab_data'] = [
+			'title' => $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_prefix_' . $type],
+			'description' => $txt['PostPrefix_prefix_' . $type. '_desc'],
+		];
+		$context['page_title'] = $context[$context['admin_menu_name']]['tab_data']['title'];
+		$context['template_layers'][] = 'postprefix_show';
 		$context['from_ajax'] = true;
-		$context['sub_template'] = 'postprefix_showgroups';
+		$context['sub_template'] = 'postprefix_show';
+		$context['prefix']['show'] = $type;
 
 		// Help language
 		loadLanguage('Help');
 
 		// Check if there's an id
-		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
+		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']) || empty(Helper::Find(self::$table . ' AS pp', self::$columns[0], $_REQUEST['id'])))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
+		// Obtain the prefix details
+		$context['prefix']['details'] = Helper::Get('', '', '', self::$table . ' AS pp', self::$columns, 'WHERE pp.id = ' . $_REQUEST['id'], true);
+
+		// Update title
+		$context[$context['admin_menu_name']]['tab_data']['title'] .= ' - ' . $context['prefix']['details']['name'];
+		$context['page_title'] = $context[$context['admin_menu_name']]['tab_data']['title'];
 	}
 
-	public static function showboards()
+	public static function groups()
+	{
+		global $context, $txt;
+
+		// Groups type
+		self::show_define('groups');
+
+		// Get groups
+		$context['prefix']['get_type'] = Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', self::$groups_columns, 'WHERE id_group != 3 AND FIND_IN_SET(id_group, \''. $context['prefix']['details']['groups'] .'\')');
+
+		// Load extra language
+		loadLanguage('ManageBoards');
+
+		// :(
+		$groups = [];
+
+		// Guests
+		if (in_array(-1, explode(',', $context['prefix']['details']['groups'])))
+			$groups[-2] = [
+				'id_group' => '-1',
+				'cat_name' => $txt['parent_guests_only'],
+			];
+		// Regular Members
+		if (in_array(0, explode(',', $context['prefix']['details']['groups'])))
+			$groups[-1] = [
+				'id_group' => '0',
+				'cat_name' => $txt['parent_members_only'],
+			];
+
+		// Well this isn't great but meh
+		foreach($context['prefix']['get_type'] as $group)
+		{
+			$groups[$group['id_group']] = $group;
+			$groups[$group['id_group']]['cat_name'] = $group['group_name'];
+		}
+
+		// Re-assigns
+		$context['prefix']['get_type'] = $groups;
+	}
+
+	public static function boards()
 	{
 		global $context, $smcFunc;
-		
-		// Show them
-		$context['template_layers'] = array();
-		$context['from_ajax'] = true;
-		$context['sub_template'] = 'postprefix_showboards';
 
-		// Help language
-		loadLanguage('Help');
+		// Boards type
+		self::show_define();
 
-		// Check if there's an id
-		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']))
-			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
+		// Get groups
+		$context['prefix']['get_type'] = Helper::Nested('b.board_order', 'boards AS b', self::$cats_columns, self::$boards_columns, 'boards', 'WHERE FIND_IN_SET(b.id_board, \''. $context['prefix']['details']['boards'] .'\')', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
+		// Now, let's sort the list of categories into the boards for templates that like that.
+		foreach ($context['prefix']['get_type'] as $category)
+			// Include a list of boards per category for easy toggling.
+			$context['prefix']['get_type'][$category['id_cat']]['child_ids'] = array_keys($category['boards']);
 	}
 }

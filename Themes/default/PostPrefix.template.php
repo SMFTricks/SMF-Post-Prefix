@@ -213,122 +213,88 @@ function boards_list($collapse = true, $form_id = 'set_prefix')
 							</script>';
 }
 
-function template_postprefix_showgroups()
+function template_postprefix_show_above()
 {
-	global $context, $settings, $modSettings, $txt;
+	global $context, $modSettings, $settings, $txt;
 
 	echo '
-<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
-	<head>
-		<meta charset="', $context['character_set'], '">
-		<meta name="robots" content="noindex">
-		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
-	</head>
-	<body id="postprefix_showgroups_popup">
-		<div class="windowbg">
-			<table class="table_grid clear">
-				<thead>
-					<tr class="title_bar">
-						<th>
-							', $txt['PostPrefix_prefix_groups'], '
-						</th>
-					</tr>
-				</thead>
-				<tbody>';
-
-	if (empty($context['empty_groups']))
-	{
-		echo '
-					<tr class="up_contain">
-						<td>
-							', $txt['PostPrefix_empty_groups'], '
-						</td>
-					</tr>';
-	}
-	else
-	{
-		// We're going to list all the groups...
-		foreach ($context['member_groups'] as $group)
-		{
-			echo '
-					<tr class="stripes">
-						<td>
-							<span', $group['is_post_group'] ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_post_group'] . '"' : ($group['id'] == 0 ? ' style="border-bottom: 1px dotted #000; cursor: help;" title="' . $txt['mboards_groups_regular_members'] . '"' : ''), '>
-								', $group['name'], '
-							</span>
-						</td>
-					</tr>';
-		}
-	}
-
-	echo '
-				</tbody>
-			</table>
-			<br class="clear">
-			<a href="javascript:self.close();">', $txt['close_window'], '</a>
-		</div>
-	</body>
-</html>';
+	<!DOCTYPE html>
+	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '', '>
+		<head>
+			<meta charset="', $context['character_set'], '">
+			<meta name="robots" content="noindex">
+			<title>', $context['page_title'], '</title>
+			<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+			<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		</head>';
 }
 
-function template_postprefix_showboards()
+function template_postprefix_show()
 {
-	global $context, $settings, $modSettings, $txt, $scripturl;
+	global $context, $txt;
 
 	echo '
-<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
-	<head>
-		<meta charset="', $context['character_set'], '">
-		<meta name="robots" content="noindex">
-		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
-	</head>
-	<body id="postprefix_showboards_popup">
-		<div class="windowbg">
-			<div class="title_bar">
-				<h4 class="titlebg">
-					', $txt['PostPrefix_prefix_boards'], '
-				</h4>
-			</div>';
-
-	if (empty($context['empty_boards']))
-	{
-		echo '
-			<div class="up_contain">
-					', $txt['PostPrefix_empty_boards'], '
-			</div>';
-	}
-	else
-	{
-		// We're going to list all the boards...
-		foreach ($context['categories'] as $category)
-		{
-			echo '
+		<body id="postprefix_show' . $context['prefix']['show'] . '_popup">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '/index.php#c', $category['id'], '">', $category['name'], '</a>
+					', $txt['PostPrefix_prefix_' . $context['prefix']['show']], '
 				</h3>
-			</div>';
+			</div>
+			<div class="windowbg">';
 
-			foreach ($category['boards'] as $board)
+		// We got results?
+		if (empty($context['prefix']['get_type']))
+			echo '
+				<div class="roundframe">
+					', $txt['PostPrefix_empty_' . $context['prefix']['show']], '
+				</div>';
+		else
+		{
+			echo '
+				<ul>';
+
+			// Loop through the items
+			foreach($context['prefix']['get_type'] as $type)
 			{
 				echo '
-				<div class="up_contain" style="min-height: 15px;">
-					<span style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;"><a class="subject" href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a></span>
-				</div>';
-			}
-		}
-	}
+					<li', isset($type['cat_order']) ? '' : ' class="windowbg"' , '>
+						<div', isset($type['cat_order']) ? ' class="title_bar"' : '' , '>
+							<h4', isset($type['cat_order']) ? ' class="titlebg"' : ' style="font-weight:normal;', !empty($type['online_color']) ? 'color:' . $type['online_color'] . ';"' : '"', '>
+								', $type['cat_name'], '
+							</h4>
+						</div>';
 
+				// Boards?
+				if (!empty($type['boards']))
+				{
+					echo '
+						<ul>';
+
+					foreach ($type['boards'] as $board)
+					{
+						echo '
+								<li class="windowbg board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+									', $board['name'], '
+								</li>';
+					}
+					echo '
+							</ul>';
+				}
+				echo '
+					</li>';
+			}
+			echo '
+				</ul>';
+		}
+			echo '
+				<br class="clear">
+				<a href="javascript:self.close();">', $txt['close_window'], '</a>
+			</div>';
+}
+
+function template_postprefix_show_below()
+{
 	echo '
-			<br class="clear">
-			<a href="javascript:self.close();">', $txt['close_window'], '</a>
-		</div>
-	</body>
-</html>';
+		</body>
+	</html>';
 }

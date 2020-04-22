@@ -2,10 +2,10 @@
 
 /**
  * @package SMF Post Prefix
- * @version 1.0
+ * @version 3.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2014, Diego Andrés
- * @license http://www.mozilla.org/MPL/MPL-1.1.html
+ * @copyright Copyright (c) 2020, SMF Tricks
+ * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
 // Admin Tabs
@@ -61,13 +61,15 @@ $txt['PostPrefix_filter_boards'] = 'Boards to display filter';
 $txt['PostPrefix_filter_boards_desc'] = 'Select the boards where you want to display the filter box';
 $txt['PostPrefix_select_order'] = 'Order by';
 $txt['PostPrefix_select_order_desc'] = 'Select default order of prefixes everywhere';
-$txt['PostPrefix_prefix_boards_require'] = 'Require prefix on';
-$txt['PostPrefix_prefix_boards_require_desc'] = 'Boards where the prefix will be required';
+$txt['PostPrefix_prefix_boards_require'] = 'Require prefixes';
+$txt['PostPrefix_prefix_boards_require_desc'] = 'Boards where a prefix is required when posting/editing a topic';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
 $txt['PostPrefix_error_unable_tofind'] = 'Unable to find a prefix';
 $txt['error_no_prefix'] = 'No prefix was selected.';
+$txt['PostPrefix_empty_groups'] = 'No groups for this prefix.';
+$txt['PostPrefix_empty_boards'] = 'No boards for this prefix.';
 
 // Permissions
 $txt['PostPrefix_permissions'] = 'Permissions for PostPrefix';
