@@ -222,10 +222,5 @@ class PostPrefix
 			$context['linktree'][count($context['linktree'])-1]['extra_before'] = self::format($context['topicinfo']['prefix'], ';text-shadow:none;padding-top:0;padding-bottom:0;');
 		}
 	}
-
-	public static function basura()
-	{
-		echo 'test';
-	}
 }
 
