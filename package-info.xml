@@ -21,7 +21,6 @@
 		<!-- Templates and Languages -->
 		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
 		<!-- Hooks -->
-		<hook hook="integrate_pre_include" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<!-- Database -->
 		<database>install.php</database>
@@ -43,7 +42,6 @@
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
 		<!-- Hooks -->
-		<hook hook="integrate_pre_include" function="$sourcedir/PostPrefix/PostPrefix.php" reverse="true" />
 		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" reverse="true" />
 		<!-- Database -->
 		<database>install.php</database>
