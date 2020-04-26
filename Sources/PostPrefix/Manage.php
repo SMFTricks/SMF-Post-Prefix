@@ -265,8 +265,6 @@ class Manage
 
 	public static function save()
 	{
-		global $smcFunc, $txt;
-
 		// Data
 		self::$fields_data = [
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,
