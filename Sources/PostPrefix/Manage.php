@@ -15,8 +15,6 @@ if (!defined('SMF'))
 
 class Manage
 {
-	public  static $table = 'postprefixes';
-	public  static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon_url'];
 	private static $cats_columns = ['c.id_cat', 'c.name AS cat_name', 'c.cat_order'];
 	private static $boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
 	private static $groups_columns = ['group_name', 'id_group', 'min_posts', 'online_color'];
@@ -42,11 +40,11 @@ class Manage
 			'default_sort_col' => 'modify',
 			'get_items' => [
 				'function' => __NAMESPACE__ . '\Helper::Get',
-				'params' => [self::$table . ' AS pp', self::$columns],
+				'params' => ['postprefixes AS pp', Helper::$columns],
 			],
 			'get_count' => [
 				'function' => __NAMESPACE__ . '\Helper::Count',
-				'params' => [self::$table . ' AS pp', self::$columns]
+				'params' => ['postprefixes AS pp', Helper::$columns]
 			],
 			'no_items_label' => $txt['PostPrefix_no_prefixes'],
 			'no_items_align' => 'center',
@@ -200,7 +198,7 @@ class Manage
 		{
 			// Page information
 			$where_query = 'WHERE pp.id = "'. (int) (isset($_REQUEST['id']) ? $_REQUEST['id'] : 0) . '"';
-			$context['prefix'] = Helper::Get('', '', '', self::$table . ' AS pp', self::$columns, $where_query, true);
+			$context['prefix'] = Helper::Get('', '', '', 'postprefixes AS pp', Helper::$columns, $where_query, true);
 			$context[$context['admin_menu_name']]['current_subsection'] = 'prefixes';
 			$context[$context['admin_menu_name']]['tab_data'] = [
 				'title' => $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'],
@@ -265,7 +263,7 @@ class Manage
 
 	public static function save()
 	{
-		global $smcFunc;
+		global $smcFunc, $txt;
 
 		// Data
 		self::$fields_data = [
@@ -292,7 +290,7 @@ class Manage
 				self::$fields_type[$column] = str_replace('integer', 'int', gettype($type));
 
 			// Insert
-			Helper::Insert(self::$table, self::$fields_data, self::$fields_type);
+			Helper::Insert('postprefixes', self::$fields_data, self::$fields_type);
 			$status = 'added';
 		}
 		else
@@ -307,7 +305,7 @@ class Manage
 				self::$fields_type .= $column . ' = {'.str_replace('integer', 'int', gettype($type)).':'.$column.'}, ';
 
 			// Update
-			Helper::Update(self::$table, self::$fields_data, self::$fields_type, 'WHERE id = ' . self::$fields_data['id']);
+			Helper::Update('postprefixes', self::$fields_data, self::$fields_type, 'WHERE id = ' . self::$fields_data['id']);
 		}
 
 		redirectexit('action=admin;area=postprefix;sa=prefixes;'.$status);
@@ -322,7 +320,7 @@ class Manage
 			fatal_error($txt['PostPrefix_error_noprefix'], false);
 
 		// Doesn't exist
-		if (!empty($data['id']) && empty(Helper::Find(self::$table . ' AS pp', 'pp.id', $data['id'])))
+		if (!empty($data['id']) && empty(Helper::Find('postprefixes AS pp', 'pp.id', $data['id'])))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 	}
 
@@ -346,7 +344,7 @@ class Manage
 			$_REQUEST['delete'][$key] = (int) $value;
 
 		// Delete all the items
-		Helper::Delete(self::$table, 'id', $_REQUEST['delete']);
+		Helper::Delete('postprefixes', 'id', $_REQUEST['delete']);
 			
 		// Send the user to the items list with a message
 		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;');
@@ -367,14 +365,14 @@ class Manage
 		$status = (int) (!isset($_REQUEST['status']) || empty($_REQUEST['status']) ? 0 : $_REQUEST['status']);
 
 		// Verifiy
-		if (!isset($id) || empty($id) || empty(Helper::Find(self::$table . ' AS pp', 'pp.id', $id)))
+		if (!isset($id) || empty($id) || empty(Helper::Find('postprefixes AS pp', 'pp.id', $id)))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
 		// Get the prefix info
-		$context['prefix'] = Helper::Get('', '', '', self::$table . ' AS pp', self::$columns, 'WHERE pp.id = "'. (int) (isset($_REQUEST['id']) ? $_REQUEST['id'] : 0) . '"', true);
+		$context['prefix'] = Helper::Get('', '', '', 'postprefixes AS pp', Helper::$columns, 'WHERE pp.id = "'. (int) (isset($_REQUEST['id']) ? $_REQUEST['id'] : 0) . '"', true);
 
 		// Update the item information
-		Helper::Update(self::$table, ['id' => $id, 'status' => (!empty($context['prefix']['status']) ? 0 : 1)], 'id = {int:id}, status = {int:status},', 'WHERE id = ' . $id);
+		Helper::Update('postprefixes', ['id' => $id, 'status' => (!empty($context['prefix']['status']) ? 0 : 1)], 'id = {int:id}, status = {int:status},', 'WHERE id = ' . $id);
 		
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
@@ -400,11 +398,11 @@ class Manage
 		loadLanguage('Help');
 
 		// Check if there's an id
-		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']) || empty(Helper::Find(self::$table . ' AS pp', self::$columns[0], $_REQUEST['id'])))
+		if (!isset($_REQUEST['id']) || empty($_REQUEST['id']) || empty(Helper::Find('postprefixes AS pp', Helper::$columns[0], $_REQUEST['id'])))
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 
 		// Obtain the prefix details
-		$context['prefix']['details'] = Helper::Get('', '', '', self::$table . ' AS pp', self::$columns, 'WHERE pp.id = ' . $_REQUEST['id'], true);
+		$context['prefix']['details'] = Helper::Get('', '', '', 'postprefixes AS pp', Helper::$columns, 'WHERE pp.id = ' . $_REQUEST['id'], true);
 
 		// Update title
 		$context[$context['admin_menu_name']]['tab_data']['title'] .= ' - ' . $context['prefix']['details']['name'];

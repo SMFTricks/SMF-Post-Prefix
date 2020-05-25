@@ -114,7 +114,7 @@ class PostPrefix
 			// Topic has a prefix?
 			if (!empty($context['topics'][$topic]['id_prefix']) && !empty($context['postprefix_topics'][$topic]['postprefix_status']))
 			{
-				$context['postprefix_topics'][$topic]['prefix'] = self::prefix_array(Manage::$columns, false);
+				$context['postprefix_topics'][$topic]['prefix'] = self::prefix_array(Helper::$columns, false);
 				foreach ($context['postprefix_topics'][$topic]['prefix'] as $prefix)
 					$context['postprefix_topics'][$topic]['prefix'][$prefix] = $context['postprefix_topics'][$topic]['postprefix_'.$prefix];
 		
@@ -127,7 +127,7 @@ class PostPrefix
 		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set') && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 		{
 			// Get a list of prefixes
-			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), Manage::$table . ' AS pp', Manage::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
+			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
 
 			// Load language
 			loadLanguage('PostPrefix/');
@@ -163,7 +163,7 @@ class PostPrefix
 		global $board_info, $scripturl, $context, $scripturl, $board, $txt, $modSettings;
 
 		// Add the prefix
-		$message_index_selects = array_merge($message_index_selects, array_merge(['t.id_prefix'], self::prefix_array(Manage::$columns)));
+		$message_index_selects = array_merge($message_index_selects, array_merge(['t.id_prefix'], self::prefix_array(Helper::$columns)));
 		$message_index_tables = array_merge($message_index_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
 
 		// Filtering prefixes?
@@ -199,7 +199,7 @@ class PostPrefix
 
 	public static function display_topic(&$topic_selects, &$topic_tables, &$topic_parameters)
 	{
-		$topic_selects = array_merge($topic_selects, array_merge(['t.id_prefix'], self::prefix_array(Manage::$columns)));
+		$topic_selects = array_merge($topic_selects, array_merge(['t.id_prefix'], self::prefix_array(Helper::$columns)));
 		$topic_tables = array_merge($topic_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
 	}
 
@@ -211,7 +211,7 @@ class PostPrefix
 		if (!empty($context['topicinfo']['id_prefix']) && !empty($context['topicinfo']['postprefix_status']))
 		{
 			// Sort it?
-			$context['topicinfo']['prefix'] = self::prefix_array(Manage::$columns, false);
+			$context['topicinfo']['prefix'] = self::prefix_array(Helper::$columns, false);
 			foreach ($context['topicinfo']['prefix'] as $prefix)
 				$context['topicinfo']['prefix'][$prefix] = $context['topicinfo']['postprefix_'.$prefix];
 

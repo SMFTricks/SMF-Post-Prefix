@@ -15,6 +15,8 @@ if (!defined('SMF'))
 
 class Helper
 {
+	public static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon_url'];
+
 	public static function Save($config_vars, $return_config, $sa)
 	{
 		global $context, $scripturl;
