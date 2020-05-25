@@ -1,2 +1,2 @@
 SMF Post Prefix has been successfully installed.
-<br />You will now be redirected to the settings page.
+You will now be redirected to the settings page.
