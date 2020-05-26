@@ -15,7 +15,7 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '3.1';
+	public static $version = '3.0';
 
 	public static function initialize()
 	{
@@ -126,8 +126,6 @@ class PostPrefix
 
 		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set') && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 		{
-			print_r($user_info['groups']);
-
 			// Get a list of prefixes
 			$context['prefix']['filter'] = Helper::Get(0, 10000, 'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET(' . $board . ', pp.boards)');
 
