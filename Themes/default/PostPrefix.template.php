@@ -15,7 +15,7 @@ function template_prefixfilter_above()
 	global $context, $modSettings, $scripturl, $txt;
 
 	// Prefix
-	if (!empty($context['prefix']['post']))
+	if (!empty($context['prefix']['filter']))
 	{
 		echo'
 			<div class="cat_bar">
@@ -27,7 +27,7 @@ function template_prefixfilter_above()
 				<div class="content">';
 
 			// Show all the prefixes for this board.
-			foreach ($context['prefix']['post'] as $prefix)
+			foreach ($context['prefix']['filter'] as $prefix)
 				echo'
 					<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::format($prefix) . '</a>,';
 

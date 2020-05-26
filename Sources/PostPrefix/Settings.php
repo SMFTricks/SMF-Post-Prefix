@@ -15,15 +15,65 @@ if (!defined('SMF'))
 
 class Settings
 {
+	/**
+	 * @var array Subactions array for each section/area of the shop.
+	 */
+	protected $_subactions = [];
+
+	/**
+	 * @var string The current area.
+	 */
+	protected $_sa;
+
+	/**
+	 * Settings::__construct()
+	 *
+	 * Call certain administrative hooks and load the language files
+	 */
+	function __construct()
+	{
+		// Load languages
+		loadLanguage('PostPrefix/');
+
+		// Permissions
+		add_integration_function('integrate_load_permissions', __CLASS__.'::permissions', false);
+		add_integration_function('integrate_load_illegal_guest_permissions', __CLASS__.'::illegal_guest_permissions', false);
+
+		// Boards settings
+		if (isset($_REQUEST['area']) && $_REQUEST['area'] == 'manageboards')
+		{
+			add_integration_function('integrate_edit_board', __CLASS__.'::edit_board', false);
+			add_integration_function('integrate_modify_board', __CLASS__.'::modify_board', false);
+		}
+
+		// Array of sections
+		$this->_subactions = [
+			'prefixes' => 'Manage::prefixes',
+			'add' => 'Manage::set_prefix#',
+			'edit' => 'Manage::set_prefix#',
+			'save' => 'Manage::save#',
+			'delete' => 'Manage::delete',
+			'status' => 'Manage::status',
+			'groups' => 'Manage::groups#',
+			'boards' => 'Manage::boards#',
+			'options' => 'Settings::options',
+		];
+		$this->_sa = isset($_GET['sa'], $this->_subactions[$_GET['sa']]) ? $_GET['sa'] : 'prefixes';
+	}
+
+	 /**
+	 * Settings::hookAreas()
+	 *
+	 * Adding the admin section
+	 * @param array $admin_areas An array with all the admin areas
+	 * @return void
+	 */
 	public static function hookAreas(&$admin_areas)
 	{
 		global $scripturl, $txt;
-		
-		loadLanguage('PostPrefix/');
 
 		$insert = 'postsettings';
 		$counter = 0;
-
 		foreach ($admin_areas['layout']['areas'] as $area => $dummy)
 			if (++$counter && $area == $insert )
 				break;
@@ -34,7 +84,7 @@ class Settings
 				'postprefix' => [
 					'label' => $txt['PostPrefix_main'],
 					'icon' => 'reports',
-					'function' => __NAMESPACE__ . '\Settings::index',
+					'function' => __NAMESPACE__ . '\Settings::index#',
 					'permission' => ['postprefix_manage'],
 					'subsections' => [
 						'prefixes' => [$txt['PostPrefix_tab_prefixes']],
@@ -45,14 +95,6 @@ class Settings
 			],
 			array_slice($admin_areas['layout']['areas'], $counter)
 		);
-
-		// Permissions
-		add_integration_function('integrate_load_permissions', __CLASS__.'::permissions', false);
-		add_integration_function('integrate_load_illegal_guest_permissions', __CLASS__.'::illegal_guest_permissions', false);
-
-		// Boards
-		add_integration_function('integrate_edit_board', __CLASS__.'::edit_board', false);
-		add_integration_function('integrate_modify_board', __CLASS__.'::modify_board', false);
 	}
 
 	public static function permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
@@ -69,70 +111,6 @@ class Settings
 
 		// Guests do not play nicely with this mod
 		$context['non_guest_permissions'] = array_merge($context['non_guest_permissions'], ['postprefix_manage']);
-	}
-
-	public static function index()
-	{
-		global $context, $txt;
-
-		loadtemplate('PostPrefix');
-
-		$subactions = [
-			'prefixes' => 'Manage::prefixes',
-			'add' => 'Manage::set_prefix',
-			'edit' => 'Manage::set_prefix',
-			'save' => 'Manage::save',
-			'delete' => 'Manage::delete',
-			'status' => 'Manage::status',
-			'groups' => 'Manage::groups',
-			'boards' => 'Manage::boards',
-			'options' => 'Settings::options',
-		];
-		$sa = isset($_GET['sa'], $subactions[$_GET['sa']]) ? $_GET['sa'] : 'prefixes';
-
-		// Create the tabs for the template.
-		$context[$context['admin_menu_name']]['tab_data'] = [
-			'title' => $txt['PostPrefix_tab_prefixes'],
-			'description' => $txt['PostPrefix_tab_prefixes_desc'],
-			'tabs' => [
-				'prefixes' => ['description' => $txt['PostPrefix_tab_prefixes_desc']],
-				'add' => ['description' => $txt['PostPrefix_tab_prefixes_add_desc']],
-				'options' => ['description' => $txt['PostPrefix_tab_options_desc']],
-			],
-		];
-		call_helper(__NAMESPACE__ . '\\' . $subactions[$sa]);
-	}
-
-	public static function options($return_config = false)
-	{
-		global $context, $txt, $sourcedir;
-
-		require_once($sourcedir . '/ManageServer.php');
-		loadLanguage('ManageSettings');
-
-		// Set all the page stuff
-		$context['sub_template'] = 'show_settings';
-		$context['page_title'] = $txt['PostPrefix_main']. ' - ' . $txt['PostPrefix_tab_options'];
-		$context[$context['admin_menu_name']]['tab_data']['title'] = $context['page_title'];
-
-		$config_vars = [
-			['title', 'PostPrefix_tab_options'],
-			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
-			['boards', 'PostPrefix_filter_boards', 'subtext' => $txt['PostPrefix_filter_boards_desc']],
-			['select', 'PostPrefix_select_order', [
-					$txt['PostPrefix_prefix_name'],
-					$txt['PostPrefix_prefix_id'],
-			],
-				'subtext' => $txt['PostPrefix_select_order_desc']
-			],
-			'',
-			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
-			['permissions', 'postprefix_manage', 'subtext' => $txt['permissionhelp_postprefix_manage']],
-			['permissions', 'postprefix_set', 'subtext' => $txt['permissionhelp_postprefix_set']],
-		];
-
-		// Save!
-		Helper::Save($config_vars, $return_config, 'options');
 	}
 
 	public static function edit_board()
@@ -178,5 +156,54 @@ class Settings
 			elseif (empty($boardOptions['PostPrefix_prefix_boards_require']) && in_array($id, explode(',', $modSettings['PostPrefix_prefix_boards_require'])))
 				updateSettings(['PostPrefix_prefix_boards_require' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_prefix_boards_require']), [$id]))], true);
 		}
+	}
+
+	public function index()
+	{
+		global $context, $txt;
+
+		// Create the tabs for the template.
+		$context[$context['admin_menu_name']]['tab_data'] = [
+			'title' => $txt['PostPrefix_tab_prefixes'],
+			'description' => $txt['PostPrefix_tab_prefixes_desc'],
+			'tabs' => [
+				'prefixes' => ['description' => $txt['PostPrefix_tab_prefixes_desc']],
+				'add' => ['description' => $txt['PostPrefix_tab_prefixes_add_desc']],
+				'options' => ['description' => $txt['PostPrefix_tab_options_desc']],
+			],
+		];
+		call_helper(__NAMESPACE__ . '\\' . $this->_subactions[$this->_sa]);
+	}
+
+	public static function options($return_config = false)
+	{
+		global $context, $txt, $sourcedir;
+
+		require_once($sourcedir . '/ManageServer.php');
+		loadLanguage('ManageSettings');
+
+		// Set all the page stuff
+		$context['sub_template'] = 'show_settings';
+		$context['page_title'] = $txt['PostPrefix_main']. ' - ' . $txt['PostPrefix_tab_options'];
+		$context[$context['admin_menu_name']]['tab_data']['title'] = $context['page_title'];
+
+		$config_vars = [
+			['title', 'PostPrefix_tab_options'],
+			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
+			['boards', 'PostPrefix_filter_boards', 'subtext' => $txt['PostPrefix_filter_boards_desc']],
+			['select', 'PostPrefix_select_order', [
+					$txt['PostPrefix_prefix_name'],
+					$txt['PostPrefix_prefix_id'],
+			],
+				'subtext' => $txt['PostPrefix_select_order_desc']
+			],
+			'',
+			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
+			['permissions', 'postprefix_manage', 'subtext' => $txt['permissionhelp_postprefix_manage']],
+			['permissions', 'postprefix_set', 'subtext' => $txt['permissionhelp_postprefix_set']],
+		];
+
+		// Save!
+		Helper::Save($config_vars, $return_config, 'options');
 	}
 }

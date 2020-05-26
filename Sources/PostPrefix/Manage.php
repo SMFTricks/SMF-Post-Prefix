@@ -15,13 +15,49 @@ if (!defined('SMF'))
 
 class Manage
 {
-	private static $cats_columns = ['c.id_cat', 'c.name AS cat_name', 'c.cat_order'];
-	private static $boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
-	private static $groups_columns = ['group_name', 'id_group', 'min_posts', 'online_color'];
-	private static $fields_data = [];
-	private static $fields_type = [];
+	/**
+	 * @var array Cat columns
+	 */
+	private $_cats_columns = ['c.id_cat', 'c.name AS cat_name', 'c.cat_order'];
 
-	public static function prefixes()
+	/**
+	 * @var array Board columns
+	 */
+	private $_boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
+
+	/**
+	 * @var array Group columns
+	 */
+	private $_groups_columns = ['group_name', 'id_group', 'min_posts', 'online_color'];
+
+	/**
+	 * @var array Group array for showing prefix groups
+	 */
+	private $_groups = [];
+
+	/**
+	 * @var array Columns with the information.
+	 */
+	protected $_fields_data = [];
+
+	/**
+	 * @var array|string The type of the columns.
+	 */
+	protected $_fields_type;
+
+	/**
+	 * Manage::__construct()
+	 *
+	 * Load the template if needed
+	 */
+	function __construct()
+	{
+		// Load template
+		if (isset($_REQUEST['sa']) && ($_REQUEST['sa'] == 'edit' || $_REQUEST['sa'] == 'add' || $_REQUEST['sa'] == 'boards' || $_REQUEST['sa'] == 'groups'))
+			loadtemplate('PostPrefix');
+	}
+
+	public function prefixes()
 	{
 		global $context, $sourcedir, $modSettings, $scripturl, $txt;
 
@@ -55,11 +91,9 @@ class Manage
 						'class' => 'centertext',
 					],
 					'data' => [
-						'function' => function($row)
+						'function' => function($row) use ($scripturl)
 						{
-							global $scripturl;
-
-							return '<a href="'.$scripturl.'?action=admin;area=postprefix;sa=status;id='. $row['id'].'"><span class="main_icons warning_' . ($row['status'] == 1 ? 'watch' : 'mute') . '"></span></a>';
+							return '<a href="' . $scripturl . '?action=admin;area=postprefix;sa=status;id=' . $row['id'] . '"><span class="main_icons warning_' . (!empty($row['status']) ? 'watch' : 'mute') . '"></span></a>';
 						},
 						'style' => 'width: 2%',
 						'class' => 'centertext',
@@ -179,7 +213,7 @@ class Manage
 		createList($listOptions);
 	}
 
-	public static function set_prefix()
+	public function set_prefix()
 	{
 		global $txt, $context;
 
@@ -251,22 +285,22 @@ class Manage
 				'group_name' => $txt['parent_members_only'],
 			]
 		];
-		$context['forum_groups'] += Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', self::$groups_columns, 'WHERE id_group != 3');
+		$context['forum_groups'] += Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', $this->_groups_columns, 'WHERE id_group != 3');
 
 		// Boards
-		$context['forum_categories'] = Helper::Nested('b.board_order', 'boards AS b', self::$cats_columns, self::$boards_columns, 'boards', '', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
+		$context['forum_categories'] = Helper::Nested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards', '', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
 		// Now, let's sort the list of categories into the boards for templates that like that.
 		foreach ($context['forum_categories'] as $category)
 			// Include a list of boards per category for easy toggling.
 			$context['forum_categories'][$category['id_cat']]['child_ids'] = array_keys($category['boards']);
 	}
 
-	public static function save()
+	public function save()
 	{
 		global $smcFunc, $txt;
 
 		// Data
-		self::$fields_data = [
+		$this->_fields_data = [
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,
 			'name' => (string) isset($_REQUEST['name']) ? $smcFunc['htmlspecialchars']($_REQUEST['name'], ENT_QUOTES) : '',
 			'status' => (int) isset($_REQUEST['status']) ? 1 : 0,
@@ -279,39 +313,39 @@ class Manage
 		];
 
 		// Validate info
-		self::Validate(self::$fields_data);
+		$this->Validate($this->_fields_data);
 		checkSession();
 		$status = 'updated';
 
-		if (empty(self::$fields_data['id']))
+		if (empty($this->_fields_data['id']))
 		{
 			// Type
-			foreach(self::$fields_data as $column => $type)
-				self::$fields_type[$column] = str_replace('integer', 'int', gettype($type));
+			foreach($this->_fields_data as $column => $type)
+				$this->_fields_type[$column] = str_replace('integer', 'int', gettype($type));
 
 			// Insert
-			Helper::Insert('postprefixes', self::$fields_data, self::$fields_type);
+			Helper::Insert('postprefixes', $this->_fields_data, $this->_fields_type);
 			$status = 'added';
 		}
 		else
 		{
-			self::$fields_type = '';
+			$this->_fields_type = '';
 			
 			// Remove those that don't require updating
-			unset(self::$fields_data['page_type']);
+			unset($this->_fields_data['page_type']);
 
 			// Type
-			foreach(self::$fields_data as $column => $type)
-				self::$fields_type .= $column . ' = {'.str_replace('integer', 'int', gettype($type)).':'.$column.'}, ';
+			foreach($this->_fields_data as $column => $type)
+				$this->_fields_type .= $column . ' = {'.str_replace('integer', 'int', gettype($type)).':'.$column.'}, ';
 
 			// Update
-			Helper::Update('postprefixes', self::$fields_data, self::$fields_type, 'WHERE id = ' . self::$fields_data['id']);
+			Helper::Update('postprefixes', $this->_fields_data, $this->_fields_type, 'WHERE id = ' . $this->_fields_data['id']);
 		}
 
 		redirectexit('action=admin;area=postprefix;sa=prefixes;'.$status);
 	}
 
-	public static function validate($data)
+	public function validate($data)
 	{
 		global $txt;
 
@@ -324,7 +358,7 @@ class Manage
 			fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 	}
 
-	public static function delete()
+	public function delete()
 	{
 		global $context, $smcFunc, $txt;
 
@@ -350,7 +384,7 @@ class Manage
 		redirectexit('action=admin;area=postprefix;sa=prefixes;deleted;');
 	}
 
-	public static function status()
+	public function status()
 	{
 		global $smcFunc, $context, $modSettings, $txt;
 
@@ -378,7 +412,7 @@ class Manage
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
 	}
 
-	public static function show_define($type = 'boards')
+	public function show_define($type = 'boards')
 	{
 		global $smcFunc, $context, $txt;
 
@@ -409,31 +443,28 @@ class Manage
 		$context['page_title'] = $context[$context['admin_menu_name']]['tab_data']['title'];
 	}
 
-	public static function groups()
+	public function groups()
 	{
 		global $context, $txt;
-
-		// Groups type
-		self::show_define('groups');
-
-		// Get groups
-		$context['prefix']['get_type'] = Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', self::$groups_columns, 'WHERE id_group != 3 AND FIND_IN_SET(id_group, \''. $context['prefix']['details']['groups'] .'\')');
 
 		// Load extra language
 		loadLanguage('ManageBoards');
 
-		// :(
-		$groups = [];
+		// Groups type
+		$this->show_define('groups');
+
+		// Get groups
+		$context['prefix']['get_type'] = Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', $this->_groups_columns, 'WHERE id_group != 3 AND FIND_IN_SET(id_group, \''. $context['prefix']['details']['groups'] .'\')');
 
 		// Guests
 		if (in_array(-1, explode(',', $context['prefix']['details']['groups'])))
-			$groups[-2] = [
+			$this->groups[-2] = [
 				'id_group' => '-1',
 				'cat_name' => $txt['parent_guests_only'],
 			];
 		// Regular Members
-		if (in_array(0, explode(',', $context['prefix']['details']['groups'])))
-			$groups[-1] = [
+		if (!empty($context['prefix']['details']['groups']) && in_array(0, explode(',', $context['prefix']['details']['groups'])))
+			$this->groups[-1] = [
 				'id_group' => '0',
 				'cat_name' => $txt['parent_members_only'],
 			];
@@ -441,23 +472,23 @@ class Manage
 		// Well this isn't great but meh
 		foreach($context['prefix']['get_type'] as $group)
 		{
-			$groups[$group['id_group']] = $group;
-			$groups[$group['id_group']]['cat_name'] = $group['group_name'];
+			$this->groups[$group['id_group']] = $group;
+			$this->groups[$group['id_group']]['cat_name'] = $group['group_name'];
 		}
 
 		// Re-assigns
-		$context['prefix']['get_type'] = $groups;
+		$context['prefix']['get_type'] = $this->groups;
 	}
 
-	public static function boards()
+	public function boards()
 	{
 		global $context, $smcFunc;
 
 		// Boards type
-		self::show_define();
+		$this->show_define();
 
 		// Get groups
-		$context['prefix']['get_type'] = Helper::Nested('b.board_order', 'boards AS b', self::$cats_columns, self::$boards_columns, 'boards', 'WHERE FIND_IN_SET(b.id_board, \''. $context['prefix']['details']['boards'] .'\')', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
+		$context['prefix']['get_type'] = Helper::Nested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards', 'WHERE FIND_IN_SET(b.id_board, \''. $context['prefix']['details']['boards'] .'\')', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
 		// Now, let's sort the list of categories into the boards for templates that like that.
 		foreach ($context['prefix']['get_type'] as $category)
 			// Include a list of boards per category for easy toggling.

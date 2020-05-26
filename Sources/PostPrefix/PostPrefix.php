@@ -15,7 +15,7 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '3.0';
+	public static $version = '3.1';
 
 	public static function initialize()
 	{
@@ -67,16 +67,16 @@ class PostPrefix
 		switch ($_REQUEST['action'])
 		{
 			case 'admin':
-				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas', false, '$sourcedir/PostPrefix/Settings.php');
+				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas#', false);
 				break;
 			case 'post':
 			case 'post2':
 				add_integration_function('integrate_before_create_topic', __NAMESPACE__ . '\Posting::before_create_topic', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_create_post', __NAMESPACE__ . '\Posting::create_post', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Posting::modify_post', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Posting::post2_start', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Posting::post_errors', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Posting::post_end', false, '$sourcedir/PostPrefix/Posting.php');
+				add_integration_function('integrate_create_post', __NAMESPACE__ . '\Posting::create_post', false);
+				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Posting::modify_post', false);
+				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Posting::post2_start', false);
+				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Posting::post_errors', false);
+				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Posting::post_end', false);
 				break;
 		}
 	}
@@ -126,8 +126,10 @@ class PostPrefix
 
 		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set') && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 		{
+			print_r($user_info['groups']);
+
 			// Get a list of prefixes
-			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
+			$context['prefix']['filter'] = Helper::Get(0, 10000, 'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET(' . $board . ', pp.boards)');
 
 			// Load language
 			loadLanguage('PostPrefix/');

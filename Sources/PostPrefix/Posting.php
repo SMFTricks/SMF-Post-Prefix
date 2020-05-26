@@ -17,13 +17,13 @@ class Posting
 {
 	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
 	{		
-		$topic_columns = array_merge($topic_columns, ['id_prefix' => 'int']);
-		$topic_parameters = array_merge($topic_parameters, [$topicOptions['id_prefix'] === null ? 0 : $topicOptions['id_prefix']]);
+		$topic_columns['id_prefix'] = 'int';
+		$topic_parameters[] = $topicOptions['id_prefix'] === null ? 0 : $topicOptions['id_prefix'];
 	}
 
 	public static function create_post(&$msgOptions, &$topicOptions, &$posterOptions, &$message_columns, &$message_parameters)
 	{
-		$topicOptions = array_merge($topicOptions, ['id_prefix' => isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null]);
+		$topicOptions['id_prefix'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null;
 	}
 
 	public static function modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts)
@@ -75,7 +75,7 @@ class Posting
 			loadLanguage('PostPrefix/');
 
 			// Load the prefixes
-			$context['prefix']['post'] = Helper::Get(0, 10000, (!empty($modSettings['PostPrefix_select_order']) ? 'pp.id' : 'pp.name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET('. $user_info['groups']) . ', pp.groups))'));
+			$context['prefix']['post'] = Helper::Get(0, 10000, 'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET('.$board.', pp.boards)'. (allowedTo('postprefix_manage') ? '' : ' AND (FIND_IN_SET(' . implode(', pp.groups) OR FIND_IN_SET(', $user_info['groups']) . ', pp.groups))'));
 		}
 	}
 
