@@ -151,7 +151,7 @@ class PostPrefix
 
 	public static function pre_messageindex(&$sort_methods, &$sort_methods_table)
 	{
-		global $board_info, $context, $modSettings;
+		global $board_info, $context, $modSettings, $user_info;
 
 		// How many topics do we have in total?
 		if (isset($_REQUEST['prefix']) && in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])))
