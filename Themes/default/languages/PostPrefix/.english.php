@@ -29,7 +29,6 @@ $txt['PostPrefix_no_prefixes'] = 'No prefixes have been added yet!';
 $txt['PostPrefix_prefix_name'] = 'Name';
 $txt['PostPrefix_prefix_modify'] = 'Modify';
 $txt['PostPrefix_prefix_status'] = 'Status';
-$txt['PostPrefix_prefix_modify'] = 'Modify';
 $txt['PostPrefix_prefix_groups'] = 'Groups';
 $txt['PostPrefix_prefix_boards'] = 'Boards';
 $txt['PostPrefix_prefix_id'] = 'ID';
@@ -78,13 +77,13 @@ $txt['permissionname_postprefix_manage'] = 'Manage Prefixes';
 $txt['groups_postprefix_manage'] = 'Manage Prefixes';
 $txt['permissionhelp_postprefix_manage'] = 'If the user can manage prefixes.';
 $txt['permissionhelp_groups_postprefix_manage'] = 'If the user can manage prefixes.';
-$txt['cannot_postprefix_manage'] = ' You\'re not allowed to manage the prefixes.';
+$txt['cannot_postprefix_manage'] = 'You\'re not allowed to manage the prefixes.';
 $txt['permissiongroup_postprefix_set'] = 'Use Prefixes';
 $txt['permissionname_postprefix_set'] = 'Use Prefixes';
 $txt['groups_postprefix_set'] = 'Use Prefixes';
 $txt['permissionhelp_postprefix_set'] = 'If the user can set prefixes.';
 $txt['permissionhelp_groups_postprefix_set'] = 'If the user can set prefixes.';
-$txt['cannot_spostprefix_set'] = ' You\'re not allowed to use prefixes.';
+$txt['cannot_spostprefix_set'] = 'You\'re not allowed to use prefixes.';
 
 // Post
 $txt['PostPrefix_select_prefix'] = 'Select Prefix';
