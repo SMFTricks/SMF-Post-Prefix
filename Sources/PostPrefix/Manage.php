@@ -243,7 +243,7 @@ class Manage
 			
 			addInlineJavascript('var postprefix_color = \''.$context['prefix']['color']. '\';', true);
 
-			// We found a page
+			// We found a prefix
 			if (empty($context['prefix']))
 				fatal_error($txt['PostPrefix_error_unable_tofind'], false);
 		}
