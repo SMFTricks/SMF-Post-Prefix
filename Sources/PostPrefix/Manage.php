@@ -57,9 +57,9 @@ class Manage
 			loadtemplate('PostPrefix');
 	}
 
-	public function prefixes()
+	public static function prefixes()
 	{
-		global $context, $sourcedir, $modSettings, $scripturl, $txt;
+		global $context, $sourcedir, $scripturl, $txt;
 
 		require_once($sourcedir . '/Subs-List.php');
 		$context['sub_template'] = 'show_list';
@@ -297,7 +297,7 @@ class Manage
 
 	public function save()
 	{
-		global $smcFunc, $txt;
+		global $smcFunc;
 
 		// Data
 		$this->_fields_data = [
@@ -360,7 +360,7 @@ class Manage
 
 	public function delete()
 	{
-		global $context, $smcFunc, $txt;
+		global $context, $txt;
 
 		// Set all the page stuff
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes'];
@@ -386,7 +386,7 @@ class Manage
 
 	public function status()
 	{
-		global $smcFunc, $context, $modSettings, $txt;
+		global $context, $txt;
 
 		// Set all the page stuff
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $txt['PostPrefix_tab_prefixes_edit'];
@@ -414,7 +414,7 @@ class Manage
 
 	public function show_define($type = 'boards')
 	{
-		global $smcFunc, $context, $txt;
+		global $context, $txt;
 
 		// Load the info
 		$context[$context['admin_menu_name']]['current_subsection'] = 'prefixes';
@@ -458,13 +458,13 @@ class Manage
 
 		// Guests
 		if (in_array(-1, explode(',', $context['prefix']['details']['groups'])))
-			$this->groups[-2] = [
+			$this->_groups[-2] = [
 				'id_group' => '-1',
 				'cat_name' => $txt['parent_guests_only'],
 			];
 		// Regular Members
 		if (!empty($context['prefix']['details']['groups']) && in_array(0, explode(',', $context['prefix']['details']['groups'])))
-			$this->groups[-1] = [
+			$this->_groups[-1] = [
 				'id_group' => '0',
 				'cat_name' => $txt['parent_members_only'],
 			];
@@ -472,17 +472,17 @@ class Manage
 		// Well this isn't great but meh
 		foreach($context['prefix']['get_type'] as $group)
 		{
-			$this->groups[$group['id_group']] = $group;
-			$this->groups[$group['id_group']]['cat_name'] = $group['group_name'];
+			$this->_groups[$group['id_group']] = $group;
+			$this->_groups[$group['id_group']]['cat_name'] = $group['group_name'];
 		}
 
 		// Re-assigns
-		$context['prefix']['get_type'] = $this->groups;
+		$context['prefix']['get_type'] = $this->_groups;
 	}
 
 	public function boards()
 	{
-		global $context, $smcFunc;
+		global $context;
 
 		// Boards type
 		$this->show_define();

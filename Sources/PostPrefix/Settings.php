@@ -48,7 +48,7 @@ class Settings
 
 		// Array of sections
 		$this->_subactions = [
-			'prefixes' => 'Manage::prefixes',
+			'prefixes' => 'Manage::prefixes#',
 			'add' => 'Manage::set_prefix#',
 			'edit' => 'Manage::set_prefix#',
 			'save' => 'Manage::save#',
@@ -70,7 +70,7 @@ class Settings
 	 */
 	public static function hookAreas(&$admin_areas)
 	{
-		global $scripturl, $txt;
+		global $txt;
 
 		$insert = 'postsettings';
 		$counter = 0;
