@@ -215,8 +215,11 @@ class PostPrefix
 			foreach ($context['topicinfo']['prefix'] as $prefix)
 				$context['topicinfo']['prefix'][$prefix] = $context['topicinfo']['postprefix_'.$prefix];
 
-			// Add the prefix to the title
-			$context['subject'] = self::format($context['topicinfo']['prefix']) . ' ' . $context['topicinfo']['subject'];
+			// Add the prefix to the title without harming any other vital usage of this information
+			addInlineJavaScript('
+				var pp_subject = document.getElementById("top_subject");
+				pp_subject.innerHTML = \''.self::format($context['topicinfo']['prefix']).'\' + " " + \'' . $context['topicinfo']['subject'] . '\';
+			', true);
 
 			// Add the prefix to the linktree
 			$context['linktree'][count($context['linktree'])-1]['extra_before'] = self::format($context['topicinfo']['prefix'], ';text-shadow:none;padding-top:0;padding-bottom:0;');
