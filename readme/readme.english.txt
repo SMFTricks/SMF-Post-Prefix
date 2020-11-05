@@ -1,6 +1,6 @@
 ﻿[center][url=https://smftricks.com][img]https://smftricks.com/logos/logo.png[/img][/url][/center]
 
-[img]https://img.shields.io/badge/License-MPL 2.0-a05a3f?style=flat-square[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0?style=flat-square[/img]
+[img]https://img.shields.io/badge/License-MPL 2.0-a05a3f?style=flat-square[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0?style=flat-square[/img] [img]https://img.shields.io/badge/SMF-2.0-996ee1?style=flat-square[/img]
 
 [b][size=14pt]SMF Post Prefix[/size][/b]
 [size=8pt]Developed by [url=https://smftricks.com/index.php?action=profile;u=1]Diego Andrés[/url][/size]
@@ -12,9 +12,9 @@
 
 [hr]
 
-[size=8pt][color=teal]Features[/color][/size]
+[size=12pt][color=teal]Features[/color][/size]
 [list]
-[li][size=8pt]Add/Edit prefixes[/size]
+[li][size=9pt]Add/Edit prefixes[/size]
 [list]
 [li][size=8pt]Enable/Disable prefix[/size][/li]
 [li][size=8pt]Select a color for the prefix[/size]
@@ -39,7 +39,7 @@
 [li][size=8pt]Use prefixes (Global permission)[/size][/li]
 [/list]
 [/li]
-[li][size=8pt]Filter Topics by prefix[/size]
+[li][size=9pt]Filter Topics by prefix[/size]
 [list]
 [li][size=8pt]Enable the filter box on selected boards[/size][/li]
 [/list]
