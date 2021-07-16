@@ -20,16 +20,17 @@
 		<require-dir name="Sources" destination="$boarddir">Source files</require-dir>
 		<!-- Templates and Languages -->
 		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
-		<!-- Hooks -->
-		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<!-- Database -->
 		<database>install.php</database>
+		<!-- Hooks -->
+		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<!-- Redirect -->
 		<redirect url="?action=admin;area=postprefix">redirect.txt</redirect>
 	</install>
 	
 	<uninstall for="2.1 - 2.1.99, 2.1 Beta 1 - 3">
-
+		<!-- Hooks -->
+		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" reverse="true" />
 		<!-- Source Files -->
 		<remove-dir name="$sourcedir/PostPrefix">Source files</remove-dir>
 		<!-- Languages -->
@@ -41,8 +42,6 @@
 		<remove-file name="$themedir/css/postprefix.css">CSS file</remove-file>
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
-		<!-- Hooks -->
-		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" reverse="true" />
 		<!-- Database -->
 		<database>install.php</database>
 	</uninstall>
