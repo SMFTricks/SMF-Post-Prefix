@@ -15,7 +15,7 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '3.0';
+	public static $version = '3.2.2';
 
 	public static function initialize()
 	{
