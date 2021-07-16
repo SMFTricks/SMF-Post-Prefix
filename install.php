@@ -29,12 +29,12 @@
 					'type' => 'int',
 					'size' => 10,
 					'auto' => true,
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'name',
 					'type' => 'text',
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'status',
@@ -44,34 +44,34 @@
 				array(
 					'name' => 'color',
 					'type' => 'text',
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'bgcolor',
 					'type' => 'smallint',
 					'default' => 0,
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'invert_color',
 					'type' => 'smallint',
 					'default' => 0,
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'groups',
 					'type' => 'text',
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'boards',
 					'type' => 'text',
-					'null' => false,
+					'not_null' => true,
 				),
 				array(
 					'name' => 'icon_url',
 					'type' => 'text',
-					'null' => false,
+					'not_null' => true,
 				),
 			),
 			'indexes' => array(
@@ -106,7 +106,7 @@
 				'name' => 'id_prefix',
 				'type' => 'int',
 				'default' => 0,
-				'null' => false,
+				'not_null' => true,
 			)
 		);
 	}
