@@ -55,25 +55,28 @@ class Helper
 		return $rows;
 	}
 
-	public static function Get($start, $items_per_page, $sort, $table, $columns, $additional_query = '', $single = false, $additional_columns = '', $attachments = [])
+	public static function Get($start, $items_per_page, $sort, $table, $columns, $additional_query = '', $single = false, $additional_columns = '', $more_values = [], $attachments = [])
 	{
 		global $smcFunc;
 
 		$columns = implode(', ', $columns);
-		$result = $smcFunc['db_query']('', '
-			SELECT ' . $columns . '
-			FROM {db_prefix}{raw:table} ' .
-			$additional_columns. ' 
-			{raw:where}'. (empty($single) ? '
-			ORDER by {raw:sort}
-			LIMIT {int:start}, {int:maxindex}' : ''),
+		$data = array_merge(
 			[
 				'table' => $table,
 				'start' => $start,
 				'maxindex' => $items_per_page,
 				'sort' => $sort,
-				'where' => $additional_query,
-			]
+			],
+			$more_values
+		);
+		$result = $smcFunc['db_query']('', '
+			SELECT ' . $columns . '
+			FROM {db_prefix}{raw:table} ' .
+			$additional_columns. ' 
+			'. $additional_query . (empty($single) ? '
+			ORDER BY {raw:sort}
+			LIMIT {int:start}, {int:maxindex}' : ''),
+			$data
 		);
 
 		// Single?
@@ -91,23 +94,26 @@ class Helper
 		return $items;
 	}
 
-	public static function Nested($sort, $table, $column_main, $column_sec, $query_member, $additional_query = '', $additional_columns = '', $attachments = [], $attach_main = false)
+	public static function Nested($sort, $table, $column_main, $column_sec, $query_member, $additional_query = '', $additional_columns = '', $more_values = [], $attachments = [], $attach_main = false)
 	{
 		global $smcFunc;
 
 		$columns = array_merge(array_merge($column_main, $column_sec), $attachments);
 		$columns = implode(', ', $columns);
+		$data = array_merge(
+			[
+				'table' => $table,
+				'sort' => $sort,
+			],
+			$more_values
+		);
 		$result = $smcFunc['db_query']('', '
 			SELECT ' . $columns . '
 			FROM {db_prefix}{raw:table} ' .
 			$additional_columns. ' 
-			{raw:where}
+			'. $additional_query . '
 			ORDER by {raw:sort}',
-			[
-				'table' => $table,
-				'sort' => $sort,
-				'where' => $additional_query,
-			]
+			$data
 		);
 
 		$items = [];
