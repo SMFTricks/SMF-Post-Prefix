@@ -454,7 +454,7 @@ class Manage
 		$this->show_define('groups');
 
 		// Get groups
-		$context['prefix']['get_type'] = Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', $this->_groups_columns, 'WHERE id_group != 3 AND FIND_IN_SET(id_group, \''. $context['prefix']['details']['groups'] .'\')');
+		$context['prefix']['get_type'] = Helper::Get(0, 10000, 'min_posts, group_name', 'membergroups', $this->_groups_columns, 'WHERE id_group != 3 AND id_group IN ({array_int:groups})', false, '', ['groups' => explode(',', $context['prefix']['details']['groups'])]);
 
 		// Guests
 		if (in_array(-1, explode(',', $context['prefix']['details']['groups'])))
@@ -488,7 +488,7 @@ class Manage
 		$this->show_define();
 
 		// Get groups
-		$context['prefix']['get_type'] = Helper::Nested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards', 'WHERE FIND_IN_SET(b.id_board, \''. $context['prefix']['details']['boards'] .'\')', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
+		$context['prefix']['get_type'] = Helper::Nested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards', 'WHERE b.id_board IN ({array_int:boards})', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)', ['boards' => explode(',', $context['prefix']['details']['boards'])]);
 		// Now, let's sort the list of categories into the boards for templates that like that.
 		foreach ($context['prefix']['get_type'] as $category)
 			// Include a list of boards per category for easy toggling.
