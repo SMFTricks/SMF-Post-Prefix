@@ -155,7 +155,7 @@ class PostPrefix
 
 		// How many topics do we have in total?
 		if (isset($_REQUEST['prefix']) && in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])))
-			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = ' . $_REQUEST['prefix'] . ' AND id_board = ' . $board_info['id'] . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : (' AND (approved = 1' . ($user_info['is_guest'] ? '' : ' OR id_member_started = ' . $user_info['id'])) . ')'));
+			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = ' . $_REQUEST['prefix'] . ' AND id_board = ' . $board_info['id'] . (!$modSettings['postmod_active'] || empty($context['can_approve_posts']) ? '' : (' AND (approved = 1' . ($user_info['is_guest'] ? '' : ' OR id_member_started = ' . $user_info['id'])) . ')'));
 	}
 
 	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
