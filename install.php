@@ -96,6 +96,7 @@
 				'name' => 'require_prefix',
 				'type' => 'tinyint',
 				'default' => 0,
+				'not_null' => true,
 			)
 		);
 
