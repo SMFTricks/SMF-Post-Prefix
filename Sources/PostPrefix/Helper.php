@@ -35,19 +35,23 @@ class Helper
 		prepareDBSettingContext($config_vars);
 	}
 
-	public static function Count($table, $columns, $additional_query = '')
+	public static function Count($table, $columns, $additional_query = '', $additional_columns = '', $more_values = [])
 	{
 		global $smcFunc;
 
 		$columns = implode(', ', $columns);
-		$request = $smcFunc['db_query']('','
-			SELECT ' . $columns . '
-			FROM {db_prefix}{raw:table}
-			{raw:where}',
+		$data = array_merge(
 			[
 				'table' => $table,
-				'where' => $additional_query,
-			]
+			],
+			$more_values
+		);
+		$request = $smcFunc['db_query']('','
+			SELECT ' . $columns . '
+			FROM {db_prefix}{raw:table} ' .
+			$additional_columns. ' 
+			'. $additional_query,
+			$data
 		);
 		$rows = $smcFunc['db_num_rows']($request);
 		$smcFunc['db_free_result']($request);

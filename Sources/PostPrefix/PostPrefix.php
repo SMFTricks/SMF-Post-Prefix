@@ -15,7 +15,7 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '3.2.4';
+	public static $version = '3.3';
 
 	public static function initialize()
 	{
@@ -151,11 +151,12 @@ class PostPrefix
 
 	public static function pre_messageindex(&$sort_methods, &$sort_methods_table)
 	{
-		global $board_info, $context, $modSettings, $user_info;
+		global $board_info, $modSettings, $user_info;
 
 		// How many topics do we have in total?
 		if (isset($_REQUEST['prefix']) && in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])))
-			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = ' . $_REQUEST['prefix'] . ' AND id_board = ' . $board_info['id'] . (!$modSettings['postmod_active'] || empty($context['can_approve_posts']) ? '' : (' AND (approved = 1' . ($user_info['is_guest'] ? '' : ' OR id_member_started = ' . $user_info['id'])) . ')'));
+			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = {int:prefix} AND id_board = {int:board}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
+			AND (approved = 1 OR (id_member_started != 0 AND id_member_started = {int:current_member}))'), '', ['prefix' => $_REQUEST['prefix'], 'board' => $board_info['id'], 'current_member' => $user_info['id']]);
 	}
 
 	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
