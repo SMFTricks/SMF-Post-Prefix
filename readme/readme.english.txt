@@ -8,7 +8,7 @@
 [hr]
 
 [size=12pt][color=navy]Introduction[/color][/size]
-[size=8pt]SMF Post Prefix mod allows you to set prefixes for your topics and easily customize them with colors or replace them with icons..[/size]
+[size=8pt]SMF Post Prefix mod allows you to set prefixes for your topics and easily customize them with colors or replace them with icons.[/size]
 
 [hr]
 
