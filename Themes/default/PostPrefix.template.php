@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
+ * @copyright Copyright (c) 2022, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -12,31 +12,34 @@ use PostPrefix\PostPrefix;
 
 function template_prefixfilter_above()
 {
-	global $context, $modSettings, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
-	// Prefix
-	if (!empty($context['prefix']['filter']))
-	{
-		echo'
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['PostPrefix_filter'],'
-				</h3>
+	// Check if there are actually any prefixes at this point
+	if (empty($context['prefix']['filter']))
+		return;
+
+	// Prefixes
+	echo'
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['PostPrefix_filter'],'
+			</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">';
+
+		// Show all the prefixes for this board.
+		foreach ($context['prefix']['filter'] as $prefix)
+		{
+			echo'
+				<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::format($prefix) . '</a>,';
+		}
+
+			echo '
+				<a href="', $scripturl, '?board=', $context['current_board'], '.0;prefix=0">', $txt['PostPrefix_filter_noprefix'], '</a>, 
+				<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['PostPrefix_filter_all'], '</a>
 			</div>
-			<div class="windowbg">
-				<div class="content">';
-
-			// Show all the prefixes for this board.
-			foreach ($context['prefix']['filter'] as $prefix)
-				echo'
-					<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::format($prefix) . '</a>,';
-
-				echo '
-					<a href="', $scripturl, '?board=', $context['current_board'], '.0;prefix=0">', $txt['PostPrefix_filter_noprefix'], '</a>, 
-					<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['PostPrefix_filter_all'], '</a>
-				</div>
-			</div>';
-	}
+		</div>';
 }
 
 function template_prefixfilter_below(){}
