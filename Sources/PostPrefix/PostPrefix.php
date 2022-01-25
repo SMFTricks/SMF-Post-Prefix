@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
+ * @copyright Copyright (c) 2022, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -47,6 +47,7 @@ class PostPrefix
 			'display_topic',
 			'display_message_list',
 			'load_theme',
+			'menu_buttons',
 		];
 		foreach ($hooks as $point )
 			add_integration_function('integrate_' . $point, __CLASS__ . '::' . $point, false);
@@ -226,5 +227,12 @@ class PostPrefix
 			$context['linktree'][count($context['linktree'])-1]['extra_before'] = self::format($context['topicinfo']['prefix'], ';text-shadow:none;padding-top:0;padding-bottom:0;');
 		}
 	}
-}
 
+	public function menu_buttons(&$buttons)
+	{
+		global $context;
+
+		// Add the prefix permission to the admin button
+		$buttons['admin']['show'] = $buttons['admin']['show']  || allowedTo('postprefix_manage');
+	}
+}
