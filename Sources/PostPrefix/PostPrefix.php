@@ -15,7 +15,7 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '3.3';
+	public static $version = '4.0';
 
 	public static function initialize()
 	{
@@ -62,7 +62,7 @@ class PostPrefix
 		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false]);
 	}
 
-	public static function actions(&$actions)
+	public static function actions()
 	{
 		switch ($_REQUEST['action'])
 		{
@@ -103,22 +103,22 @@ class PostPrefix
 
 	public static function messageindex_buttons()
 	{
-		global $modSettings, $context, $user_info, $board;
+		global $modSettings, $context, $board;
 
 		// Rewrite the biach
 		$context['postprefix_topics'] = [];
-		foreach ($context['topics'] as $topic => $value)
+		foreach ($context['topics'] as $pp_topic => $value)
 		{
-			$context['postprefix_topics'][$topic] = $context['topics'][$topic];
+			$context['postprefix_topics'][$pp_topic] = $context['topics'][$pp_topic];
 
 			// Topic has a prefix?
-			if (!empty($context['topics'][$topic]['id_prefix']) && !empty($context['postprefix_topics'][$topic]['postprefix_status']))
+			if (!empty($context['topics'][$pp_topic]['id_prefix']) && !empty($context['postprefix_topics'][$pp_topic]['postprefix_status']))
 			{
-				$context['postprefix_topics'][$topic]['prefix'] = self::prefix_array(Helper::$columns, false);
-				foreach ($context['postprefix_topics'][$topic]['prefix'] as $prefix)
-					$context['postprefix_topics'][$topic]['prefix'][$prefix] = $context['postprefix_topics'][$topic]['postprefix_'.$prefix];
+				$context['postprefix_topics'][$pp_topic]['prefix'] = self::prefix_array(Helper::$columns, false);
+				foreach ($context['postprefix_topics'][$pp_topic]['prefix'] as $prefix)
+					$context['postprefix_topics'][$pp_topic]['prefix'][$prefix] = $context['postprefix_topics'][$pp_topic]['postprefix_'.$prefix];
 		
-				$context['postprefix_topics'][$topic]['first_post']['link'] = self::format($context['postprefix_topics'][$topic]['prefix']) . ' ' . $context['topics'][$topic]['first_post']['link'];
+				$context['postprefix_topics'][$pp_topic]['first_post']['link'] = self::format($context['postprefix_topics'][$pp_topic]['prefix']) . ' ' . $context['topics'][$pp_topic]['first_post']['link'];
 			}
 		}
 		// Yo wassup :P
@@ -149,7 +149,7 @@ class PostPrefix
 		return $array_of_the_pps;
 	}
 
-	public static function pre_messageindex(&$sort_methods, &$sort_methods_table)
+	public static function pre_messageindex()
 	{
 		global $board_info, $modSettings, $user_info;
 
@@ -198,15 +198,15 @@ class PostPrefix
 		}
 	}
 
-	public static function display_topic(&$topic_selects, &$topic_tables, &$topic_parameters)
+	public static function display_topic(&$topic_selects, &$topic_tables)
 	{
 		$topic_selects = array_merge($topic_selects, array_merge(['t.id_prefix'], self::prefix_array(Helper::$columns)));
 		$topic_tables = array_merge($topic_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
 	}
 
-	public static function display_message_list(&$messages, &$posters)
+	public static function display_message_list()
 	{
-		global $context, $topic, $scripturl;
+		global $context;
 
 		// This topic has a prefix?
 		if (!empty($context['topicinfo']['id_prefix']) && !empty($context['topicinfo']['postprefix_status']))
@@ -219,7 +219,7 @@ class PostPrefix
 			// Add the prefix to the title without harming any other vital usage of this information
 			addInlineJavaScript('
 				var pp_subject = document.getElementById("top_subject");
-				pp_subject.innerHTML = \''.self::format($context['topicinfo']['prefix']).'\' + " " + \'' . $context['topicinfo']['subject'] . '\';
+				pp_subject.innerHTML = \'' . self::format($context['topicinfo']['prefix']) . '\' + " " + pp_subject.textContent;
 			', true);
 
 			// Add the prefix to the linktree
