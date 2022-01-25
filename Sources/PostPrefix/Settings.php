@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
+ * @copyright Copyright (c) 2022, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -72,6 +72,9 @@ class Settings
 	{
 		global $txt;
 
+		// Add permission to see the area
+		$admin_areas['layout']['permission'][] = 'postprefix_manage';
+
 		$insert = 'postsettings';
 		$counter = 0;
 		foreach ($admin_areas['layout']['areas'] as $area => $dummy)
@@ -97,7 +100,7 @@ class Settings
 		);
 	}
 
-	public static function permissions(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions)
+	public static function permissions(&$permissionGroups, &$permissionList)
 	{
 		// Manage prefix
 		$permissionList['membergroup']['postprefix_manage'] = [false, 'maintenance'];
@@ -130,7 +133,7 @@ class Settings
 		];
 	}
 
-	public static function modify_board($id, $boardOptions, &$boardUpdates, &$boardUpdateParameters)
+	public static function modify_board($id, $boardOptions)
 	{
 		global $modSettings;
 
