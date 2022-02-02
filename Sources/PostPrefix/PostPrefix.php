@@ -228,10 +228,8 @@ class PostPrefix
 		}
 	}
 
-	public function menu_buttons(&$buttons)
+	public static function menu_buttons(&$buttons)
 	{
-		global $context;
-
 		// Add the prefix permission to the admin button
 		$buttons['admin']['show'] = $buttons['admin']['show']  || allowedTo('postprefix_manage');
 	}
