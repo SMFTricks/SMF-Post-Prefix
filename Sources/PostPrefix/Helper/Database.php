@@ -8,14 +8,29 @@
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
-namespace PostPrefix;
+namespace PostPrefix\Helper;
 
 if (!defined('SMF'))
 	die('No direct access...');
 
-class Helper
+class Database
 {
-	public static $columns = ['pp.id', 'pp.name', 'pp.status', 'pp.color', 'pp.bgcolor', 'pp.invert_color', 'pp.groups', 'pp.boards', 'pp.icon_url'];
+	// Prefix columns
+	public static $_prefix_columns = [
+		'pp.id AS prefix_id',
+		'pp.name AS prefix_name',
+		'pp.status AS prefix_status',
+		'pp.color AS prefix_color',
+		'pp.bgcolor AS prefix_bgcolor',
+		'pp.invert_color AS prefix_invert_color',
+		'pp.icon_url AS prefix_icon_url'
+	];
+
+	// Boards columns
+	public static $_boards_columns = [
+		'ppb.id_prefix',
+		'ppb.id_board',
+	];
 
 	public static function Save($config_vars, $return_config, $sa)
 	{
@@ -59,7 +74,7 @@ class Helper
 		return $rows;
 	}
 
-	public static function Get($start, $items_per_page, $sort, $table, $columns, $additional_query = '', $single = false, $additional_columns = '', $more_values = [], $attachments = [])
+	public static function Get($start, $items_per_page, $sort, $table, $columns, $additional_query = '', $single = false, $additional_columns = '', $more_values = [])
 	{
 		global $smcFunc;
 
