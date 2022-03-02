@@ -2,10 +2,10 @@
 
 /**
  * @package SMF Post Prefix
- * @version 1.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2014, Diego Andrés
- * @license http://www.mozilla.org/MPL/MPL-1.1.html
+ * @copyright Copyright (c) 2022, SMF Tricks
+ * @license MIT
  */
 
 	if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('SMF'))
@@ -21,93 +21,105 @@
 	if (empty($context['uninstalling']))
 	{
 		// Post Prefixes
-		$tables[] = array(
+		$tables[] = [
 			'table_name' => '{db_prefix}postprefixes',
-			'columns' => array(
-				array(
+			'columns' => [
+				[
 					'name' => 'id',
-					'type' => 'int',
-					'size' => 10,
+					'type' => 'smallint',
+					'size' => 5,
 					'auto' => true,
 					'not_null' => true,
-				),
-				array(
+					'unsigned' => true,
+				],
+				[
 					'name' => 'name',
-					'type' => 'text',
-					'not_null' => true,
-				),
-				array(
+					'type' => 'varchar',
+					'size' => 25,
+					'not_null' => false,
+					'default' => null,
+				],
+				[
 					'name' => 'status',
-					'type' => 'smallint',
+					'type' => 'tinyint',
+					'size' => 1,
 					'default' => 1,
-				),
-				array(
+					'unsigned' => true,
+					'not_null' => true,
+				],
+				[
 					'name' => 'color',
-					'type' => 'text',
-					'not_null' => true,
-				),
-				array(
+					'type' => 'varchar',
+					'size' => 255,
+					'not_null' => false,
+					'default' => null,
+				],
+				[
 					'name' => 'bgcolor',
-					'type' => 'smallint',
+					'type' => 'tinyint',
+					'size' => 1,
 					'default' => 0,
+					'unsigned' => true,
 					'not_null' => true,
-				),
-				array(
+				],
+				[
 					'name' => 'invert_color',
-					'type' => 'smallint',
+					'type' => 'tinyint',
+					'size' => 1,
 					'default' => 0,
+					'unsigned' => true,
 					'not_null' => true,
-				),
-				array(
-					'name' => 'groups',
-					'type' => 'text',
-					'not_null' => true,
-				),
-				array(
-					'name' => 'boards',
-					'type' => 'text',
-					'not_null' => true,
-				),
-				array(
+				],
+				[
 					'name' => 'icon_url',
-					'type' => 'text',
-					'not_null' => true,
-				),
-			),
-			'indexes' => array(
-				array(
+					'type' => 'varchar',
+					'size' => 500,
+					'not_null' => false,
+					'default' => null,
+				],
+			],
+			'indexes' => [
+				[
 					'type' => 'primary',
-					'columns' => array('id'),
-				),
-			),
+					'columns' => ['id'],
+				],
+				[
+					'type' => 'index',
+					'columns' => ['name'],
+				],
+			],
 			'if_exists' => 'ignore',
 			'error' => 'fatal',
-			'parameters' => array(),
-		);
+			'parameters' => [],
+		];
 
 		// Installing
 		foreach ($tables as $table)
 		$smcFunc['db_create_table']($table['table_name'], $table['columns'], $table['indexes'], $table['parameters'], $table['if_exists'], $table['error']);
 
-		// Add some columns for board options
+		// Require Prefix column for boards
 		$smcFunc['db_add_column'](
 			'{db_prefix}boards', 
-			array(
+			[
 				'name' => 'require_prefix',
 				'type' => 'tinyint',
+				'size' => 1,
+				'unsigned' => true,
 				'default' => 0,
 				'not_null' => true,
-			)
+			]
 		);
 
-		// Prefix id on topics
+		// Prefix id column for topics
 		$smcFunc['db_add_column'](
 			'{db_prefix}topics', 
-			array(
+			[
 				'name' => 'id_prefix',
-				'type' => 'int',
+				'type' => 'smallint',
+				'size' => 5,
 				'default' => 0,
 				'not_null' => true,
-			)
+				'unsigned' => true,
+			]
 		);
 	}
