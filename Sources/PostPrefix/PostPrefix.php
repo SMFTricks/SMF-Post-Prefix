@@ -19,7 +19,13 @@ class PostPrefix
 
 	public static function initialize()
 	{
-		self::defineHooks();
+		// Main Hooks
+		self::essentialHooks();
+
+		// Board Hooks
+		self::boardHooks();
+
+		// Default settings
 		self::setDefaults();
 	}
 
@@ -36,33 +42,65 @@ class PostPrefix
 		$modSettings = array_merge($defaults, $modSettings);
 	}
 
-	public static function defineHooks()
+	public static function essentialHooks()
 	{
 		$hooks = [
 			'autoload',
 			'actions',
-			'message_index',
-			'pre_messageindex',
-			'messageindex_buttons',
-			'display_topic',
-			'display_message_list',
-			'load_theme',
+			'pre_css_output',
 			'menu_buttons',
 		];
 		foreach ($hooks as $point )
 			add_integration_function('integrate_' . $point, __CLASS__ . '::' . $point, false);
 	}
 
-	public static function autoload(&$classMap)
+	public static function boardHooks()
+	{
+		// No actions...
+		if (isset($_REQUEST['action']) || !empty($_REQUEST['action']))
+			return;
+
+		// Message Index
+		add_integration_function('integrate_pre_messageindex', __NAMESPACE__ . '\Integration\MessageIndex::topic_count#', false);
+		add_integration_function('integrate_message_index', __NAMESPACE__ . '\Integration\MessageIndex::topics_list#', false);
+		add_integration_function('integrate_messageindex_buttons', __NAMESPACE__ . '\Integration\MessageIndex::topics_prefixes#', false);
+
+		// Display
+		add_integration_function('integrate_display_topic', __NAMESPACE__ . '\Integration\Topic::display_topic#', false);
+		add_integration_function('integrate_display_message_list', __NAMESPACE__ . '\Integration\Topic::view_topic#', false);
+	}
+
+	/**
+	 * PostPrefix::autoload()
+	 * 
+	 * Add the PostPrefix into the autoloader
+	 * 
+	 * @param array $classMap
+	 * @return void
+	 */
+	public static function autoload(array &$classMap)
 	{
 		$classMap['PostPrefix\\'] = 'PostPrefix/';
 	}
 
-	public static function load_theme()
+	/**
+	 * PostPrefix::pre_css_output()
+	 * 
+	 * Insert the css file
+	 * @return void
+	 */
+	public static function pre_css_output()
 	{
-		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false]);
+		// Postprefix CSS file
+		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false], 'smf_postprefix');
 	}
 
+	/**
+	 * PostPrefix::actions()
+	 * 
+	 * Add a few more hooks depending on the actions
+	 * @return void
+	 */
 	public static function actions()
 	{
 		switch ($_REQUEST['action'])
@@ -82,153 +120,48 @@ class PostPrefix
 		}
 	}
 
-	public static function format($prefix, $styles = '')
+	/**
+	 * PostPrefix::format()
+	 * 
+	 * Add styles and format to the prefix
+	 * 
+	 * @param array $prefix The prefix data
+	 * @param array $styles Any additional styles for the prefix
+	 * @return string $format The formatted prefix
+	 */
+	public static function format(array $prefix, array $styles = []) : string
 	{
-		if (empty($prefix['icon_url']))
+		static $format;
+
+		// Check for no icon
+		if (empty($prefix['prefix_icon_url']))
 		{
-			$format = '<span id="postprefix-'. $prefix['id']. '" class="postprefix-all';
-			if (!empty($prefix['bgcolor']) || !empty($prefix['color']))
+			// Prefix
+			$format = '<span class="postprefix-'. $prefix['prefix_id']. ' postprefix-all';
+
+			// Background color or color
+			if (!empty($prefix['prefix_bgcolor']) || !empty($prefix['prefix_color']))
 			{
-				if (!empty($prefix['bgcolor']) && !empty($prefix['color']))
-					$format .= ' text-'. (!empty($prefix['invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['color'];
-				elseif (!empty($prefix['color']) && empty($prefix['bgcolor']))
-					$format .= '" style="color:'. $prefix['color'];
+				// Check if it's inverted when using both color and background color
+				if (!empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
+					$format .= ' text-'. (!empty($prefix['prefix_invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['prefix_color'];
+				// With no background, just use the color provided
+				elseif (!empty($prefix['prefix_color']) && empty($prefix['prefix_bgcolor']))
+					$format .= '" style="color:'. $prefix['prefix_color'];
 			}
-			$format .= $styles . '">' . $prefix['name'] . '</span>';
+			// Prefix name
+			$format .= ';' . (!empty($styles) ? implode(';', $styles) : '') . '">' . $prefix['prefix_name'] . '</span>';
 		}
+		// Provide just an icon
 		else
-			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['id']. '" src="'. $prefix['icon_url']. '" alt="'. $prefix['name']. '" title="'. $prefix['name']. '" />';
+		{
+			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['prefix_id']. '" src="'. $prefix['prefix_icon_url']. '" alt="'. $prefix['prefix_name']. '" title="'. $prefix['prefix_name']. '" />';
+		}
 
 		return $format;
 	}
 
-	public static function messageindex_buttons()
-	{
-		global $modSettings, $context, $board;
-
-		// Rewrite the biach
-		$context['postprefix_topics'] = [];
-		foreach ($context['topics'] as $pp_topic => $value)
-		{
-			$context['postprefix_topics'][$pp_topic] = $context['topics'][$pp_topic];
-
-			// Topic has a prefix?
-			if (!empty($context['topics'][$pp_topic]['id_prefix']) && !empty($context['postprefix_topics'][$pp_topic]['postprefix_status']))
-			{
-				$context['postprefix_topics'][$pp_topic]['prefix'] = self::prefix_array(Helper::$columns, false);
-				foreach ($context['postprefix_topics'][$pp_topic]['prefix'] as $prefix)
-					$context['postprefix_topics'][$pp_topic]['prefix'][$prefix] = $context['postprefix_topics'][$pp_topic]['postprefix_'.$prefix];
-		
-				$context['postprefix_topics'][$pp_topic]['first_post']['link'] = self::format($context['postprefix_topics'][$pp_topic]['prefix']) . ' ' . $context['topics'][$pp_topic]['first_post']['link'];
-			}
-		}
-		// Yo wassup :P
-		$context['topics'] = $context['postprefix_topics'];
-
-		if (!empty($modSettings['PostPrefix_enable_filter']) && allowedTo('postprefix_set') && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
-		{
-			// Get a list of prefixes
-			$context['prefix']['filter'] = Helper::Get(0, 10000, 'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp', Helper::$columns, 'WHERE pp.status = 1 AND FIND_IN_SET(' . $board . ', pp.boards)');
-
-			// Load language
-			loadLanguage('PostPrefix/');
-
-			// Load our template as well
-			loadTemplate('PostPrefix');
-
-			// Load the sub-template
-			$context['template_layers'][] = 'prefixfilter';
-		}
-	}
-
-	public static function prefix_array($columns, $alias = true)
-	{
-		$array_of_the_pps = [];
-		foreach ($columns as $index => $column)
-			$array_of_the_pps[$index] = (!empty($alias) ? $column . ' AS postprefix_' : '') . str_replace('pp.', '', $column);
-
-		return $array_of_the_pps;
-	}
-
-	public static function pre_messageindex()
-	{
-		global $board_info, $modSettings, $user_info;
-
-		// How many topics do we have in total?
-		if (isset($_REQUEST['prefix']) && in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])))
-			$board_info['total_topics'] =  Helper::Count('topics', ['id_board', 'id_prefix', 'approved', 'id_member_started'], 'WHERE id_prefix = {int:prefix} AND id_board = {int:board}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
-			AND (approved = 1 OR (id_member_started != 0 AND id_member_started = {int:current_member}))'), '', ['prefix' => $_REQUEST['prefix'], 'board' => $board_info['id'], 'current_member' => $user_info['id']]);
-	}
-
-	public static function message_index(&$message_index_selects, &$message_index_tables, &$message_index_parameters, &$message_index_wheres, &$topic_ids, &$message_index_topic_wheres)
-	{
-		global $board_info, $scripturl, $context, $scripturl, $board, $txt, $modSettings;
-
-		// Add the prefix
-		$message_index_selects = array_merge($message_index_selects, array_merge(['t.id_prefix'], self::prefix_array(Helper::$columns)));
-		$message_index_tables = array_merge($message_index_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
-
-		// Filtering prefixes?
-		if (isset($_REQUEST['prefix']) && in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
-		{
-			$message_index_topic_wheres = array_merge($message_index_topic_wheres, ['t.id_prefix = {int:topic_prefix}']);
-			$message_index_wheres = array_merge($message_index_wheres, ['t.id_prefix = {int:topic_prefix}']);
-			$message_index_parameters = array_merge($message_index_parameters, ['topic_prefix' => $_REQUEST['prefix']]);
-			
-			// Add the prefix to the pageindex
-			if (!empty($board_info['total_topics']) && isset($_REQUEST['prefix']))
-			{
-				// They didn't pick one, default to by last post descending.
-				if (!isset($_REQUEST['sort']) || !isset($sort_methods[$_REQUEST['sort']]))
-				{
-					$context['sort_by'] = 'last_post';
-					$_REQUEST['sort'] = 'id_last_msg';
-					$ascending = isset($_REQUEST['asc']);
-					$_REQUEST['desc'] = 'desc';
-				}
-
-				// Another trick for our amusement
-				$context['prefix_headers'] = [];
-				foreach ($context['topics_headers'] as $key => $val)
-					$context['prefix_headers'][$key] = '<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . ';prefix=' . $_REQUEST['prefix'] . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
-				$context['topics_headers'] = $context['prefix_headers'];
-
-				$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $board_info['total_topics'] : $context['topics_per_page'];
-				$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'] . ';sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $board_info['total_topics'], $context['maxindex'], true);
-			}
-		}
-	}
-
-	public static function display_topic(&$topic_selects, &$topic_tables)
-	{
-		$topic_selects = array_merge($topic_selects, array_merge(['t.id_prefix'], self::prefix_array(Helper::$columns)));
-		$topic_tables = array_merge($topic_tables, ['LEFT JOIN {db_prefix}postprefixes AS pp ON (t.id_prefix = pp.id)']);
-	}
-
-	public static function display_message_list()
-	{
-		global $context;
-
-		// This topic has a prefix?
-		if (!empty($context['topicinfo']['id_prefix']) && !empty($context['topicinfo']['postprefix_status']))
-		{
-			// Sort it?
-			$context['topicinfo']['prefix'] = self::prefix_array(Helper::$columns, false);
-			foreach ($context['topicinfo']['prefix'] as $prefix)
-				$context['topicinfo']['prefix'][$prefix] = $context['topicinfo']['postprefix_'.$prefix];
-
-			// Add the prefix to the title without harming any other vital usage of this information
-			addInlineJavaScript('
-				var pp_subject = document.getElementById("top_subject");
-				pp_subject.innerHTML = \'' . self::format($context['topicinfo']['prefix']) . '\' + " " + pp_subject.textContent;
-			', true);
-
-			// Add the prefix to the linktree
-			$context['linktree'][count($context['linktree'])-1]['extra_before'] = self::format($context['topicinfo']['prefix'], ';text-shadow:none;padding-top:0;padding-bottom:0;');
-		}
-	}
-
-	public static function menu_buttons(&$buttons)
+	public static function menu_buttons(array &$buttons)
 	{
 		// Add the prefix permission to the admin button
 		$buttons['admin']['show'] = $buttons['admin']['show']  || allowedTo('postprefix_manage');
