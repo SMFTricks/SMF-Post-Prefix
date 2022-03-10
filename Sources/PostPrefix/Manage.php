@@ -10,6 +10,8 @@
 
 namespace PostPrefix;
 
+use PostPrefix\Helper\Database;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -75,12 +77,12 @@ class Manage
 			'base_href' => '?action=admin;area=postprefix;sa=prefixes',
 			'default_sort_col' => 'modify',
 			'get_items' => [
-				'function' => __NAMESPACE__ . '\Helper::Get',
-				'params' => ['postprefixes AS pp', Helper::$columns],
+				'function' => __NAMESPACE__ . '\Helper\Database::Get',
+				'params' => ['postprefixes AS pp', Database::$_prefix_columns],
 			],
 			'get_count' => [
-				'function' => __NAMESPACE__ . '\Helper::Count',
-				'params' => ['postprefixes AS pp', Helper::$columns]
+				'function' => __NAMESPACE__ . '\Helper\Database::Count',
+				'params' => ['postprefixes AS pp', Database::$_prefix_columns]
 			],
 			'no_items_label' => $txt['PostPrefix_no_prefixes'],
 			'no_items_align' => 'center',
@@ -93,7 +95,7 @@ class Manage
 					'data' => [
 						'function' => function($row) use ($scripturl)
 						{
-							return '<a href="' . $scripturl . '?action=admin;area=postprefix;sa=status;id=' . $row['id'] . '"><span class="main_icons warning_' . (!empty($row['status']) ? 'watch' : 'mute') . '"></span></a>';
+							return '<a href="' . $scripturl . '?action=admin;area=postprefix;sa=status;id=' . $row['prefix_id'] . '"><span class="main_icons warning_' . (!empty($row['prefix_status']) ? 'watch' : 'mute') . '"></span></a>';
 						},
 						'style' => 'width: 2%',
 						'class' => 'centertext',
@@ -115,8 +117,8 @@ class Manage
 						'style' => 'width: 20%',
 					],
 					'sort' =>  [
-						'default' => 'name DESC',
-						'reverse' => 'name',
+						'default' => 'prefix_name DESC',
+						'reverse' => 'prefix_name',
 					],
 				],
 				'boards' => [
@@ -128,8 +130,8 @@ class Manage
 						'sprintf' => [
 							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=boards;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'/icons/modify_inline.png\');">'. $txt['PostPrefix_select_visible_boards']. '</a>',
 							'params' => [
-								'id' => false,
-								'name' => true,
+								'prefix_id' => false,
+								'prefix_name' => true,
 							],
 						],
 						'class' => 'centertext',
@@ -145,8 +147,8 @@ class Manage
 						'sprintf' => [
 							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=groups;id=%1$d" onclick="return reqOverlayDiv(this.href, \'%2$s\', \'icons/members.png\');">'. $txt['PostPrefix_select_visible_groups']. '</a>',
 							'params' => [
-								'id' => false,
-								'name' => true,
+								'prefix_id' => false,
+								'prefix_name' => true,
 							],
 						],
 						'class' => 'centertext',
@@ -162,15 +164,15 @@ class Manage
 						'sprintf' => [
 							'format' => '<a href="'. $scripturl. '?action=admin;area=postprefix;sa=edit;id=%1$d">'. $txt['PostPrefix_prefix_modify']. '</a>',
 							'params' => [
-								'id' => false,
+								'prefix_id' => false,
 							],
 						],
 						'style' => 'width: 5%',
 						'class' => 'centertext',
 					],
 					'sort' => [
-						'default' => 'id DESC',
-						'reverse' => 'id',
+						'default' => 'prefix_id DESC',
+						'reverse' => 'prefix_id',
 					]
 				],
 				'delete' => [
@@ -182,7 +184,7 @@ class Manage
 						'sprintf' => [
 							'format' => '<input type="checkbox" name="delete[]" value="%1$d" class="check" />',
 							'params' => [
-								'id' => false,
+								'prefix_id' => false,
 							],
 						],
 						'class' => 'centertext',
