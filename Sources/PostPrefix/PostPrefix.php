@@ -110,12 +110,12 @@ class PostPrefix
 				break;
 			case 'post':
 			case 'post2':
-				add_integration_function('integrate_before_create_topic', __NAMESPACE__ . '\Posting::before_create_topic', false, '$sourcedir/PostPrefix/Posting.php');
-				add_integration_function('integrate_create_post', __NAMESPACE__ . '\Posting::create_post', false);
-				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Posting::modify_post', false);
-				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Posting::post2_start', false);
-				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Posting::post_errors', false);
-				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Posting::post_end', false);
+				add_integration_function('integrate_before_create_topic', __NAMESPACE__ . '\Integration\Posting::before_create_topic', false);
+				add_integration_function('integrate_create_post', __NAMESPACE__ . '\Integration\Posting::create_post', false);
+				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Integration\Posting::modify_post', false);
+				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Integration\Posting::post2_start', false);
+				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Integration\Posting::post_errors', false);
+				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Integration\Posting::post_end', false);
 				break;
 		}
 	}
