@@ -2,7 +2,7 @@
 
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2020, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
@@ -26,10 +26,27 @@ class Database
 		'pp.icon_url AS prefix_icon_url'
 	];
 
+	// Vanilla prefix columns
+	public static $_prefix_normal = [
+		'pp.id',
+		'pp.name',
+		'pp.status',
+		'pp.color',
+		'pp.bgcolor',
+		'pp.invert_color',
+		'pp.icon_url'
+	];
+
 	// Boards columns
 	public static $_boards_columns = [
 		'ppb.id_prefix',
 		'ppb.id_board',
+	];
+
+	// Groups columns
+	public static $_groups_columns = [
+		'ppg.id_prefix',
+		'ppg.id_group',
 	];
 
 	public static function Save($config_vars, $return_config, $sa)
@@ -139,36 +156,39 @@ class Database
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			$tmp_main = [];
-			$tmp_sec  = [];
 
 			// Split them
 			foreach($row as $col => $value)
 			{
 				if (in_array(strstr($column_main[0], '.', true).'.'.$col, $column_main))
 					$tmp_main[$col] = $value;
-				elseif (in_array(strstr($column_sec[0], '.', true).'.'.$col, $column_sec))
-					$tmp_sec[$col] = $value;
-				else
-					$tmp_main[$col] = $value;
 			}
 
 			// Just loop once on each group/category
 			if (!isset($items[$row[substr(strrchr($column_main[0], '.'), 1)]]))
-			{
 				$items[$row[substr(strrchr($column_main[0], '.'), 1)]] = $tmp_main;
 
-				// Attachments?
-				if (!empty($attachments) && !empty($attach_main))
-					$items[$row[substr(strrchr($column_main[0], '.'), 1)]]['avatar'] = self::Attachments($row);
+			// If it's empty, make it so and move on
+			if (empty($row[substr(strrchr($column_sec[0], '.'), 1)]))
+			{
+				$items[$row[substr(strrchr($column_main[0], '.'), 1)]][$query_member] = [];
+				continue;
 			}
-			$items[$row[substr(strrchr($column_main[0], '.'), 1)]][$query_member][$row[substr(strrchr($column_sec[0], '.'), 1)]] = $tmp_sec;
 
-			// Attachments?
-			if (!empty($attachments) && empty($attach_main))
-				$items[$row[substr(strrchr($column_main[0], '.'), 1)]][$query_member][$row[substr(strrchr($column_sec[0], '.'), 1)]]['avatar'] = self::Attachments($row);
-				
+			// Insert the rest of the items
+			$items[$row[substr(strrchr($column_main[0], '.'), 1)]][$query_member][] = $row[substr(strrchr($column_sec[0], '.'), 1)];
 		}
 		$smcFunc['db_free_result']($result);
+
+		// Don't duplicate the boards
+		foreach ($items as $key => $value)
+		{
+			$items[$key]['boards'] = array_unique($items[$key]['boards']);
+
+			// If they don't have boards, they are useless...
+			if (empty($items[$key]['boards']))
+				unset($items[$key]);
+		}
 
 		return $items;
 	}
