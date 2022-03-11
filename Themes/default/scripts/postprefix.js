@@ -8,22 +8,43 @@
 
 // Boards select
 var select = document.getElementById('board');
-
+// Prefixes select
+var prefixes_select = document.getElementById('select_prefixes');
 // Prefixes options
-var options = document.getElementById('select_prefixes').options;
+var prefix_options = prefixes_select.options;
 // Prefixes
 var prefixes = [[]];
 
-// Store the prefixes in an array
-for (var i = 0; i < options.length; i++)
+// Store the prefixes in an array, when using select
+if (!prefixes_radio_select)
 {
-	// prefixes.push(options[i].id);
-	if (options[i].value == '0')
+	for (var i = 0; i < prefix_options.length; i++)
 	{
-		continue;
+		// Ignore the "No Prefix" option
+		if (prefix_options[i].value == '0')
+			continue;
+
+		// Add the prefix to the array
+		prefixes[i] = [prefix_options[i].id,  document.getElementById(prefix_options[i].id).dataset.boards.split(',').map(Number)];
 	}
-	prefixes[i] = [options[i].id,  document.getElementById(options[i].id).dataset.boards.split(',').map(Number)];
 }
+
+// When using radio
+if (prefixes_radio_select)
+{
+	var radio_prefixes = document.querySelectorAll('[id^="prefix_"]');
+	radio_prefixes.forEach(function(prefix)
+	{
+		// Ignore the "No Prefix" option
+		if (prefix.value == '0')
+			return;
+
+		// Add the prefix to the list
+		prefixes.push([prefix.id, prefix.dataset.boards.split(',').map(Number)]);
+	});
+}
+
+// Remove first entry
 prefixes.shift();
 
 // On first load, send the first board
@@ -32,27 +53,55 @@ hidePrefixes(post_first_board);
 // Now, check if we are changing boards
 if (select.addEventListener)
 {
-	select.addEventListener('change', function() {
+	select.addEventListener('change', function()
+	{
+		// For select, select the first option
+		if (!prefixes_radio_select)
+			prefixes_select.value = '0';
+
+		// For radio, check the first input
+		else
+			document.getElementById('prefix_0').checked = true;
+
+		// Hide the prefixes!
 		hidePrefixes(select.value);
 	});
 }
 
+
 // Hide or show the prefixes
 function hidePrefixes(board)
 {
-	prefixes.forEach(function(prefix) {
-	for (var i = 0; i < prefix[1].length; i++)
+	for (var i = 0; i < prefixes.length; i++)
 	{
-		// Check if this board is in the prefix
-		if (prefix[1][i] == board)
+		for (var j = 0; j < prefixes[i][1].length; j++)
 		{
-			// Display the prefix
-			document.getElementById(prefix[0]).removeAttribute('style');
-			// We found the board, so we can stop the loop
-			break;
+			// Check if this board is in the prefix
+			if (prefixes[i][1][j] == board)
+			{
+				// Display the prefix
+				document.getElementById(prefixes[i][0]).removeAttribute('style');
+
+				// For radio, display the actual prefix
+				if (prefixes_radio_select)
+				{
+					document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'inline-block';
+					document.getElementById(prefixes[i][0]).parentElement.style.marginRight = '10px';
+				}
+
+				// We found the board, so we can stop the loop
+				break;
+			}
+
+			// Hide prefixes that don't belong to this board
+			document.getElementById(prefixes[i][0]).style.display = 'none';
+
+			// For radio, hide the actual prefix
+			if (prefixes_radio_select)
+			{
+				document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'none';
+				document.getElementById(prefixes[i][0]).parentElement.style.marginRight = '0';
+			}
 		}
-		// Hide the prefix for this board
-		document.getElementById(prefix[0]).style.display = 'none';
 	}
-	});
 }
