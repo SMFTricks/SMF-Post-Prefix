@@ -2,10 +2,10 @@
 
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
- * @license https://www.mozilla.org/en-US/MPL/2.0/
+ * @copyright Copyright (c) 2022, SMF Tricks
+ * @license MIT
  */
 
 // Admin Tabs
@@ -62,6 +62,10 @@ $txt['PostPrefix_select_order'] = 'Order by';
 $txt['PostPrefix_select_order_desc'] = 'Select default order of prefixes everywhere';
 $txt['PostPrefix_prefix_boards_require'] = 'Require prefixes';
 $txt['PostPrefix_prefix_boards_require_desc'] = 'Boards where a prefix is required when posting/editing a topic';
+$txt['PostPrefix_post_selecttype'] = 'Select type';
+$txt['PostPrefix_post_selecttype_desc'] = 'This is the style of prefix selection when posting/editing a new topic.<br>Select will only display prefix names, radio will display each prefix with the corresponding style.';
+$txt['PostPrefix_post_selecttype_select'] = 'Select';
+$txt['PostPrefix_post_selecttype_radio'] = 'Radio';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
