@@ -68,7 +68,6 @@ if (select.addEventListener)
 	});
 }
 
-
 // Hide or show the prefixes
 function hidePrefixes(board)
 {
@@ -85,7 +84,9 @@ function hidePrefixes(board)
 				// For radio, display the actual prefix
 				if (prefixes_radio_select)
 				{
+					// Display the prefix 
 					document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'inline-block';
+					// Add some margin
 					document.getElementById(prefixes[i][0]).parentElement.style.marginRight = '10px';
 				}
 
@@ -99,7 +100,9 @@ function hidePrefixes(board)
 			// For radio, hide the actual prefix
 			if (prefixes_radio_select)
 			{
+				// Hide the prefix
 				document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'none';
+				// Remove the margin so avoid empty space
 				document.getElementById(prefixes[i][0]).parentElement.style.marginRight = '0';
 			}
 		}
