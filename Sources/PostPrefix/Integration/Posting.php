@@ -11,6 +11,7 @@
 namespace PostPrefix\Integration;
 
 use PostPrefix\Helper\Database;
+use PostPrefix\PostPrefix;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -26,44 +27,49 @@ class Posting
 	 * @return void
 	 */
 	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
-	{		
-		$topic_columns['id_prefix'] = 'int';
-		$topic_parameters[] = $topicOptions['id_prefix'] === null ? 0 : $topicOptions['id_prefix'];
-	}
+	{
+		global $context, $board;
 
-	/**
-	 * Posting::create_post()
-	 * 
-	 * @param array $topicOptions The topic options
-	 * @return void
-	 */
-	public static function create_post(&$msgOptions, &$topicOptions)
-	{		
+		// Is the user allowed to post with a prefix?
+		if (empty($context['user_prefixes']['post']) || !allowedTo('postprefix_set'))
+			return;
+
+		// Set the prefix
 		$topicOptions['id_prefix'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null;
+
+		// Is there an actual prefix there?
+		if (!isset($topicOptions['id_prefix']) || !isset($context['user_prefixes']['post'][$topicOptions['id_prefix']]['boards']) || !in_array($board, $context['user_prefixes']['post'][$topicOptions['id_prefix']]['boards']))
+			return;
+
+		// Add the column
+		$topic_columns['id_prefix'] = 'int';
+
+		// Add the parameter
+		$topic_parameters[] = $topicOptions['id_prefix'] === null ? 0 : $topicOptions['id_prefix'];
 	}
 
 	/**
 	 * Posting::modify_post()
 	 * 
-	 * @param array $topicOptions The topic options
 	 * @return void
 	 */
-	public static function modify_post(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions)
+	public static function modify_post()
 	{
-		$topicOptions['id_prefix'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : null;
+		global $topic, $context, $board;
 
-		// It should have a prefix
-		if ($topicOptions['id_prefix'] !== null)
-		{
-			Database::Update('topics',
-				[
-					'id_prefix' => empty($topicOptions['id_prefix']) ? 0 : (int) $topicOptions['id_prefix'],
-					'id_topic' => $topicOptions['id']
-				],
-				'id_prefix = {int:id_prefix}',
-				'WHERE id_topic = {int:id_topic}'
-			);
-		}
+		// Is there a prefix and a topic?
+		if (!isset($_POST['id_prefix']) || !isset($topic) || empty($topic) || !allowedTo('postprefix_set') || empty($context['user_prefixes']['post']) || !isset($context['user_prefixes']['post'][$_POST['id_prefix']]['boards']) || !in_array($board, $context['user_prefixes']['post'][$_POST['id_prefix']]['boards']))
+			return;
+
+		// Always update the prefix, we don't know the current one
+		// SADGE
+		Database::Update('topics', [
+				'id_prefix' => empty($_POST['id_prefix']) ? 0 : (int) $_POST['id_prefix'],
+				'id_topic' => (int) $topic
+			],
+			'id_prefix = {int:id_prefix}',
+			'WHERE id_topic = {int:id_topic}'
+		);
 	}
 
 	/**
@@ -74,11 +80,25 @@ class Posting
 	 */
 	public static function post2_start(&$post_errors)
 	{
-		global $board, $modSettings;
+		global $board, $modSettings, $context;
 
-		// Check if the topic needs prefix
-		if ((!isset($_POST['id_prefix']) || empty($_POST['id_prefix'])) && (in_array($board, explode(',', $modSettings['PostPrefix_prefix_boards_require']))) && isset($_REQUEST['prefix_istopic']))
-			$post_errors[] = 'no_prefix';
+		// Get the real board, user might be posting from the post action only
+		$real_board = !empty($board) ? (int) $board : (isset($_POST['board']) ? (int) $_POST['board'] : 0);
+
+		// With a prefix set, there's nothing to do here, or if this board isn't in the settings for requiring prefixes
+		if ((isset($_POST['id_prefix']) && !empty($_POST['id_prefix'])) || !in_array($real_board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) || !isset($_REQUEST['prefix_istopic']) || !allowedTo('postprefix_set'))
+			return;
+
+		// Verify that the user can't set a prefix
+		foreach ($context['user_prefixes']['post'] as $prefix)
+		{
+			if (in_array($board, $prefix['boards']))
+			{
+				// This user can set a prefix on this board and will be getting punishment
+				$post_errors[] = 'no_prefix';
+				break;
+			}
+		}
 	}
 
 	/**
@@ -89,55 +109,46 @@ class Posting
 	 */
 	public static function post_errors(&$post_errors, &$minor_errors)
 	{
-		global $context, $topic, $board, $modSettings, $user_info;
+		global $context, $topic, $board;
 
-		if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty($context['post_error']))
-			$context['prefix_data']['id_prefix'] = isset($_REQUEST['id_prefix']) ? $_REQUEST['id_prefix'] : 0;
-		elseif (isset($_REQUEST['msg']) && !empty($topic))
+		// Can the user set a prefix?
+		if (!allowedTo('postprefix_set'))
+			return;
+
+		// Language file
+		loadLanguage('PostPrefix/');
+
+		// Require prefix is just a minor error...
+		$minor_errors[] = 'no_prefix';
+
+		// Set the default prefix
+		$context['post_prefix_id'] = isset($_POST['id_prefix']) ? (int) $_POST['id_prefix'] : 0;
+
+		// When editing a topic, get the current prefix
+		if (!empty($topic) && empty($context['post_prefix_id']))
 		{
-			$_REQUEST['msg'] = (int) $_REQUEST['msg'];
-
-			// Get the existing message. Editing.
-			$context['prefix_data'] = Database::Get('', '', '',
-				'messages AS m',
-				['m.id_msg', 't.id_prefix'],
-				'WHERE m.id_msg = ' . $_REQUEST['msg'], true,
-				'INNER JOIN {db_prefix}topics AS t ON (t.id_topic = '. $topic . ')'
-			);
-
-			// The message they were trying to edit was most likely deleted.
-			if (empty($context['prefix_data']))
-				fatal_lang_error('no_message', false);
-		}
-		else
-			$context['prefix_data']['id_prefix'] = 0;
-
-		// Require prefix?
-		$minor_errors = array_merge($minor_errors, ['no_prefix']);
-		$_SESSION['require_prefix'] = (in_array($board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? 1 : 0);
-
-		// Can the user set prefixes
-		if (allowedTo('postprefix_set'))
-		{
-			// Language file
-			loadLanguage('PostPrefix/');
-
-			// Load the prefixes
-			$context['prefix']['post']  = Database::Nested('pp.id', 'postprefixes AS pp',
-				array_merge(array_merge(Database::$_prefix_normal, Database::$_boards_columns), Database::$_groups_columns), ['b.id_board'], 'boards',
-				'WHERE pp.status = 1' . (allowedTo('postprefix_manage') ? '' : '
-					AND ppg.id_group ' . ($user_info['is_guest'] ? '= {int:guest}' : 'IN ({array_int:groups})')
-				), 
-				'LEFT JOIN {db_prefix}postprefixes_groups AS ppg ON (ppg.id_prefix = pp.id)
-				LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
+			// Search this topic for the current prefix
+			$topic_prefix = Database::Get(0, '', 'id_prefix', 'topics',
+				['id_prefix'],
+				'WHERE id_topic = {int:id_topic}', true, '',
 				[
-					'groups' => array_unique(array_merge($user_info['groups'], [0])),
-					'guest' => -1,
+					'id_topic' => (int) $topic
 				]
 			);
+
+			// Set the prefix, if we got one
+			if (!empty($topic_prefix) && isset($context['user_prefixes']['post'][$topic_prefix['id_prefix']]['boards']) && in_array($board, $context['user_prefixes']['post'][$topic_prefix['id_prefix']]['boards']))
+				$context['post_prefix_id'] = $topic_prefix['id_prefix'];
 		}
 	}
+
+	/**
+	 * Posting::list_post_prefixes()
+	 * 
+	 * Obtain the list of prefixes the user can access, even if they are disabled for the board
+	 * 
+	 * @return void
+	 */
 
 	/**
 	 * Posting::post_end()
@@ -146,10 +157,10 @@ class Posting
 	 */
 	public static function post_end()
 	{
-		global $txt, $context, $board, $topic;
+		global $txt, $context, $board, $topic, $modSettings;
 
-		// // Only first posts can have prefixes
-		if (empty($context['prefix']['post']) || !$context['is_first_post'])
+		// Only first posts can have prefixes
+		if (empty($context['user_prefixes']['post']) || !$context['is_first_post'] || !allowedTo('postprefix_set'))
 			return;
 
 		// Add some sorcery
@@ -158,7 +169,6 @@ class Posting
 			// Get the first board
 			foreach ($context['posting_fields']['board']['input']['options'] as $category)
 			{
-				// print_r($category);
 				foreach ($category['options'] as $board => $values)
 				{
 					$first_board = $values['value'];
@@ -169,18 +179,20 @@ class Posting
 
 			// Set the prefixes depending on the selected board.
 			addJavaScriptVar('post_first_board', isset($first_board) ? $first_board : 0);
+			addJavaScriptVar('prefixes_radio_select', !empty($modSettings['PostPrefix_post_selecttype']) ? 'true' : 'false');
 			loadJavaScriptFile('postprefix.js', ['defer' => true, 'default_theme' => true], 'PostPrefix');
 		}
-		// Remove those that don't have this board :)
+		// Remove those that don't have this board, just for convenience sake.
 		else
 		{
-			foreach ($context['prefix']['post'] as $key => $prefix)
+			foreach ($context['user_prefixes']['post'] as $key => $prefix)
 			{
 				if (!in_array($board, $prefix['boards']))
-					unset($context['prefix']['post'][$key]);
+					unset($context['user_prefixes']['post'][$key]);
 			}
 		}
 
+		// Add the prefix input
 		$context['posting_fields']['topic_prefix'] = [
 			'label' => [
 				'text' => $txt['PostPrefix_select_prefix'],
@@ -199,21 +211,38 @@ class Posting
 							'none' => [
 								'label' => $txt['PostPrefix_prefix_none'],
 								'value' => 0,
-								'selected' => $context['prefix_data']['id_prefix'] == 0 ? true : false,
+								'id' => 'prefix_0',
+								'selected' => $context['post_prefix_id'] == 0 ? true : false,
 							],
 						],
 					],
 				],
 			],
 		];
-		foreach ($context['prefix']['post'] as $prefix_id => $prefix)
-			$context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'][$prefix_id] = [
-				'label' => $prefix['name'],
-				'value' => $prefix_id,
-				'id' => 'prefix_' . $prefix_id,
-				'selected' => $prefix_id == $context['prefix_data']['id_prefix'] ? true : false,
-				'data-boards' => '' . implode(',', $prefix['boards']) . '',
-			];
+
+		// Add the list of prefixes to the options
+		if (!empty($context['user_prefixes']['post']))
+		{
+			foreach ($context['user_prefixes']['post'] as $prefix_id => $prefix)
+			{
+				$context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'][$prefix_id] = [
+					'label' => !empty($modSettings['PostPrefix_post_selecttype']) ? PostPrefix::format($prefix) : $prefix['name'],
+					'value' => $prefix_id,
+					'id' => 'prefix_' . $prefix_id,
+					'selected' => $prefix_id == $context['post_prefix_id'] ? true : false,
+					'data-boards' => '' . implode(',', $prefix['boards']) . '',
+				];
+			}
+		}
+
+		// Do we want to use radio instead?
+		if (!empty($modSettings['PostPrefix_post_selecttype']))
+		{
+			$context['posting_fields']['topic_prefix']['input']['type'] = 'radio_select';
+			$context['posting_fields']['topic_prefix']['input']['options'] = $context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'];
+		}
+
+		// Additional hidden input, so we now that this is a topic
 		$context['posting_fields']['prefix_istopic'] = [
 			'label' => [
 				'html' => '',

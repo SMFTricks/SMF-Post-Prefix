@@ -10,6 +10,8 @@
 
 namespace PostPrefix;
 
+use PostPrefix\Helper\Database;
+
 if (!defined('SMF'))
 	die('No direct access...');
 
@@ -49,6 +51,7 @@ class PostPrefix
 			'actions',
 			'pre_css_output',
 			'menu_buttons',
+			'user_info',
 		];
 		foreach ($hooks as $point )
 			add_integration_function('integrate_' . $point, __CLASS__ . '::' . $point, false);
@@ -103,6 +106,7 @@ class PostPrefix
 	 */
 	public static function actions()
 	{
+		// Hooks per action
 		switch ($_REQUEST['action'])
 		{
 			case 'admin':
@@ -111,13 +115,41 @@ class PostPrefix
 			case 'post':
 			case 'post2':
 				add_integration_function('integrate_before_create_topic', __NAMESPACE__ . '\Integration\Posting::before_create_topic', false);
-				add_integration_function('integrate_create_post', __NAMESPACE__ . '\Integration\Posting::create_post', false);
 				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Integration\Posting::modify_post', false);
 				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Integration\Posting::post2_start', false);
 				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Integration\Posting::post_errors', false);
 				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Integration\Posting::post_end', false);
 				break;
 		}
+	}
+
+	/**
+	 * PostPrefix::current_action()
+	 * 
+	 * Loads the list of prefixes
+	 */
+	public static function user_info()
+	{
+		global $user_info, $context;
+
+		// It's only for post pages really...
+		if (!isset($_REQUEST['action']) && empty($_REQUEST['action']) || ($_REQUEST['action'] !== 'post' && $_REQUEST['action'] !== 'post2'))
+			return;
+
+		// Load the prefixes
+		$context['user_prefixes']['post']  = Database::Nested('pp.id', 'postprefixes AS pp',
+			array_merge(array_merge(Database::$_prefix_normal, Database::$_boards_columns), Database::$_groups_columns), ['b.id_board'], 'boards',
+			'WHERE pp.status = 1' . (allowedTo('postprefix_manage') ? '' : '
+				AND ppg.id_group ' . ($user_info['is_guest'] ? '= {int:guest}' : 'IN ({array_int:groups})')
+			), 
+			'LEFT JOIN {db_prefix}postprefixes_groups AS ppg ON (ppg.id_prefix = pp.id)
+			LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)
+			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
+			[
+				'groups' => array_unique(array_merge($user_info['groups'], [0])),
+				'guest' => -1,
+			]
+		);
 	}
 
 	/**
@@ -131,7 +163,18 @@ class PostPrefix
 	 */
 	public static function format(array $prefix, array $styles = []) : string
 	{
-		static $format;
+		// Is the array what we expect?
+		if (empty($prefix))
+			return '';
+		elseif (!isset($prefix['prefix_name']) && isset($prefix['name']))
+		{
+			$prefix['prefix_id'] = $prefix['id'];
+			$prefix['prefix_name'] = $prefix['name'];
+			$prefix['prefix_color'] = $prefix['color'];
+			$prefix['prefix_bgcolor'] = $prefix['bgcolor'];
+			$prefix['prefix_invert_color'] = $prefix['invert_color'];
+			$prefix['prefix_icon_url'] = $prefix['icon_url'];
+		}
 
 		// Check for no icon
 		if (empty($prefix['prefix_icon_url']))

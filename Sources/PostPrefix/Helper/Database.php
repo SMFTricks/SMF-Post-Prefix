@@ -246,7 +246,7 @@ class Database
 	{
 		global $smcFunc;
 
-		$smcFunc['db_insert']('ignore',
+		$smcFunc['db_insert']('',
 			'{db_prefix}'.$table,
 			$types,
 			$columns,
@@ -259,7 +259,7 @@ class Database
 		global $smcFunc;
 
 		$smcFunc['db_query']('','
-			UPDATE IGNORE {db_prefix}'.$table .  '
+			UPDATE {db_prefix}'.$table .  '
 			SET
 			'.rtrim($types, ', ') . '
 			'.$query,

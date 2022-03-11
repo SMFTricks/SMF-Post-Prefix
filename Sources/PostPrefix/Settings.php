@@ -197,8 +197,14 @@ class Settings
 			['select', 'PostPrefix_select_order', [
 					$txt['PostPrefix_prefix_name'],
 					$txt['PostPrefix_prefix_id'],
-			],
+				],
 				'subtext' => $txt['PostPrefix_select_order_desc']
+			],
+			['select', 'PostPrefix_post_selecttype', [
+					$txt['PostPrefix_post_selecttype_select'],
+					$txt['PostPrefix_post_selecttype_radio'],
+				],
+				'subtext' => $txt['PostPrefix_post_selecttype_desc']
 			],
 			'',
 			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
