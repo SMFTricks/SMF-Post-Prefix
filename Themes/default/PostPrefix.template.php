@@ -5,18 +5,12 @@
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
- * @license https://www.mozilla.org/en-US/MPL/2.0/
+ * @license MIT
  */
 
-use PostPrefix\PostPrefix;
-
-function template_prefixfilter_above()
+function template_postprefix_filter_above()
 {
 	global $context, $scripturl, $txt;
-
-	// Check if there are actually any prefixes at this point
-	if (empty($context['prefix']['filter']))
-		return;
 
 	// Prefixes
 	echo'
@@ -29,10 +23,10 @@ function template_prefixfilter_above()
 			<div class="content">';
 
 		// Show all the prefixes for this board.
-		foreach ($context['prefix']['filter'] as $prefix)
+		foreach ($context['prefixes']['filter'] as $prefix)
 		{
 			echo'
-				<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['id'] . '">' . PostPrefix::format($prefix) . '</a>,';
+				<a href="' . $scripturl . '?board=' . $context['current_board'] . '.0;prefix=' . $prefix['prefix_id'] . '">' . $prefix['real_prefix'] . '</a>,';
 		}
 
 			echo '
@@ -42,8 +36,11 @@ function template_prefixfilter_above()
 		</div>';
 }
 
-function template_prefixfilter_below(){}
+function template_postprefix_filter_below(){}
 
+/**
+ * Edit or add a prefix
+ */
 function template_postprefix()
 {
 	global $context, $txt, $scripturl;
@@ -51,7 +48,7 @@ function template_postprefix()
 	echo '
 	<div class="windowbg">
 		<form name="set_prefix" id="set_prefix" method="post" action="', $scripturl, '?action=admin;area=postprefix;sa=save">
-			', isset($_REQUEST['id']) && !empty($context['prefix']['id']) ? '<input type="hidden" name="id" value="'.$context['prefix']['id'].'">' : '', '
+			', isset($_REQUEST['id']) && !empty($context['prefix']['prefix_id']) ? '<input type="hidden" name="id" value="'.$context['prefix']['prefix_id'].'">' : '', '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<dl class="settings">
 				<dt>
@@ -59,7 +56,7 @@ function template_postprefix()
 					<span><label for="name">', $txt['PostPrefix_prefix_name'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_text" name="name" id="name" type="text" value="', !empty($context['prefix']['name']) ? $context['prefix']['name'] : '', '" style="width: 100%">
+					<input class="input_text" name="name" id="name" type="text" value="', !empty($context['prefix']['prefix_name']) ? $context['prefix']['prefix_name'] : '', '" style="width: 100%">
 				</dd>
 
 				<dt>
@@ -67,39 +64,39 @@ function template_postprefix()
 					<span><label for="status">', $txt['PostPrefix_prefix_enable'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_check" type="checkbox" name="status" id="status"', !empty($context['prefix']['status']) ? ' checked' : '', ' value="1">
+					<input class="input_check" type="checkbox" name="status" id="status"', !empty($context['prefix']['prefix_status']) ? ' checked' : '', ' value="1">
 				</dd>
 				<dt>
 					<a id="setting_usecolor"></a>
 					<span><label for="usecolor">', $txt['PostPrefix_prefix_color'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_check" type="checkbox" name="usecolor" value="1"', !empty($context['prefix']['color']) ? ' checked' : '', ' onclick="document.getElementById(\'color\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor2\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert2\').style.display = this.checked ? \'block\' : \'none\';">
-					<input class="input_text" name="color" id="color" type="text" style="border-width: 1px 1px 1px 25px;', empty($context['prefix']['color']) ? 'display:none;"' : 'display:block;border-color:'.$context['prefix']['color'].';" value="'.$context['prefix']['color'].'"', '>
+					<input class="input_check" type="checkbox" name="usecolor" value="1"', !empty($context['prefix']['prefix_color']) ? ' checked' : '', ' onclick="document.getElementById(\'color\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'bgcolor2\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert1\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'invert2\').style.display = this.checked ? \'block\' : \'none\';">
+					<input class="input_text" name="color" id="color" type="text" style="border-width: 1px 1px 1px 25px;', empty($context['prefix']['prefix_color']) ? 'display:none;"' : 'display:block;border-color:'.$context['prefix']['prefix_color'].';" value="'.$context['prefix']['prefix_color'].'"', '>
 				</dd>
-				<dt id="bgcolor1"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
+				<dt id="bgcolor1"', empty($context['prefix']['prefix_color']) ? 'style="display:none;"' : '', '>
 					<a id="setting_bgcolor"></a>
 					<span><label for="bgcolor">', $txt['PostPrefix_use_bgcolor'], ':</label></span>
 				</dt>
-				<dd id="bgcolor2"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
-					<input class="input_check" name="bgcolor" id="bgcolor"', !empty($context['prefix']['bgcolor']) ? ' checked' : '', ' type="checkbox" value="1">
+				<dd id="bgcolor2"', empty($context['prefix']['prefix_color']) ? 'style="display:none;"' : '', '>
+					<input class="input_check" name="bgcolor" id="bgcolor"', !empty($context['prefix']['prefix_bgcolor']) ? ' checked' : '', ' type="checkbox" value="1">
 				</dd>
-				<dt id="invert1"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
+				<dt id="invert1"', empty($context['prefix']['prefix_color']) ? 'style="display:none;"' : '', '>
 					<a id="setting_invert"></a>
 					<span><label for="invert">', $txt['PostPrefix_invert_color'], ':</label></span><br>
 					<span class="smalltext">', $txt['PostPrefix_invert_color_desc'], '</span>
 				</dt>
-				<dd id="invert2"', empty($context['prefix']['color']) ? 'style="display:none;"' : '', '>
-					<input class="input_check" name="invert" id="invert"', !empty($context['prefix']['invert_color']) ? ' checked' : '', ' type="checkbox" value="1">
+				<dd id="invert2"', empty($context['prefix']['prefix_color']) ? 'style="display:none;"' : '', '>
+					<input class="input_check" name="invert" id="invert"', !empty($context['prefix']['prefix_invert_color']) ? ' checked' : '', ' type="checkbox" value="1">
 				</dd>
 				<dt>
 					<a id="setting_icon"></a>
 					<span><label for="icon">', $txt['PostPrefix_use_icon'], ':</label></span>
-					<span><label for="icon_url" id="lab_icon_url"', empty($context['prefix']['icon_url']) ? 'style="display:none;"' : 'style="display:block;"', '>', $txt['PostPrefix_icon_url'], ':</label></span>
+					<span><label for="icon_url" id="lab_icon_url"', empty($context['prefix']['prefix_icon_url']) ? 'style="display:none;"' : 'style="display:block;"', '>', $txt['PostPrefix_icon_url'], ':</label></span>
 				</dt>
 				<dd>
-					<input class="input_check" type="checkbox" name="icon" value="1"', !empty($context['prefix']['icon_url']) ? ' checked' : '', ' onclick="document.getElementById(\'icon_url\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'lab_icon_url\').style.display = this.checked ? \'block\' : \'none\';">
-					<input class="input_text" name="icon_url" id="icon_url" type="text" style="width:100%;', empty($context['prefix']['icon_url']) ? 'display:none;' : 'display:block;', '" value="', !empty($context['prefix']['icon_url']) ? $context['prefix']['icon_url'] : '', '">
+					<input class="input_check" type="checkbox" name="icon" value="1"', !empty($context['prefix']['prefix_icon_url']) ? ' checked' : '', ' onclick="document.getElementById(\'icon_url\').style.display = this.checked ? \'block\' : \'none\'; document.getElementById(\'lab_icon_url\').style.display = this.checked ? \'block\' : \'none\';">
+					<input class="input_text" name="icon_url" id="icon_url" type="text" style="width:100%;', empty($context['prefix']['prefix_icon_url']) ? 'display:none;' : 'display:block;', '" value="', !empty($context['prefix']['prefix_icon_url']) ? $context['prefix']['prefix_icon_url'] : '', '">
 				</dd>
 			</dl>
 			<hr>
@@ -153,8 +150,8 @@ function groups_list()
 				echo '
 					</ul>
 					<br class="clear">
-					<input type="checkbox" id="checkall_check" onclick="invertAll(this, this.form, \'groups\');">
-					<label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+					<input type="checkbox" id="checkall_groups" onclick="invertAll(this, this.form, \'groups\');">
+					<label for="checkall_groups"><em>', $txt['check_all'], '</em></label>
 				</fieldset>
 				<a href="javascript:void(0);" onclick="document.getElementById(\'visible_groups\').classList.remove(\'hidden\'); document.getElementById(\'visible_groups_link\').classList.add(\'hidden\'); return false;" id="visible_groups_link" class="hidden">[ ', $txt['PostPrefix_select_visible_groups'], ' ]</a>
 				<script>
@@ -203,8 +200,8 @@ function boards_list($collapse = true, $form_id = 'set_prefix')
 	echo '
 								</ul>
 								<br class="clear">
-								<input type="checkbox" id="checkall_check" onclick="invertAll(this, this.form, \'boardset\');">
-								<label for="checkall_check"><em>', $txt['check_all'], '</em></label>
+								<input type="checkbox" id="checkall_boards" onclick="invertAll(this, this.form, \'boardset\');">
+								<label for="checkall_boards"><em>', $txt['check_all'], '</em></label>
 							</fieldset>';
 
 	if ($collapse)
