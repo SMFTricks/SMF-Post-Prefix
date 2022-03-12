@@ -9,10 +9,10 @@
  */
 
 // Admin Tabs
-$txt['PostPrefix_main'] = 'PostPrefix';
+$txt['PostPrefix_main'] = 'Topic Prefixes';
 $txt['PostPrefix_tab_general'] = 'General';
 $txt['PostPrefix_tab_general_desc'] = 'General information about Post Prefixes mod';
-$txt['PostPrefix_tab_prefixes'] = 'Prefixes';
+$txt['PostPrefix_tab_prefixes'] = 'Prefixes List';
 $txt['PostPrefix_tab_prefixes_desc'] = 'The list of the available prefixes';
 $txt['PostPrefix_tab_prefixes_add'] = 'Add Prefix';
 $txt['PostPrefix_tab_prefixes_add_desc'] = 'Add a new prefix, you can set the name, color and select the allowed boards and groups.';
@@ -51,7 +51,7 @@ $txt['PostPrefix_icon_url'] = 'Icon URL';
 $txt['PostPrefix_prefix_added'] = 'The prefix was added successfully.';
 $txt['PostPrefix_prefix_updated'] = 'The prefix was updated successfully.';
 $txt['PostPrefix_prefix_delete_sure'] = 'Are you sure you want to delete the selected prefixes?';
-$txt['PostPrefix_prefix_deleted'] = 'The selected prefixes were deleted successfully.';
+$txt['PostPrefix_prefix_deleted'] = 'The prefix was deleted successfully.';
 
 // Settings
 $txt['PostPrefix_enable_filter'] = 'Filter Post Prefix';
@@ -76,18 +76,12 @@ $txt['PostPrefix_empty_boards'] = 'No boards for this prefix.';
 
 // Permissions
 $txt['PostPrefix_permissions'] = 'Permissions for PostPrefix';
-$txt['permissiongroup_postprefix_manage'] = 'Manage Prefixes';
 $txt['permissionname_postprefix_manage'] = 'Manage Prefixes';
-$txt['groups_postprefix_manage'] = 'Manage Prefixes';
 $txt['permissionhelp_postprefix_manage'] = 'If the user can manage prefixes.';
-$txt['permissionhelp_groups_postprefix_manage'] = 'If the user can manage prefixes.';
 $txt['cannot_postprefix_manage'] = 'You\'re not allowed to manage the prefixes.';
-$txt['permissiongroup_postprefix_set'] = 'Use Prefixes';
 $txt['permissionname_postprefix_set'] = 'Use Prefixes';
-$txt['groups_postprefix_set'] = 'Use Prefixes';
 $txt['permissionhelp_postprefix_set'] = 'If the user can set prefixes.';
-$txt['permissionhelp_groups_postprefix_set'] = 'If the user can set prefixes.';
-$txt['cannot_spostprefix_set'] = 'You\'re not allowed to use prefixes.';
+$txt['cannot_postprefix_set'] = 'You\'re not allowed to use prefixes.';
 
 // Post
 $txt['PostPrefix_select_prefix'] = 'Select Prefix';
