@@ -19,7 +19,14 @@ class PostPrefix
 {
 	public static $version = '4.0';
 
-	public static function initialize()
+	/**
+	 * PostPrefix::initialize()
+	 * 
+	 * Loads the mod hooks and some default settings
+	 * 
+	 * @return void
+	 */
+	public static function initialize() : void
 	{
 		// Main Hooks
 		self::essentialHooks();
@@ -31,7 +38,14 @@ class PostPrefix
 		self::setDefaults();
 	}
 
-	public static function setDefaults()
+	/**
+	 * PostPrefix::setDefaults()
+	 * 
+	 * Set default settings
+	 * 
+	 * @return void
+	 */
+	public static function setDefaults() : void
 	{
 		global $modSettings;
 
@@ -44,22 +58,36 @@ class PostPrefix
 		$modSettings = array_merge($defaults, $modSettings);
 	}
 
-	public static function essentialHooks()
+	/**
+	 * PostPrefix::essentialHooks()
+	 * 
+	 * Essential hooks for the mod that should be loaded regardless of anything.
+	 * 
+	 * @return void
+	 */
+	public static function essentialHooks() : void
 	{
 		$hooks = [
 			'autoload',
 			'actions',
 			'pre_css_output',
 			'menu_buttons',
-			'user_info',
+			'load_theme',
 		];
 		foreach ($hooks as $point )
 			add_integration_function('integrate_' . $point, __CLASS__ . '::' . $point, false);
 	}
 
-	public static function boardHooks()
+	/**
+	 * PostPrefix::boardHooks()
+	 * 
+	 * These hooks are also essential, but are only needed on boards and topics
+	 * 
+	 * @return void
+	 */
+	public static function boardHooks() : void
 	{
-		// No actions...
+		// Nothing or you get nada.
 		if (isset($_REQUEST['action']) || !empty($_REQUEST['action']))
 			return;
 
@@ -81,7 +109,7 @@ class PostPrefix
 	 * @param array $classMap
 	 * @return void
 	 */
-	public static function autoload(array &$classMap)
+	public static function autoload(array &$classMap) : void
 	{
 		$classMap['PostPrefix\\'] = 'PostPrefix/';
 	}
@@ -92,7 +120,7 @@ class PostPrefix
 	 * Insert the css file
 	 * @return void
 	 */
-	public static function pre_css_output()
+	public static function pre_css_output() : void
 	{
 		// Postprefix CSS file
 		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false], 'smf_postprefix');
@@ -104,11 +132,18 @@ class PostPrefix
 	 * Add a few more hooks depending on the actions
 	 * @return void
 	 */
-	public static function actions()
+	public static function actions() : void
 	{
+		// Need to be somewhere
+		if (!isset($_REQUEST['action']) || empty($_REQUEST['action']))
+			return;
+
 		// Hooks per action
 		switch ($_REQUEST['action'])
 		{
+			case 'helpadmin':
+				add_integration_function('integrate_helpadmin', __NAMESPACE__ .'\Integration\Permissions::language', false);
+				break;
 			case 'admin':
 				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas#', false);
 				break;
@@ -124,11 +159,11 @@ class PostPrefix
 	}
 
 	/**
-	 * PostPrefix::current_action()
+	 * PostPrefix::load_prefixes()
 	 * 
 	 * Loads the list of prefixes
 	 */
-	public static function user_info()
+	public static function load_theme()
 	{
 		global $user_info, $context;
 
@@ -137,19 +172,24 @@ class PostPrefix
 			return;
 
 		// Load the prefixes
-		$context['user_prefixes']['post']  = Database::Nested('pp.id', 'postprefixes AS pp',
-			array_merge(array_merge(Database::$_prefix_normal, Database::$_boards_columns), Database::$_groups_columns), ['b.id_board'], 'boards',
-			'WHERE pp.status = 1' . (allowedTo('postprefix_manage') ? '' : '
-				AND ppg.id_group ' . ($user_info['is_guest'] ? '= {int:guest}' : 'IN ({array_int:groups})')
-			), 
-			'LEFT JOIN {db_prefix}postprefixes_groups AS ppg ON (ppg.id_prefix = pp.id)
-			LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)
-			LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
-			[
-				'groups' => array_unique(array_merge($user_info['groups'], [0])),
-				'guest' => -1,
-			]
-		);
+		if (($context['user_prefixes']['post'] = cache_get_data('user_postprefixes_u' . $user_info['id'], 3600)) === null)
+		{
+			$context['user_prefixes']['post'] = Database::Nested(
+				'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp',
+				array_merge(array_merge(Database::$_prefix_normal, Database::$_boards_columns), Database::$_groups_columns), ['b.id_board'], 'boards',
+				'WHERE pp.status = 1' . (allowedTo('postprefix_manage') ? '' : '
+					AND ppg.id_group ' . ($user_info['is_guest'] ? '= {int:guest}' : 'IN ({array_int:groups})')
+				), 
+				'LEFT JOIN {db_prefix}postprefixes_groups AS ppg ON (ppg.id_prefix = pp.id)
+				LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)
+				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
+				[
+					'groups' => array_unique(array_merge($user_info['groups'], [0])),
+					'guest' => -1,
+				]
+			);
+			cache_put_data('user_postprefixes_u' . $user_info['id'], $context['user_prefixes']['post'], 3600);
+		}
 	}
 
 	/**
