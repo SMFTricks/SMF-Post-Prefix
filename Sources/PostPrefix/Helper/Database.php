@@ -49,22 +49,11 @@ class Database
 		'ppg.id_group',
 	];
 
-	public static function Save($config_vars, $return_config, $sa)
+	public static function sanitize($string)
 	{
-		global $context, $scripturl;
+		global $smcFunc;
 
-		if ($return_config)
-			return $config_vars;
-
-		$context['post_url'] = $scripturl . '?action=admin;area=postprefix;sa='. $sa. ';save';
-
-		// Saving?
-		if (isset($_GET['save'])) {
-			checkSession();
-			saveDBSettings($config_vars);
-			redirectexit('action=admin;area=postprefix;sa='. $sa. '');
-		}
-		prepareDBSettingContext($config_vars);
+		return $smcFunc['htmlspecialchars']($string, ENT_QUOTES);
 	}
 
 	public static function Count($table, $columns, $additional_query = '', $additional_columns = '', $more_values = [])
@@ -130,7 +119,7 @@ class Database
 		return $items;
 	}
 
-	public static function Nested($sort, $table, $column_main, $column_sec, $query_member, $additional_query = '', $additional_columns = '', $more_values = [], $attachments = [], $attach_main = false)
+	public static function pNested($sort, $table, $column_main, $column_sec, $query_member, $additional_query = '', $additional_columns = '', $more_values = [], $attachments = [], $attach_main = false)
 	{
 		global $smcFunc;
 
@@ -180,32 +169,67 @@ class Database
 		}
 		$smcFunc['db_free_result']($result);
 
-		// Don't duplicate the boards
+		// Don't duplicate the values
 		foreach ($items as $key => $value)
 		{
-			$items[$key]['boards'] = array_unique($items[$key]['boards']);
+			$items[$key][$query_member] = array_unique($items[$key][$query_member]);
 
-			// If they don't have boards, they are useless...
-			if (empty($items[$key]['boards']))
+			// If they don't have key, they are useless...
+			if (empty($items[$key][$query_member]))
 				unset($items[$key]);
 		}
 
 		return $items;
 	}
 
-	public static function Attachments($row)
+	public static function bNested($sort, $table, $column_main, $column_sec, $query_member, $additional_query = '', $additional_columns = '', $more_values = [])
 	{
-		global $modSettings, $scripturl;
+		global $smcFunc;
 
-		// Build the array for avatar
-		$set_attachments = [
-				'name' => $row['avatar'],
-				'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : ((stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://')) ? '<img class="avatar" src="' . $row['avatar'] . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . htmlspecialchars($row['avatar']) . '" alt="" />'),
-				'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : ((stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://')) ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar']),
-				'url' => $row['avatar'] == '' ? '' : ((stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://')) ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'])
-		];
+		$columns = array_merge($column_main, $column_sec);
+		$columns = implode(', ', $columns);
+		$data = array_merge(
+			[
+				'table' => $table,
+				'sort' => $sort,
+			],
+			$more_values
+		);
+		$result = $smcFunc['db_query']('', '
+			SELECT ' . $columns . '
+			FROM {db_prefix}{raw:table} ' .
+			$additional_columns. ' 
+			'. $additional_query . '
+			ORDER by {raw:sort}',
+			$data
+		);
 
-		return $set_attachments;
+		$items = [];
+		while ($row = $smcFunc['db_fetch_assoc']($result))
+		{
+			$tmp_main = [];
+			$tmp_sec  = [];
+
+			// Split them
+			foreach($row as $col => $value)
+			{
+				if (in_array(strstr($column_main[0], '.', true).'.'.$col, $column_main))
+					$tmp_main[$col] = $value;
+				elseif (in_array(strstr($column_sec[0], '.', true).'.'.$col, $column_sec))
+					$tmp_sec[$col] = $value;
+				else
+					$tmp_main[$col] = $value;
+			}
+
+			// Just loop once on each group/category
+			if (!isset($items[$row[substr(strrchr($column_main[0], '.'), 1)]]))
+				$items[$row[substr(strrchr($column_main[0], '.'), 1)]] = $tmp_main;
+
+			$items[$row[substr(strrchr($column_main[0], '.'), 1)]][$query_member][$row[substr(strrchr($column_sec[0], '.'), 1)]] = $tmp_sec;
+		}
+		$smcFunc['db_free_result']($result);
+
+		return $items;
 	}
 
 	public static function Find($table, $column, $search = '', $additional_query = '')
@@ -228,29 +252,34 @@ class Database
 		return $result;
 	}
 
-	public static function Delete($table, $column, $search, $additional_query = '')
+	public static function Delete($table, $column, $search, $additional_query = '', $values = [], $operator = '=')
 	{
 		global $smcFunc;
 
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}{raw:table}
-			WHERE '. $column . (is_array($search) ? ' IN ({array_int:search})' : (' = ' . $search)) . $additional_query,
+		$data = array_merge(
 			[
 				'table' => $table,
 				'search' => $search,
-			]
+			],
+			$values
+		);
+
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}{raw:table}
+			WHERE '. $column . (is_array($search) ? ' '. $operator . ' ({array_int:search})' : (' ' . $operator . ' ' . $search)) . $additional_query,
+			$data
 		);
 	}
 
-	public static function Insert($table, $columns, $types)
+	public static function Insert($table, $columns, $types, $indexes = [], $method = '')
 	{
 		global $smcFunc;
 
-		$smcFunc['db_insert']('',
+		$smcFunc['db_insert']($method,
 			'{db_prefix}'.$table,
 			$types,
 			$columns,
-			[]
+			$indexes
 		);
 	}
 
@@ -265,5 +294,12 @@ class Database
 			'.$query,
 			$columns
 		);
+	}
+
+	public static function Insert_id($table, $column)
+	{
+		global $smcFunc;
+
+		return $smcFunc['db_insert_id']('{db_prefix}' . $table, $column);
 	}
 }
