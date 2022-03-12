@@ -172,18 +172,22 @@ class MessageIndex
 			return;
 
 		// Okay, search the prefixes
-		$context['prefixes']['filter'] = Database::Get(0, 10000,
-			'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'),
-			'postprefixes AS pp',
-			array_merge(Database::$_prefix_columns, Database::$_boards_columns),
-			'WHERE pp.status = {int:status}
-				AND ppb.id_board = {int:board}', false,
-			'LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)',
-			[
-				'status' => 1,
-				'board' => $board
-			]
-		);
+		if (($context['prefixes']['filter'] = cache_get_data('prefix_filter_b' . $board, 3600)) === null)
+		{
+			$context['prefixes']['filter'] = Database::Get(0, 10000,
+				'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'),
+				'topics AS t',
+				array_merge(['DISTINCT t.id_prefix'], Database::$_prefix_columns),
+				'WHERE pp.status = {int:status}
+					AND t.id_board = {int:board}', false,
+				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
+				[
+					'status' => 1,
+					'board' => $board,
+				]
+			);
+			cache_put_data('prefix_filter_b' . $board, $context['prefixes']['filter'], 3600);
+		}
 
 		// Check if we have any prefixes
 		if (empty($context['prefixes']['filter']))
