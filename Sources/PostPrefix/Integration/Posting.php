@@ -26,7 +26,7 @@ class Posting
 	 * @param array $topic_parameters The topic parameters
 	 * @return void
 	 */
-	public static function before_create_topic(&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters)
+	public static function before_create_topic(array &$msgOptions, array &$topicOptions, array &$posterOptions, array &$topic_columns, array &$topic_parameters) : void
 	{
 		global $context, $board;
 
@@ -53,7 +53,7 @@ class Posting
 	 * 
 	 * @return void
 	 */
-	public static function modify_post()
+	public static function modify_post() : void
 	{
 		global $topic, $context, $board;
 
@@ -78,7 +78,7 @@ class Posting
 	 * @param array $post_errors The post errors
 	 * @return void
 	 */
-	public static function post2_start(&$post_errors)
+	public static function post2_start(array &$post_errors) : void
 	{
 		global $board, $modSettings, $context;
 
@@ -107,7 +107,7 @@ class Posting
 	 * @param array $post_errors The post errors
 	 * @return void
 	 */
-	public static function post_errors(&$post_errors, &$minor_errors)
+	public static function post_errors(array &$post_errors, array &$minor_errors) : void
 	{
 		global $context, $topic, $board;
 
@@ -155,7 +155,7 @@ class Posting
 	 * 
 	 * @return void
 	 */
-	public static function post_end()
+	public static function post_end() : void
 	{
 		global $txt, $context, $board, $topic, $modSettings;
 

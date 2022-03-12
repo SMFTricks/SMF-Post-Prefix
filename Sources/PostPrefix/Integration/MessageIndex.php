@@ -35,7 +35,7 @@ class MessageIndex
 	 * @param array $message_index_topic_wheres The message index topic where's
 	 * @return void
 	 */
-	public function topics_list(array &$message_index_selects, array &$message_index_tables, array &$message_index_parameters, array &$message_index_wheres, array &$topic_ids, array &$message_index_topic_wheres)
+	public function topics_list(array &$message_index_selects, array &$message_index_tables, array &$message_index_parameters, array &$message_index_wheres, array &$topic_ids, array &$message_index_topic_wheres) : void
 	{
 		// Prefix ID
 		$message_index_selects[] = 't.id_prefix';
@@ -61,7 +61,7 @@ class MessageIndex
 	 * @param array $message_index_topic_wheres The message index topic where's
 	 * @return void
 	 */
-	private function buildFilter(array &$message_index_parameters, array &$message_index_wheres, array &$message_index_topic_wheres)
+	private function buildFilter(array &$message_index_parameters, array &$message_index_wheres, array &$message_index_topic_wheres) : void
 	{
 		global $board, $modSettings, $context, $scripturl, $txt;
 
@@ -107,7 +107,7 @@ class MessageIndex
 	 * 
 	 * @return void
 	 */
-	public function topic_count()
+	public function topic_count() : void
 	{
 		global $board_info, $modSettings, $user_info;
 
@@ -149,7 +149,7 @@ class MessageIndex
 	 * 
 	 * @return void
 	 */
-	public function topics_prefixes()
+	public function topics_prefixes() : void
 	{
 		global $context, $modSettings, $board;
 
