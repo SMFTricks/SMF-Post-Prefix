@@ -5,7 +5,7 @@
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
- * @license https://www.mozilla.org/en-US/MPL/2.0/
+ * @license MIT
  */
 
 namespace PostPrefix;
@@ -17,8 +17,6 @@ if (!defined('SMF'))
 
 class PostPrefix
 {
-	public static $version = '4.0';
-
 	/**
 	 * PostPrefix::initialize()
 	 * 
@@ -129,7 +127,8 @@ class PostPrefix
 	/**
 	 * PostPrefix::actions()
 	 * 
-	 * Add a few more hooks depending on the actions
+	 * Add a new action for something special later
+	 * And add a few more hooks depending on the actions
 	 * @return void
 	 */
 	public static function actions() : void
@@ -145,7 +144,7 @@ class PostPrefix
 				add_integration_function('integrate_helpadmin', __NAMESPACE__ .'\Integration\Permissions::language', false);
 				break;
 			case 'admin':
-				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Settings::hookAreas#', false);
+				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Manage\Settings::hookAreas#', false);
 				break;
 			case 'post':
 			case 'post2':
@@ -165,7 +164,7 @@ class PostPrefix
 	 */
 	public static function load_theme()
 	{
-		global $user_info, $context;
+		global $user_info, $context, $modSettings;
 
 		// It's only for post pages really...
 		if (!isset($_REQUEST['action']) && empty($_REQUEST['action']) || ($_REQUEST['action'] !== 'post' && $_REQUEST['action'] !== 'post2'))
@@ -174,7 +173,7 @@ class PostPrefix
 		// Load the prefixes
 		if (($context['user_prefixes']['post'] = cache_get_data('user_postprefixes_u' . $user_info['id'], 3600)) === null)
 		{
-			$context['user_prefixes']['post'] = Database::Nested(
+			$context['user_prefixes']['post'] = Database::pNested(
 				'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp',
 				array_merge(array_merge(Database::$_prefix_normal, Database::$_boards_columns), Database::$_groups_columns), ['b.id_board'], 'boards',
 				'WHERE pp.status = 1' . (allowedTo('postprefix_manage') ? '' : '
