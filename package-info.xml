@@ -25,7 +25,7 @@
 		<!-- Hooks -->
 		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<!-- Redirect -->
-		<redirect url="?action=admin;area=postprefix">redirect.txt</redirect>
+		<redirect url="?action=admin;area=postprefix" />
 	</install>
 	
 	<uninstall for="2.1 - 2.1.99">
@@ -36,9 +36,10 @@
 		<!-- Languages -->
 		<remove-dir name="$languagedir/PostPrefix">Language files</remove-dir>
 		<!-- Scripts -->
-		<remove-file name="$themedir/scripts/colpick.min.js">JS files</remove-file>
+		<remove-file name="$themedir/scripts/coloris.js">JS file</remove-file>
+		<remove-file name="$themedir/scripts/postprefix.js">JS file</remove-file>
 		<!-- Styles -->
-		<remove-file name="$themedir/css/colpick.min.css">CSS files</remove-file>
+		<remove-file name="$themedir/css/coloris.css">CSS file</remove-file>
 		<remove-file name="$themedir/css/postprefix.css">CSS file</remove-file>
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
