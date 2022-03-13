@@ -63,8 +63,8 @@ class Topic
 
 		// Add the prefix to the linktree
 		$context['linktree'][count($context['linktree'])-1]['extra_before'] = PostPrefix::format($context['topicinfo'], [
-			'padding-top:0',
-			'padding-bottom:0'
+			'padding-block: 3px',
+			'margin: 0'
 		]);
 	}
 }
