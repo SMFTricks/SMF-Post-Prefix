@@ -1,16 +1,25 @@
 /**
  * @package SMF Post Prefix
- * @version 3.0
+ * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
- * @license https://www.mozilla.org/en-US/MPL/2.0/
+ * @copyright Copyright (c) 2022, SMF Tricks
+ * @license MIT
  */
 
-/* Text prefix */
-span.postprefix-all {
+/* Prefix */
+span.postprefix-all,
+.postprefix-all {
 	padding: 2px 5px;
-	display: inline-block;
+	display: inline-flex;
 	border-radius: 3px;
+	line-height: normal;
+	justify-content: center;
+	align-items: center;
+	text-shadow: none;
+}
+span.postprefix-all~a,
+span.postprefix-all~span {
+	margin-inline: 5px;
 }
 span.postprefix-all.text-default {
 	color: #fff !important;
@@ -23,6 +32,8 @@ span.bold_text span.postprefix-all {
 }
 
 /* Icon prefix */
-img.postprefix-all {
-	vertical-align: middle;
+span.postprefix-all i,
+.postprefix-all i {
+	margin-inline-end: 3px;
+	width: auto !important;
 }
