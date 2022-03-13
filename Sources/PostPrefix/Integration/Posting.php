@@ -192,6 +192,10 @@ class Posting
 			}
 		}
 
+		// If there are no prefixes, don't bother
+		if (empty($context['user_prefixes']['post']) && !empty($board))
+			return;
+
 		// Add the prefix input
 		$context['posting_fields']['topic_prefix'] = [
 			'label' => [
@@ -240,6 +244,13 @@ class Posting
 		{
 			$context['posting_fields']['topic_prefix']['input']['type'] = 'radio_select';
 			$context['posting_fields']['topic_prefix']['input']['options'] = $context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'];
+		}
+
+		// Remove "No Prefix" if prefixes are required on this board
+		if (!empty($board) && !empty($modSettings['PostPrefix_prefix_boards_require']) && in_array($board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])))
+		{
+			unset($context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options']['none']);
+			unset($context['posting_fields']['topic_prefix']['input']['options']['none']);
 		}
 
 		// Additional hidden input, so we now that this is a topic
