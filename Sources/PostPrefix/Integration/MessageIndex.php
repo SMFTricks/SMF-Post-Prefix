@@ -116,7 +116,7 @@ class MessageIndex
 			return;
 
 		// Update the total topics
-		if (($_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) === null)
+		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) === null)
 		{
 			// Total topics
 			$this->_total_topics[$_REQUEST['prefix']] = Database::Count('topics',
