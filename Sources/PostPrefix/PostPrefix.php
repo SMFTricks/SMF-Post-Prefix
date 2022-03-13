@@ -216,22 +216,25 @@ class PostPrefix
 		}
 
 		// Prefix
-		$format = '<span class="postprefix-'. $prefix['prefix_id']. ' postprefix-all';
+		$format = '<span class="postprefix-' . $prefix['prefix_id'] . ' postprefix-all';
 
-		// Background color or color
-		if (!empty($prefix['prefix_bgcolor']) || !empty($prefix['prefix_color']))
+		// Invert Color
+		if (!empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
 		{
-			// Check if it's inverted when using both color and background color
-			if (!empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
-				$format .= ' text-'. (!empty($prefix['prefix_invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['prefix_color'];
-			// With no background, just use the color provided
-			elseif (!empty($prefix['prefix_color']) && empty($prefix['prefix_bgcolor']))
-				$format .= '" style="color:'. $prefix['prefix_color'];
+			// Class
+			$format .= ' text-'. (!empty($prefix['prefix_invert_color']) ? 'inverted' : 'default') . '"';
+			// Add the background color
+			$format .= ' style="background-color:' . $prefix['prefix_color'] . ';';
 		}
-
+		elseif (empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
+		{
+			// Add the text color
+			$format .= '" style="color:' . $prefix['prefix_color'] .';';
+		}
+		
 		// More styles?
 		if (!empty($styles))
-			$format .= implode(';', $styles);
+			$format .= implode(';', $styles) . ';';
 
 		// Close the tag
 		$format .= '">';
