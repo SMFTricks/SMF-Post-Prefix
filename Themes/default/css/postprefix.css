@@ -10,8 +10,8 @@
 span.postprefix-all,
 .postprefix-all {
 	padding: 0 5px;
-	height: 24px;
-	display: inline-flex;
+	min-height: 24px;
+	display: inline-flex !important;
 	border-radius: 4px;
 	line-height: normal;
 	justify-content: center;
@@ -39,5 +39,5 @@ span.postprefix-all i,
 .postprefix-all i {
 	font-size: 0.85em;
 	width: auto !important;
-	height: 13px;
+	min-height: 13px;
 }
