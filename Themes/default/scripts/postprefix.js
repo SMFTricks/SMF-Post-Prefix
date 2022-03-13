@@ -85,7 +85,7 @@ function hidePrefixes(board)
 				if (prefixes_radio_select)
 				{
 					// Display the prefix 
-					document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'inline-block';
+					document.getElementById(prefixes[i][0]).nextElementSibling.style.display = 'inline-flex';
 					// Add some margin
 					document.getElementById(prefixes[i][0]).parentElement.style.marginRight = '10px';
 				}
