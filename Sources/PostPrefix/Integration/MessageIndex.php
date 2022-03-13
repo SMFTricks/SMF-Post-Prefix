@@ -63,9 +63,9 @@ class MessageIndex
 	 */
 	private function buildFilter(array &$message_index_parameters, array &$message_index_wheres, array &$message_index_topic_wheres) : void
 	{
-		global $board, $modSettings, $context, $scripturl, $txt;
+		global $board, $modSettings, $context, $scripturl, $txt, $board_info;
 
-		// Is the board in the filter?
+		// // Is the board in the filter?
 		if (!in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])) || !isset($_REQUEST['prefix']) || empty($this->_total_topics[$_REQUEST['prefix']]))
 			return;
 
@@ -84,7 +84,7 @@ class MessageIndex
 			// Last post
 			$context['sort_by'] = 'last_post';
 			// Last message?
-			$_REQUEST['sort'] = 'id_last_msg';
+			$_REQUEST['sort'] = 'last_post';
 		}
 
 		// Insert it in the topic headers
@@ -96,8 +96,12 @@ class MessageIndex
 
 		// Max
 		$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $this->_total_topics[$_REQUEST['prefix']] : $context['topics_per_page'];
+	
 		// Page Index
-		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'] . ';sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
+		if (isset($_REQUEST['sort']))
+			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'] . ';sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
+		else
+			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'], $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
 	}
 
 	/**
@@ -115,8 +119,11 @@ class MessageIndex
 		if (!in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) || !isset($_REQUEST['prefix']) || empty($board_info['total_topics']))
 			return;
 
+		// Make sure it's an int
+		$_REQUEST['prefix'] = (int) $_REQUEST['prefix'];
+
 		// Update the total topics
-		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) === null)
+		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) == null)
 		{
 			// Total topics
 			$this->_total_topics[$_REQUEST['prefix']] = Database::Count('topics',
