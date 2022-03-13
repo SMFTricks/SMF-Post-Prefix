@@ -3,19 +3,22 @@
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
- * @license MIT
+ * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
 /* Prefix */
 span.postprefix-all,
 .postprefix-all {
-	padding: 2px 5px;
+	padding: 0 5px;
+	height: 24px;
 	display: inline-flex;
-	border-radius: 3px;
+	border-radius: 4px;
 	line-height: normal;
 	justify-content: center;
 	align-items: center;
 	text-shadow: none;
+	gap: 5px;
+	font-size: 0.9em;
 }
 span.postprefix-all~a,
 span.postprefix-all~span {
@@ -34,6 +37,7 @@ span.bold_text span.postprefix-all {
 /* Icon prefix */
 span.postprefix-all i,
 .postprefix-all i {
-	margin-inline-end: 3px;
+	font-size: 0.85em;
 	width: auto !important;
+	height: 13px;
 }
