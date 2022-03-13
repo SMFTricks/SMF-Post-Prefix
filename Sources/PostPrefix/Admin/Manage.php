@@ -5,7 +5,7 @@
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
- * @license MIT
+ * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
 namespace PostPrefix\Admin;
@@ -310,8 +310,6 @@ class Manage
 	 */
 	public function save() : void
 	{
-		global $sourcedir;
-
 		// Data
 		$this->_fields_data = [
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,

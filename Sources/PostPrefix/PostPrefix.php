@@ -5,7 +5,7 @@
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
- * @license MIT
+ * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
 namespace PostPrefix;
