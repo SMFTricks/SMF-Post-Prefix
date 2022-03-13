@@ -4,8 +4,8 @@
  * @package SMF Post Prefix
  * @version 4.0
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2020, SMF Tricks
- * @license https://www.mozilla.org/en-US/MPL/2.0/
+ * @copyright Copyright (c) 2022, SMF Tricks
+ * @license MIT
  */
 
 namespace PostPrefix\Helper;
@@ -23,7 +23,7 @@ class Database
 		'pp.color AS prefix_color',
 		'pp.bgcolor AS prefix_bgcolor',
 		'pp.invert_color AS prefix_invert_color',
-		'pp.icon_url AS prefix_icon_url'
+		'pp.icon_class AS prefix_icon_class'
 	];
 
 	// Vanilla prefix columns
@@ -34,7 +34,7 @@ class Database
 		'pp.color',
 		'pp.bgcolor',
 		'pp.invert_color',
-		'pp.icon_url'
+		'pp.icon_class'
 	];
 
 	// Boards columns
@@ -252,7 +252,7 @@ class Database
 		return $result;
 	}
 
-	public static function Delete($table, $column, $search, $additional_query = '', $values = [], $operator = '=')
+	public static function Delete($table, $column, $search, $additional_query = '', $operator = '=', $values = [])
 	{
 		global $smcFunc;
 
