@@ -144,7 +144,7 @@ class PostPrefix
 				add_integration_function('integrate_helpadmin', __NAMESPACE__ .'\Integration\Permissions::language', false);
 				break;
 			case 'admin':
-				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Manage\Settings::hookAreas#', false);
+				add_integration_function('integrate_admin_areas', __NAMESPACE__ . '\Admin\Settings::hookAreas#', false);
 				break;
 			case 'post':
 			case 'post2':
@@ -212,33 +212,36 @@ class PostPrefix
 			$prefix['prefix_color'] = $prefix['color'];
 			$prefix['prefix_bgcolor'] = $prefix['bgcolor'];
 			$prefix['prefix_invert_color'] = $prefix['invert_color'];
-			$prefix['prefix_icon_url'] = $prefix['icon_url'];
+			$prefix['prefix_icon_class'] = $prefix['icon_class'];
 		}
 
-		// Check for no icon
-		if (empty($prefix['prefix_icon_url']))
-		{
-			// Prefix
-			$format = '<span class="postprefix-'. $prefix['prefix_id']. ' postprefix-all';
+		// Prefix
+		$format = '<span class="postprefix-'. $prefix['prefix_id']. ' postprefix-all';
 
-			// Background color or color
-			if (!empty($prefix['prefix_bgcolor']) || !empty($prefix['prefix_color']))
-			{
-				// Check if it's inverted when using both color and background color
-				if (!empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
-					$format .= ' text-'. (!empty($prefix['prefix_invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['prefix_color'];
-				// With no background, just use the color provided
-				elseif (!empty($prefix['prefix_color']) && empty($prefix['prefix_bgcolor']))
-					$format .= '" style="color:'. $prefix['prefix_color'];
-			}
-			// Prefix name
-			$format .= ';' . (!empty($styles) ? implode(';', $styles) : '') . '">' . $prefix['prefix_name'] . '</span>';
-		}
-		// Provide just an icon
-		else
+		// Background color or color
+		if (!empty($prefix['prefix_bgcolor']) || !empty($prefix['prefix_color']))
 		{
-			$format = '<img class="postprefix-all" id="postprefix-'. $prefix['prefix_id']. '" src="'. $prefix['prefix_icon_url']. '" alt="'. $prefix['prefix_name']. '" title="'. $prefix['prefix_name']. '" />';
+			// Check if it's inverted when using both color and background color
+			if (!empty($prefix['prefix_bgcolor']) && !empty($prefix['prefix_color']))
+				$format .= ' text-'. (!empty($prefix['prefix_invert_color']) ? 'inverted' : 'default'). '" style="background-color:'. $prefix['prefix_color'];
+			// With no background, just use the color provided
+			elseif (!empty($prefix['prefix_color']) && empty($prefix['prefix_bgcolor']))
+				$format .= '" style="color:'. $prefix['prefix_color'];
 		}
+
+		// More styles?
+		if (!empty($styles))
+			$format .= implode(';', $styles);
+
+		// Close the tag
+		$format .= '">';
+
+		// Add an icon?
+		if (!empty($prefix['prefix_icon_class']))
+			$format .= '<i class="'. $prefix['prefix_icon_class']. '"></i>';
+
+		// Prefix name
+		$format .= $prefix['prefix_name'] . '</span>';
 
 		return $format;
 	}
