@@ -36,11 +36,9 @@
 		<!-- Languages -->
 		<remove-dir name="$languagedir/PostPrefix">Language files</remove-dir>
 		<!-- Scripts -->
-		<remove-file name="$themedir/scripts/coloris.js">JS file</remove-file>
-		<remove-file name="$themedir/scripts/postprefix.js">JS file</remove-file>
+		<remove-dir name="$themedir/scripts/postprefix">JS files</remove-dir>
 		<!-- Styles -->
-		<remove-file name="$themedir/css/coloris.css">CSS file</remove-file>
-		<remove-file name="$themedir/css/postprefix.css">CSS file</remove-file>
+		<remove-dir name="$themedir/css/postprefix">CSS files</remove-dir>
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
 		<!-- Database -->
