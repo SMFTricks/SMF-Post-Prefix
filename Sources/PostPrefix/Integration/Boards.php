@@ -11,7 +11,7 @@
 namespace PostPrefix\Integration;
 
 use PostPrefix\PostPrefix;
-use PostPrefix\Helper\{Database};
+use PostPrefix\Helper\Database;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -139,19 +139,16 @@ class Boards
 			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_first_msg',
 				'topics AS t',
 				array_merge(['t.id_first_msg', 't.id_prefix'], Database::$_prefix_columns),
-				'WHERE t.id_first_msg IN ({array_int:messages})', false,
-				' LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
+				'WHERE t.id_first_msg IN ({array_int:messages})
+					AND t.id_prefix > {int:prefix_zero}', false,
+				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'messages' => $this->_last_messages,
+					'prefix_zero' => 0,
 				]
 			);
 			// Make the id_first_msg the key
 			$this->_first_messages = array_column($this->_first_messages, null, 'id_first_msg');
-
-			// Remove those without a prefix
-			foreach ($this->_first_messages as $id => $prefix)
-				if (empty($prefix['id_prefix']))
-					unset($this->_first_messages[$id]);
 
 			cache_put_data('pp_boardindex_lastmessages', $this->_first_messages, 600);
 		}
@@ -225,7 +222,7 @@ class Boards
 					$context['latest_posts'][$key]['short_subject'] = PostPrefix::format($this->_first_messages[$matches[1]]) . $post['short_subject'];
 
 					// And finally, the link
-					$context['latest_posts'][$key]['link'] = '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $matches[1] . ';topicseen#msg' . $matches[1] . '" rel="nofollow"> ' . PostPrefix::format($this->_first_messages[$matches[1]]) . $post['subject'] . '</a>';
+					$context['latest_posts'][$key]['link'] = PostPrefix::format($this->_first_messages[$matches[1]]) . '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $matches[1] . ';topicseen#msg' . $matches[1] . '" rel="nofollow">' . $post['subject'] . '</a>';
 				}
 			}
 		}
