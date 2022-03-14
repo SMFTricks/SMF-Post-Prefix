@@ -67,6 +67,10 @@ $txt['PostPrefix_post_selecttype_desc1'] = 'This is the style of prefix selectio
 $txt['PostPrefix_post_selecttype_desc2'] = 'Select will only display prefix names, radio will display each prefix with the corresponding style.';
 $txt['PostPrefix_post_selecttype_select'] = 'Select';
 $txt['PostPrefix_post_selecttype_radio'] = 'Radio';
+$txt['PostPrefix_prefix_linktree'] = 'Add prefix to linktree';
+$txt['PostPrefix_prefix_linktree_desc'] = 'When viewing a topic, include the prefix in the linktree.';
+$txt['PostPrefix_prefix_boardindex'] = 'Enable prefixes in board index';
+$txt['PostPrefix_prefix_boardindex_desc'] = 'It will display the prefixes in the board index if the post happens to be a topic.<br>It includes the recent posts in the info center.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';

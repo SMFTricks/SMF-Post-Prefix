@@ -156,7 +156,8 @@ class Settings
 			['permissions', 'postprefix_manage', 'label' => $txt['permissionname_postprefix_manage'], 'help' => $txt['permissionhelp_postprefix_manage']],
 			['permissions', 'postprefix_set', 'label' => $txt['permissionname_postprefix_set'], 'help' => $txt['permissionhelp_postprefix_set']],
 			'',
-			['check', 'PostPrefix_add_prefix_linktree', 'subtext' => $txt['PostPrefix_add_prefix_linktree_desc']],
+			['check', 'PostPrefix_prefix_linktree', 'subtext' => $txt['PostPrefix_prefix_linktree_desc']],
+			['check', 'PostPrefix_prefix_boardindex', 'subtext' => $txt['PostPrefix_prefix_boardindex_desc']],
 		];
 
 		// Post URL
