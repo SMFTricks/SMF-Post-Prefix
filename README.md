@@ -29,7 +29,7 @@ SMF Post Prefix mod allows you to set prefixes for your topics and easily custom
 - ![English](https://www.simplemachines.org/site_images/lang/english.gif) English
 - ![Spanish](https://www.simplemachines.org/site_images/lang/spanish_es.gif) Spanish
 - ![Russian](https://www.simplemachines.org/site_images/lang/russian.gif) Russian by [Bugo](https://www.simplemachines.org/community/index.php?action=profile;u=229017)
-- ![Turkish](https://www.simplemachines.org/site_images/lang/russian.gif) Turkish by [Emre A.](https://www.simplemachines.org/community/index.php?action=profile;u=92172)
+- ![Turkish](https://www.simplemachines.org/site_images/lang/turkish.gif) Turkish by [Emre A.](https://www.simplemachines.org/community/index.php?action=profile;u=92172)
 ---
 ### [Changelog](https://github.com/SMFTricks/SMF-Post-Prefix/blob/master/CHANGELOG.md)
 ### [GitHub](https://github.com/SMFTricks/SMF-Post-Prefix)
