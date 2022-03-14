@@ -291,19 +291,16 @@ class MessageIndex
 			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_first_msg',
 				'topics AS t',
 				array_merge(['t.id_first_msg', 't.id_prefix'], Database::$_prefix_columns),
-				'WHERE t.id_first_msg IN ({array_int:messages})', false,
-				' LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
+				'WHERE t.id_first_msg IN ({array_int:messages})
+					AND t.id_prefix > {int:prefix_zero}', false,
+				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'messages' => $this->_last_messages,
+					'prefix_zero' => 0,
 				]
 			);
 			// Make the id_first_msg the key
 			$this->_first_messages = array_column($this->_first_messages, null, 'id_first_msg');
-
-			// Remove those without a prefix
-			foreach ($this->_first_messages as $id => $prefix)
-				if (empty($prefix['id_prefix']))
-					unset($this->_first_messages[$id]);
 
 			cache_put_data('pp_messageindex_lastmessages', $this->_first_messages, 600);
 		}
