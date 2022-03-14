@@ -11,7 +11,7 @@ SMF Post Prefix mod allows you to set prefixes for your topics and easily custom
 ### Features
 - Add/Edit prefixes
   - Enable/Disable prefix
-    -     Enable/Disable prefix
+    - Enable/Disable prefix
   - Select a color for the prefix
     - Text color
     - Background color
@@ -23,7 +23,7 @@ SMF Post Prefix mod allows you to set prefixes for your topics and easily custom
   - Manage prefixes
   - Use prefixes (Global permission)
 - Filter Topics by prefix
-  -     Enable the filter box on selected boards
+  - Enable the filter box on selected boards
 
 ### Localization
 - ![English](https://www.simplemachines.org/site_images/lang/english.gif) English
