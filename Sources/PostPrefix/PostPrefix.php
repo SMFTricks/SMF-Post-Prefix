@@ -89,6 +89,9 @@ class PostPrefix
 		if (isset($_REQUEST['action']) || !empty($_REQUEST['action']))
 			return;
 
+		// Board Index
+		add_integration_function('integrate_mark_read_button', __NAMESPACE__ . '\Integration\Boards::recentPosts#', false);
+
 		// Message Index
 		add_integration_function('integrate_pre_messageindex', __NAMESPACE__ . '\Integration\MessageIndex::topic_count#', false);
 		add_integration_function('integrate_message_index', __NAMESPACE__ . '\Integration\MessageIndex::topics_list#', false);
@@ -149,10 +152,11 @@ class PostPrefix
 			case 'post':
 			case 'post2':
 				add_integration_function('integrate_before_create_topic', __NAMESPACE__ . '\Integration\Posting::before_create_topic', false);
-				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Integration\Posting::modify_post', false);
+				add_integration_function('integrate_modify_post', __NAMESPACE__ . '\Integration\Posting::modify_post#', false);
 				add_integration_function('integrate_post2_start', __NAMESPACE__ . '\Integration\Posting::post2_start', false);
 				add_integration_function('integrate_post_errors', __NAMESPACE__ . '\Integration\Posting::post_errors', false);
 				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Integration\Posting::post_end', false);
+				add_integration_function('integrate_create_topic', __NAMESPACE__ . '\Integration\Posting::after_posting#', false);
 				break;
 		}
 	}
