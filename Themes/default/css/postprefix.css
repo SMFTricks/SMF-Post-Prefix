@@ -11,7 +11,7 @@ span.postprefix-all,
 .postprefix-all {
 	padding: 0 5px;
 	min-height: 24px;
-	display: inline-flex !important;
+	display: inline-flex;
 	border-radius: 4px;
 	line-height: normal;
 	justify-content: center;
