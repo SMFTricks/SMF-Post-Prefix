@@ -277,16 +277,14 @@ class Manage
 				]
 			);
 			$context['prefix']['groups'] = array_column($context['prefix']['groups'], 'id_group');
-			
-			addInlineJavascript('var postprefix_color = \''.$context['prefix']['prefix_color']. '\';', true);
 		}
 
 		// Title
 		$context['page_title'] = $txt['PostPrefix_main'] . ' - '. $context[$context['admin_menu_name']]['tab_data']['title'];
 
 		// Colorpicker
-		loadCSSFile('coloris.css', ['default_theme' => true]);
-		loadJavascriptFile('coloris.js', ['default_theme' => true]);
+		loadCSSFile('postprefix/coloris.css', ['default_theme' => true]);
+		loadJavascriptFile('postprefix/coloris.js', ['default_theme' => true]);
 
 		// Groups
 		loadLanguage('ManageBoards');
@@ -310,6 +308,8 @@ class Manage
 	 */
 	public function save() : void
 	{
+		global $user_info;
+
 		// Data
 		$this->_fields_data = [
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,
@@ -428,6 +428,10 @@ class Manage
 			);
 		}
 
+		// Clean cache for the users
+		clean_cache();
+
+		// Out!
 		redirectexit('action=admin;area=postprefix;sa=prefixes;'.$status);
 	}
 
