@@ -133,7 +133,7 @@ class MessageIndex
 	 */
 	public function topic_count(&$sort_methods) : void
 	{
-		global $board_info, $modSettings, $user_info, $context;
+		global $board_info, $modSettings, $user_info;
 
 		// Filtering a prefix?
 		if (!in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) || !isset($_REQUEST['prefix']) || empty($board_info['total_topics']))
@@ -143,7 +143,7 @@ class MessageIndex
 		$_REQUEST['prefix'] = (int) $_REQUEST['prefix'];
 
 		// Update the total topics
-		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) == null)
+		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 1800)) == null)
 		{
 			// Total topics
 			$this->_total_topics[$_REQUEST['prefix']] = Database::Count('topics',
@@ -161,7 +161,7 @@ class MessageIndex
 			);
 
 			// Cache the total topics
-			cache_put_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], $this->_total_topics[$_REQUEST['prefix']], 3600);
+			cache_put_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], $this->_total_topics[$_REQUEST['prefix']], 1800);
 		}
 
 		// Replace the total topics with the filter
