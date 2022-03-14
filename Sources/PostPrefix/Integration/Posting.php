@@ -10,8 +10,8 @@
 
 namespace PostPrefix\Integration;
 
-use PostPrefix\Helper\Database;
 use PostPrefix\PostPrefix;
+use PostPrefix\Helper\Database;
 
 if (!defined('SMF'))
 	die('No direct access...');
@@ -182,7 +182,7 @@ class Posting
 			// Set the prefixes depending on the selected board.
 			addJavaScriptVar('post_first_board', isset($first_board) ? $first_board : 0);
 			addJavaScriptVar('prefixes_radio_select', !empty($modSettings['PostPrefix_post_selecttype']) ? 'true' : 'false');
-			loadJavaScriptFile('postprefix.js', ['defer' => true, 'default_theme' => true], 'PostPrefix');
+			loadJavaScriptFile('postprefix/postprefix.js', ['defer' => true, 'default_theme' => true], 'PostPrefix');
 		}
 		// Remove those that don't have this board, just for convenience sake.
 		else

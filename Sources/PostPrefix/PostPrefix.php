@@ -124,7 +124,7 @@ class PostPrefix
 	public static function pre_css_output() : void
 	{
 		// Postprefix CSS file
-		loadCSSFile('postprefix.css', ['default_theme' => true, 'minimize' => false], 'smf_postprefix');
+		loadCSSFile('postprefix/postprefix.css', ['default_theme' => true, 'minimize' => false], 'smf_postprefix');
 	}
 
 	/**
