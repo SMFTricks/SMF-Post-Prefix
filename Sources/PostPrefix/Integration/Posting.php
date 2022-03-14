@@ -53,7 +53,7 @@ class Posting
 	 * 
 	 * @return void
 	 */
-	public static function modify_post() : void
+	public function modify_post() : void
 	{
 		global $topic, $context, $board;
 
@@ -70,6 +70,8 @@ class Posting
 			'id_prefix = {int:id_prefix}',
 			'WHERE id_topic = {int:id_topic}'
 		);
+		// Empty cache
+		$this->flush_cache();
 	}
 
 	/**
@@ -264,5 +266,34 @@ class Posting
 				'type' => '',
 			],
 		];
+	}
+
+	/**
+	 * Posting::after_posting()
+	 * 
+	 * @return void
+	 */
+	public function after_posting() : void
+	{
+		$this->flush_cache();
+	}
+
+	/**
+	 * Posting::flush_cache()
+	 * 
+	 * Clean the cache for the last messages in the board and message index
+	 * 
+	 * @return void
+	 */
+	private function flush_cache() : void
+	{
+		global $board;
+
+		// empty the cache for the boardindex
+		cache_put_data('pp_boardindex_lastmessages', null, -600);
+		// empty the cache for the messageindex
+		cache_put_data('pp_messageindex_lastmessages', null, -600);
+		// empty the cache for the filter
+		cache_put_data('prefix_filter_b' . $board, null, -3600);
 	}
 }
