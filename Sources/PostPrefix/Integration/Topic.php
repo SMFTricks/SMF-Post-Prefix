@@ -62,7 +62,7 @@ class Topic
 			', true);
 
 		// Add the prefix to the linktree
-		if (!empty($modSettings['PostPrefix_add_prefix_linktree']))
+		if (!empty($modSettings['PostPrefix_prefix_linktree']))
 			$context['linktree'][count($context['linktree'])-1]['extra_before'] = PostPrefix::format($context['topicinfo'], [
 				'padding-block: 3px',
 				'margin: 0',
