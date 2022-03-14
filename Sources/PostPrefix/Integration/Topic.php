@@ -49,7 +49,7 @@ class Topic
 	 */
 	public function view_topic()
 	{
-		global $context;
+		global $context, $modSettings;
 
 		// Topic has a prefix?
 		if (empty($context['topicinfo']['id_prefix']) || empty($context['topicinfo']['prefix_status']))
@@ -62,9 +62,11 @@ class Topic
 			', true);
 
 		// Add the prefix to the linktree
-		$context['linktree'][count($context['linktree'])-1]['extra_before'] = PostPrefix::format($context['topicinfo'], [
-			'padding-block: 3px',
-			'margin: 0'
-		]);
+		if (!empty($modSettings['PostPrefix_add_prefix_linktree']))
+			$context['linktree'][count($context['linktree'])-1]['extra_before'] = PostPrefix::format($context['topicinfo'], [
+				'padding-block: 3px',
+				'margin: 0',
+				'display: inline-flex'
+			]);
 	}
 }
