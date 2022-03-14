@@ -24,6 +24,11 @@ class MessageIndex
 	private $_total_topics = [];
 
 	/**
+	 * @var array The sort methods
+	 */
+	private $_sort_methods = [];
+
+	/**
 	 * MessageIndex::topic_list()
 	 * 
 	 * Insert the topic prefixes in the topic list query
@@ -63,7 +68,7 @@ class MessageIndex
 	 */
 	private function buildFilter(array &$message_index_parameters, array &$message_index_wheres, array &$message_index_topic_wheres) : void
 	{
-		global $board, $modSettings, $context, $scripturl, $txt, $board_info;
+		global $board, $modSettings, $context, $scripturl, $txt;
 
 		// // Is the board in the filter?
 		if (!in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])) || !isset($_REQUEST['prefix']) || empty($this->_total_topics[$_REQUEST['prefix']]))
@@ -78,30 +83,34 @@ class MessageIndex
 		// Topic query
 		$message_index_topic_wheres[] = 't.id_prefix = {int:prefix}';
 
-		// Sorting
-		if (!isset($_REQUEST['sort']) || !isset($_REQUEST['prefix']))
+		// Max
+		$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $this->_total_topics[$_REQUEST['prefix']] : $context['topics_per_page'];
+
+		// They didn't pick one, default to by last post descending.
+		if (!isset($_GET['sort']) || !isset($this->_sort_methods[$_GET['sort']]))
 		{
-			// Last post
 			$context['sort_by'] = 'last_post';
-			// Last message?
-			$_REQUEST['sort'] = 'last_post';
+			$_REQUEST['sort'] = 'id_last_msg';
+
+		}
+		// Otherwise default to ascending.
+		else
+		{
+			$context['sort_by'] = $_GET['sort'];
+			$_REQUEST['sort'] = $this->_sort_methods[$_GET['sort']];
 		}
 
 		// Insert it in the topic headers
-		foreach ($context['topics_headers'] as $key => $val)
+		foreach ($this->_sort_methods as $key => $val)
+		{
 			$context['topics_headers'][$key] = '
 				<a href="' . $scripturl . '?board=' . $context['current_board'] . '.' . $context['start'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . ';prefix=' . $_REQUEST['prefix'] . '">
 					' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="main_icons sort_' . $context['sort_direction'] . '"></span>' : '') . '
 				</a>';
+		}
 
-		// Max
-		$context['maxindex'] = isset($_REQUEST['all']) && !empty($modSettings['enableAllMessages']) ? $this->_total_topics[$_REQUEST['prefix']] : $context['topics_per_page'];
-	
 		// Page Index
-		if (isset($_REQUEST['sort']))
-			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'] . ';sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
-		else
-			$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'], $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
+		$context['page_index'] = constructPageIndex($scripturl . '?board=' . $board . '.%1$d;prefix=' . $_REQUEST['prefix'], $_REQUEST['start'], $this->_total_topics[$_REQUEST['prefix']], $context['maxindex'], true);
 	}
 
 	/**
@@ -109,11 +118,12 @@ class MessageIndex
 	 * 
 	 * Set the total topics count using the filter
 	 * 
+	 * @param array $sort_methods The sort methods for the messages
 	 * @return void
 	 */
-	public function topic_count() : void
+	public function topic_count(&$sort_methods) : void
 	{
-		global $board_info, $modSettings, $user_info;
+		global $board_info, $modSettings, $user_info, $context;
 
 		// Filtering a prefix?
 		if (!in_array($board_info['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) || !isset($_REQUEST['prefix']) || empty($board_info['total_topics']))
@@ -123,7 +133,7 @@ class MessageIndex
 		$_REQUEST['prefix'] = (int) $_REQUEST['prefix'];
 
 		// Update the total topics
-		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) === null)
+		if (($this->_total_topics[$_REQUEST['prefix']] = cache_get_data('board_totaltopics_b' . $board_info['id'] . '_p' . $_REQUEST['prefix'], 3600)) == null)
 		{
 			// Total topics
 			$this->_total_topics[$_REQUEST['prefix']] = Database::Count('topics',
@@ -146,6 +156,9 @@ class MessageIndex
 
 		// Replace the total topics with the filter
 		$board_info['total_topics'] = $this->_total_topics[$_REQUEST['prefix']];
+
+		// Get the sort methods somewhere
+		$this->_sort_methods = $sort_methods;
 	}
 
 	/**
