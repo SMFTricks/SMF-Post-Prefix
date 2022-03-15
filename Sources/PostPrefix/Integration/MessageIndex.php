@@ -307,13 +307,15 @@ class MessageIndex
 					Database::$_prefix_columns
 				),
 				'WHERE ' . (empty($modSettings['PostPrefix_prefix_all_msgs']) ? 't.id_first_msg IN ({array_int:messages})' : 'm.id_topic IN ({array_int:topics})') . '
-					AND t.id_prefix > {int:prefix_zero}', false, (!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 
+					AND t.id_prefix > {int:prefix_zero}
+					AND pp.status = {int:status}', false, (!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 
 				'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . 
 				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'messages' => $this->_last_messages,
 					'topics' => $this->_topics,
 					'prefix_zero' => 0,
+					'status' => 1,
 				]
 			);
 			// Make the topic the key

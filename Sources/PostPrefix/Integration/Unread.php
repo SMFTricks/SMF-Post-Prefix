@@ -90,11 +90,13 @@ class Unread
 					Database::$_prefix_columns
 				),
 				'WHERE t.id_topic IN ({array_int:topics})
-					AND t.id_prefix > {int:prefix_zero}', false, 
+					AND t.id_prefix > {int:prefix_zero}
+					AND pp.status = {int:status}', false, 
 				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'topics' => $this->_topics,
 					'prefix_zero' => 0,
+					'status' => 1,
 				]
 			);
 			// Make the topic the key
