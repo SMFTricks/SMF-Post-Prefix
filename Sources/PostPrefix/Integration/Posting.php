@@ -257,13 +257,12 @@ class Posting
 
 		// Additional hidden input, so we now that this is a topic
 		$context['posting_fields']['prefix_istopic'] = [
-			'label' => [
-				'html' => '',
-				'text' => '',
-			],
 			'input' => [
-				'html' => '<input type="hidden" name="prefix_istopic" value="1">',
-				'type' => '',
+				'type' => 'hidden',
+				'attributes' => [
+					'name' => 'prefix_istopic',
+					'value' => 1,
+				]
 			],
 		];
 	}
@@ -281,7 +280,7 @@ class Posting
 	/**
 	 * Posting::flush_cache()
 	 * 
-	 * Clean the cache for the last messages in the board and message index
+	 * Clean the cache for the filter
 	 * 
 	 * @return void
 	 */
@@ -289,10 +288,6 @@ class Posting
 	{
 		global $board;
 
-		// empty the cache for the boardindex
-		cache_put_data('pp_boardindex_lastmessages', null, -600);
-		// empty the cache for the messageindex
-		cache_put_data('pp_messageindex_lastmessages', null, -600);
 		// empty the cache for the filter
 		cache_put_data('prefix_filter_b' . $board, null, -3600);
 	}
