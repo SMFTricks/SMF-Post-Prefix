@@ -308,8 +308,6 @@ class Manage
 	 */
 	public function save() : void
 	{
-		global $user_info;
-
 		// Data
 		$this->_fields_data = [
 			'id' => (int) isset($_REQUEST['id']) && !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0,
@@ -330,6 +328,9 @@ class Manage
 
 		if (empty($this->_fields_data['id']))
 		{
+			// Drop the id from the array or postgres shits itself
+			unset($this->_fields_data['id']);
+
 			// Type
 			foreach($this->_fields_data as $column => $type)
 				$this->_fields_type[$column] = str_replace('integer', 'int', gettype($type));
@@ -367,7 +368,7 @@ class Manage
 			// Drop the groups too
 			Database::Delete('postprefixes_groups', 
 				'id_group',
-				(array) (isset($_REQUEST['groups']) ? $_REQUEST['groups'] : [0]),
+				(array) (isset($_REQUEST['groups']) ? $_REQUEST['groups'] : [-10]),
 				' AND id_prefix = {int:prefix}',
 				'NOT IN',
 				[
@@ -398,7 +399,7 @@ class Manage
 					'id_board',
 					'id_prefix'
 				],
-				'replace'
+				'ignore'
 			);
 		}
 
@@ -424,7 +425,7 @@ class Manage
 					'id_group',
 					'id_prefix'
 				],
-				'replace'
+				'ignore'
 			);
 		}
 
