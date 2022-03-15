@@ -85,7 +85,7 @@
 				],
 				[
 					'type' => 'index',
-					'columns' => ['name'],
+					'columns' => ['name', 'status'],
 				],
 			],
 			'if_exists' => 'ignore',
