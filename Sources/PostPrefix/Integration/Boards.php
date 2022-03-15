@@ -24,6 +24,11 @@ class Boards
 	private  $_last_messages = [];
 
 	/**
+	 * @var array Topics for the messages
+	 */
+	private $_topics = [];
+
+	/**
 	 * @var array The first messages and their prefixes (if any)
 	 */
 	private $_first_messages = [];
@@ -101,7 +106,7 @@ class Boards
 	 */
 	private function get_last_messages() : void
 	{
-		global $context, $board;
+		global $context, $board, $modSettings, $user_info;
 
 		// Get the last messages from the boardindex.
 		if (!empty($context['categories']))
@@ -113,7 +118,15 @@ class Boards
 					foreach ($category['boards'] as $board)
 					{
 						if (!empty($board['last_post']['id']))
+						{
+							// Last message
 							$this->_last_messages[] = $board['last_post']['id'];
+
+							// Topic?
+							if (!empty($modSettings['PostPrefix_prefix_all_msgs']))
+								$this->_topics[] = $board['last_post']['topic'];
+						}
+
 					}
 				}
 			}
@@ -126,31 +139,44 @@ class Boards
 			{
 				// Obtain the id_msg from the href
 				if (preg_match('~#msg(\d+)~', $post['href'], $matches))
+				{
+					// Store the last message id
 					$this->_last_messages[] = $matches[1];
+
+					// Topic?
+					if (!empty($modSettings['PostPrefix_prefix_all_msgs']))
+						$this->_topics[] = $post['topic'];
+				}
 			}
 		}
 
 		// Now, remove any duplicates.
 		$this->_last_messages = array_unique($this->_last_messages);
+		$this->_topics = array_unique($this->_topics);
 
 		// Query these messages to get the prefixes if they are id_first_msg
-		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_boardindex_lastmessages', 600)) === null))
+		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_boardindex_lastmessages_u' . $user_info['id'], 120)) === null))
 		{
-			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_first_msg',
-				'topics AS t',
-				array_merge(['t.id_first_msg', 't.id_prefix'], Database::$_prefix_columns),
-				'WHERE t.id_first_msg IN ({array_int:messages})
-					AND t.id_prefix > {int:prefix_zero}', false,
+			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_topic',
+				(!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 'messages AS m' : 'topics AS t'),
+				array_merge(
+					['t.id_first_msg', 't.id_last_msg', 't.id_prefix', 't.id_topic'],
+					Database::$_prefix_columns
+				),
+				'WHERE ' . (empty($modSettings['PostPrefix_prefix_all_msgs']) ? 't.id_first_msg IN ({array_int:messages})' : 'm.id_topic IN ({array_int:topics})') . '
+					AND t.id_prefix > {int:prefix_zero}', false, (!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 
+				'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . 
 				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'messages' => $this->_last_messages,
+					'topics' => $this->_topics,
 					'prefix_zero' => 0,
 				]
 			);
-			// Make the id_first_msg the key
-			$this->_first_messages = array_column($this->_first_messages, null, 'id_first_msg');
+			// Make the topic the key
+			$this->_first_messages = array_column($this->_first_messages, null, 'id_topic');
 
-			cache_put_data('pp_boardindex_lastmessages', $this->_first_messages, 600);
+			cache_put_data('pp_boardindex_lastmessages_u' . $user_info['id'], $this->_first_messages, 120);
 		}
 	}
 
@@ -185,19 +211,19 @@ class Boards
 				{
 					foreach ($category['boards'] as $board)
 					{
-						// Is there a post and is it in the array?
-						if (empty($board['last_post']['id']) || !isset($this->_first_messages[$board['last_post']['id']]))
+						// Are we displaying a prefix?
+						if (empty($board['last_post']['id']) || !isset($this->_first_messages[$board['last_post']['topic']]) || empty($modSettings['PostPrefix_prefix_all_msgs']) && $this->_first_messages[$board['last_post']['topic']]['id_first_msg'] != $board['last_post']['id'])
 							continue;
 
 						// First the subject
-						$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['subject'] = PostPrefix::format($this->_first_messages[$board['last_post']['id']]) . $board['last_post']['subject'];
+						$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['subject'] = PostPrefix::format($this->_first_messages[$board['last_post']['topic']]) . $board['last_post']['subject'];
 
 						// Then the link
-						$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['link'] = PostPrefix::format($this->_first_messages[$board['last_post']['id']]) . $board['last_post']['link'];
+						$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['link'] = PostPrefix::format($this->_first_messages[$board['last_post']['topic']]) . $board['last_post']['link'];
 
 						// And the last post message
 						if (!empty($board['last_post']['last_post_message']))
-							$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], PostPrefix::format($this->_first_messages[$board['last_post']['id']]) . $board['last_post']['link'], !empty($board['last_post']['time']) ? timeformat($board['last_post']['timestamp']) : $txt['not_applicable']);
+							$context['categories'][$category['id']]['boards'][$board['id']]['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $board['last_post']['member']['link'], PostPrefix::format($this->_first_messages[$board['last_post']['topic']]) . $board['last_post']['link'], !empty($board['last_post']['time']) ? timeformat($board['last_post']['timestamp']) : $txt['not_applicable']);
 					}
 				}
 			}
@@ -211,18 +237,18 @@ class Boards
 				// Obtain the id_msg from the href
 				if (preg_match('~#msg(\d+)~', $post['href'], $matches))
 				{
-					// Is there a post and is it in the array?
-					if (!isset($this->_first_messages[$matches[1]]))
-						continue;
+					// Are we displaying a prefix?
+					if (!isset($this->_first_messages[$post['topic']]) || empty($modSettings['PostPrefix_prefix_all_msgs']) && $this->_first_messages[$post['topic']]['id_first_msg'] != $matches[1])
+							continue;
 
 					// First the subject
-					$context['latest_posts'][$key]['subject'] = PostPrefix::format($this->_first_messages[$matches[1]]) . $post['subject'];
+					$context['latest_posts'][$key]['subject'] = PostPrefix::format($this->_first_messages[$post['topic']]) . $post['subject'];
 
 					// Then the short subject
-					$context['latest_posts'][$key]['short_subject'] = PostPrefix::format($this->_first_messages[$matches[1]]) . $post['short_subject'];
+					$context['latest_posts'][$key]['short_subject'] = PostPrefix::format($this->_first_messages[$post['topic']]) . $post['short_subject'];
 
 					// And finally, the link
-					$context['latest_posts'][$key]['link'] = PostPrefix::format($this->_first_messages[$matches[1]]) . '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $matches[1] . ';topicseen#msg' . $matches[1] . '" rel="nofollow">' . $post['subject'] . '</a>';
+					$context['latest_posts'][$key]['link'] = PostPrefix::format($this->_first_messages[$post['topic']]) . '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $matches[1] . ';topicseen#msg' . $matches[1] . '" rel="nofollow">' . $post['subject'] . '</a>';
 				}
 			}
 		}
