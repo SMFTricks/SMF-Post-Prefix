@@ -503,7 +503,7 @@ class Manage
 			'status = {int:status},',
 			'WHERE id = {int:prefix}'
 		);
-		
+
 		// Send him to the items list
 		redirectexit('action=admin;area=postprefix;sa=prefixes');
 	}
