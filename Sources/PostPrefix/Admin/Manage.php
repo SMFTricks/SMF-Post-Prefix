@@ -460,7 +460,7 @@ class Manage
 			$_REQUEST['delete'][$key] = (int) $value;
 
 		// Delete all the prefixes
-		Database::Delete('postprefixes', 'id', (array) $_REQUEST['delete'], '' , [], 'IN');
+		Database::Delete('postprefixes', 'id', (array) $_REQUEST['delete'], '', 'IN');
 
 		// Delete the boards
 		Database::Delete('postprefixes_boards', 'id_prefix', (array) $_REQUEST['delete'], '', 'IN');
