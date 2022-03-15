@@ -123,7 +123,7 @@ class Settings
 	 */
 	public static function options() : void
 	{
-		global $context, $txt, $sourcedir, $scripturl;
+		global $context, $txt, $sourcedir, $scripturl, $modSettings;
 
 		require_once($sourcedir . '/ManageServer.php');
 		loadLanguage('ManageSettings');
@@ -158,6 +158,8 @@ class Settings
 			'',
 			['check', 'PostPrefix_prefix_linktree', 'subtext' => $txt['PostPrefix_prefix_linktree_desc']],
 			['check', 'PostPrefix_prefix_boardindex', 'subtext' => $txt['PostPrefix_prefix_boardindex_desc']],
+			['check', 'PostPrefix_prefix_all_msgs', 'subtext' => $txt['PostPrefix_prefix_all_msgs_desc'], 'disabled' => empty($modSettings['PostPrefix_prefix_boardindex'])],
+			['check', 'PostPrefix_prefix_recent_page', 'subtext' => $txt['PostPrefix_prefix_recent_page_desc']],
 		];
 
 		// Post URL

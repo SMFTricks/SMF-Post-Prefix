@@ -69,8 +69,12 @@ $txt['PostPrefix_post_selecttype_select'] = 'Select';
 $txt['PostPrefix_post_selecttype_radio'] = 'Radio';
 $txt['PostPrefix_prefix_linktree'] = 'Add prefix to linktree';
 $txt['PostPrefix_prefix_linktree_desc'] = 'When viewing a topic, include the prefix in the linktree.';
-$txt['PostPrefix_prefix_boardindex'] = 'Enable prefixes in board index';
-$txt['PostPrefix_prefix_boardindex_desc'] = 'It will display the prefixes in the board index if the post happens to be a topic.<br>It includes the recent posts in the info center.';
+$txt['PostPrefix_prefix_boardindex'] = 'Enable prefixes in boards and last posts';
+$txt['PostPrefix_prefix_boardindex_desc'] = 'It will display the prefixes in the boards and the recent posts in the info center.';
+$txt['PostPrefix_prefix_all_msgs'] = 'Display prefix for replies';
+$txt['PostPrefix_prefix_all_msgs_desc'] = 'It will display the corresponding prefix for each message and their topic. By default, only first posts display a prefix.';
+$txt['PostPrefix_prefix_recent_page'] = 'Display prefixes in recent posts';
+$txt['PostPrefix_prefix_recent_page_desc'] = 'Prefixes on this page are never cached.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
