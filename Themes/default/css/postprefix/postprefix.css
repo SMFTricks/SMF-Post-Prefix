@@ -36,5 +36,6 @@ span.postprefix-all i,
 .postprefix-all i {
 	font-size: 0.85em;
 	width: auto !important;
-	min-height: 13px;
+	height: 13px;
+	scale: 0.8;
 }
