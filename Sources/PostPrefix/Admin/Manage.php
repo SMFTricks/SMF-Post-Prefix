@@ -428,9 +428,6 @@ class Manage
 			);
 		}
 
-		// Clean cache for the users
-		clean_cache();
-
 		// Out!
 		redirectexit('action=admin;area=postprefix;sa=prefixes;'.$status);
 	}
