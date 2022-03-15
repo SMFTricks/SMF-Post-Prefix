@@ -34,6 +34,11 @@ class MessageIndex
 	private  $_last_messages = [];
 
 	/**
+	 * @var array Topics for the messages
+	 */
+	private $_topics = [];
+
+	/**
 	 * @var array The first messages and their prefixes (if any)
 	 */
 	private $_first_messages = [];
@@ -187,25 +192,25 @@ class MessageIndex
 		if (!empty($modSettings['PostPrefix_prefix_boardindex']))
 			$this->get_last_messages();
 
-		// We have any messages?
+		// We have any messages in the boards?
 		if (!empty($this->_first_messages) && !empty($context['boards']))
 		{
 			// Add the prefixes to the last messages in the messageindex
 			foreach ($context['boards'] as $p_board)
 			{
-				// Is there a post and is it in the array?
-				if (empty($p_board['last_post']['id']) || !isset($this->_first_messages[$p_board['last_post']['id']]))
+				// Are we displaying a prefix?
+				if (empty($p_board['last_post']['id']) || !isset($this->_first_messages[$p_board['last_post']['topic']]) || empty($modSettings['PostPrefix_prefix_all_msgs']) && $this->_first_messages[$p_board['last_post']['topic']]['id_first_msg'] != $p_board['last_post']['id'])
 					continue;
 
 				// First the subject
-				$context['boards'][$p_board['id']]['last_post']['subject'] = PostPrefix::format($this->_first_messages[$p_board['last_post']['id']]) . $p_board['last_post']['subject'];
+				$context['boards'][$p_board['id']]['last_post']['subject'] = PostPrefix::format($this->_first_messages[$p_board['last_post']['topic']]) . $p_board['last_post']['subject'];
 
 				// Then the link
-				$context['boards'][$p_board['id']]['last_post']['link'] = PostPrefix::format($this->_first_messages[$p_board['last_post']['id']]) . $p_board['last_post']['link'];
+				$context['boards'][$p_board['id']]['last_post']['link'] = PostPrefix::format($this->_first_messages[$p_board['last_post']['topic']]) . $p_board['last_post']['link'];
 
 				// And the last post message
 				if (!empty($p_board['last_post']['last_post_message']))
-					$context['boards'][$p_board['id']]['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $p_board['last_post']['member']['link'], PostPrefix::format($this->_first_messages[$p_board['last_post']['id']]) . $p_board['last_post']['link'], !empty($p_board['last_post']['time']) ? timeformat($p_board['last_post']['timestamp']) : $txt['not_applicable']);
+					$context['boards'][$p_board['id']]['last_post']['last_post_message'] = sprintf($txt['last_post_message'], $p_board['last_post']['member']['link'], PostPrefix::format($this->_first_messages[$p_board['last_post']['topic']]) . $p_board['last_post']['link'], !empty($p_board['last_post']['time']) ? timeformat($p_board['last_post']['timestamp']) : $txt['not_applicable']);
 			}
 		}
 
@@ -272,7 +277,7 @@ class MessageIndex
 	 */
 	private function get_last_messages() : void
 	{
-		global $context;
+		global $context, $modSettings, $user_info;
 
 		// For boards in the messageindex?
 		if (empty($context['boards']))
@@ -282,27 +287,39 @@ class MessageIndex
 		foreach ($context['boards'] as $p_board)
 		{
 			if (!empty($p_board['last_post']['id']))
+			{
+				// Last message
 				$this->_last_messages[] = $p_board['last_post']['id'];
+
+				// Get the topic?
+				if (!empty($modSettings['PostPrefix_prefix_all_msgs']))
+					$this->_topics[] = $p_board['last_post']['topic'];
+			}
 		}
 
 		// Query these messages to get the prefixes if they are id_first_msg
-		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_messageindex_lastmessages', 600)) === null))
+		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_messageindex_lastmessages_u' . $user_info['id'], 120)) === null))
 		{
-			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_first_msg',
-				'topics AS t',
-				array_merge(['t.id_first_msg', 't.id_prefix'], Database::$_prefix_columns),
-				'WHERE t.id_first_msg IN ({array_int:messages})
-					AND t.id_prefix > {int:prefix_zero}', false,
+			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_topic',
+				(!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 'messages AS m' : 'topics AS t'),
+				array_merge(
+					['t.id_first_msg', 't.id_last_msg', 't.id_prefix', 't.id_topic'],
+					Database::$_prefix_columns
+				),
+				'WHERE ' . (empty($modSettings['PostPrefix_prefix_all_msgs']) ? 't.id_first_msg IN ({array_int:messages})' : 'm.id_topic IN ({array_int:topics})') . '
+					AND t.id_prefix > {int:prefix_zero}', false, (!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 
+				'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . 
 				'LEFT JOIN {db_prefix}postprefixes AS pp ON (pp.id = t.id_prefix)',
 				[
 					'messages' => $this->_last_messages,
+					'topics' => $this->_topics,
 					'prefix_zero' => 0,
 				]
 			);
-			// Make the id_first_msg the key
-			$this->_first_messages = array_column($this->_first_messages, null, 'id_first_msg');
+			// Make the topic the key
+			$this->_first_messages = array_column($this->_first_messages, null, 'id_topic');
 
-			cache_put_data('pp_messageindex_lastmessages', $this->_first_messages, 600);
+			cache_put_data('pp_messageindex_lastmessages_u' . $user_info['id'], $this->_first_messages, 120);
 		}
 	}
 }
