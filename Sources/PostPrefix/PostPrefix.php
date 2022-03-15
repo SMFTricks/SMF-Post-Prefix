@@ -158,6 +158,10 @@ class PostPrefix
 				add_integration_function('integrate_post_end', __NAMESPACE__ . '\Integration\Posting::post_end', false);
 				add_integration_function('integrate_create_topic', __NAMESPACE__ . '\Integration\Posting::after_posting#', false);
 				break;
+			case 'unread':
+			case 'unreadreplies':
+				add_integration_function('integrate_unread_list', __NAMESPACE__ . '\Integration\Unread::unread_topics#', false);
+				break;
 		}
 	}
 
@@ -175,7 +179,7 @@ class PostPrefix
 			return;
 
 		// Load the prefixes
-		if (($context['user_prefixes']['post'] = cache_get_data('user_postprefixes_u' . $user_info['id'], 3600)) === null)
+		if (($context['user_prefixes']['post'] = cache_get_data('user_postprefixes_u' . $user_info['id'], 600)) === null)
 		{
 			$context['user_prefixes']['post'] = Database::pNested(
 				'pp.' . (!empty($modSettings['PostPrefix_select_order']) ? 'id' : 'name'), 'postprefixes AS pp',
@@ -191,7 +195,7 @@ class PostPrefix
 					'guest' => -1,
 				]
 			);
-			cache_put_data('user_postprefixes_u' . $user_info['id'], $context['user_prefixes']['post'], 3600);
+			cache_put_data('user_postprefixes_u' . $user_info['id'], $context['user_prefixes']['post'], 600);
 		}
 	}
 
