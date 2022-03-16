@@ -186,7 +186,8 @@
 		// Do some additional changes
 		$prefix_columns = $smcFunc['db_list_columns']('{db_prefix}postprefixes', true);
 
-		if (!empty($prefix_columns))
+		// We could check for specific columns and decide...
+		if (!empty($prefix_columns) && isset($prefix_columns['icon_url']) && isset($prefix_columns['boards']) && isset($prefix_columns['groups']))
 		{
 			// ID
 			if (isset($prefix_columns['id']))
