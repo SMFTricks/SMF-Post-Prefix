@@ -188,17 +188,6 @@
 
 		if (!empty($prefix_columns))
 		{
-			// Add the keys
-			$smcFunc['db_add_index'](
-				'{db_prefix}postprefixes',
-				[
-					'type' => 'index',
-					'columns' => ['name', 'status'],
-				],
-				[],
-				'ignore',
-			);
-
 			// ID
 			if (isset($prefix_columns['id']))
 			{
@@ -323,7 +312,7 @@
 				while ($row = $smcFunc['db_fetch_assoc']($request))
 				{
 					// Check for boards?
-					if (isset($row['boards']) )
+					if (isset($row['boards']) && !empty($row['boards']))
 					{
 						foreach (explode(',', $row['boards']) as $board)
 						{
@@ -341,11 +330,10 @@
 						{
 							$prefix_groups[] = [
 								'id_prefix' => $row['id'],
-								'id_group' => $group,
+								'id_group' => (int) $group,
 							];
 						}
 					}
-
 				}
 				$smcFunc['db_free_result']($request);
 
@@ -354,6 +342,17 @@
 				// Drop groups
 				$smcFunc['db_remove_column']('{db_prefix}postprefixes', 'groups');
 			}
+
+			// Add the keys
+			$smcFunc['db_add_index'](
+				'{db_prefix}postprefixes',
+				[
+					'type' => 'index',
+					'columns' => ['name', 'status'],
+				],
+				[],
+				'ignore',
+			);
 		}
 
 		// Add the boards if any
