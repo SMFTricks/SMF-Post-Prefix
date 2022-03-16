@@ -324,7 +324,7 @@
 					}
 
 					// Check for groups
-					if (isset($row['groups']))
+					if (isset($row['groups']) && $row['groups'] != '')
 					{
 						foreach (explode(',', $row['groups']) as $group)
 						{
