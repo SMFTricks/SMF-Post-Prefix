@@ -1,6 +1,6 @@
 # Changelog
 
-#### 4.0 - ???
+#### 4.0 - 16 March 2022
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added option to enable prefixes in the recent action.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) When prefixes are enabled in the boardindex, you can decide to display the prefix for replies, or only first post.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added the ability to display prefixes in the boardindex including last posts in the info center.
