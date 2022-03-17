@@ -1,3 +1,3 @@
 files:
   - source: Themes/default/languages/PostPrefix/.english.php
-    translation: '%original_path%/.%language%.php'
+    translation: Themes/default/languages/PostPrefix/.%language%.php
