@@ -101,3 +101,4 @@ $txt['PostPrefix_prefix_none'] = '[No Prefix]';
 $txt['PostPrefix_filter'] = 'Filter by prefix';
 $txt['PostPrefix_filter_noprefix'] = 'No prefix';
 $txt['PostPrefix_filter_all'] = 'Show all topics';
+$txt['PostPrefix_test_filter'] = 'Test';
