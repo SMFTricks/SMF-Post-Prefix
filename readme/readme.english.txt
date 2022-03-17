@@ -49,9 +49,10 @@
 [size=3][color=#358234]Localization[/color][/size]
 [img]https://www.simplemachines.org/site_images/lang/english.gif[/img] English
 [img]https://www.simplemachines.org/site_images/lang/spanish_es.gif[/img] Spanish
-[img]https://www.simplemachines.org/site_images/lang/russian.gif[/img] Russian by [url="https://www.simplemachines.org/community/index.php?action=profile;u=229017"]Bugo[/url]
-[img]https://www.simplemachines.org/site_images/lang/turkish.gif[/img] Turkish by [url="https://www.simplemachines.org/community/index.php?action=profile;u=92172"]Emre A.[/url]
+[img]https://www.simplemachines.org/site_images/lang/russian.gif[/img] Russian
+[img]https://www.simplemachines.org/site_images/lang/turkish.gif[/img] Turkish
 [hr]
 
+[size=3][url="https://crowdin.com/project/smf-post-prefix-mod"][color=#495475]Crowdin[/color][/url][/size]
 [size=3][url="https://github.com/SMFTricks/SMF-Post-Prefix/blob/master/CHANGELOG.md"][color=#cc5d31]Changelog[/color][/url][/size]
 [size=3][url="https://github.com/SMFTricks/SMF-Post-Prefix"][color=#5e2b82]GitHub[/color][/url][/size]
