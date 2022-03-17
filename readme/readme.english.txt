@@ -42,6 +42,8 @@
 [li][size=0.8em]Enable the filter box on selected boards[/size][/li]
 [/list]
 [/li]
+[li][size=0.9em]Display prefixes in the boardindex and latest posts[/size][/li]
+[li][size=0.9em]Display prefixes in the unread posts/replies action[/size][/li]
 [/list]
 
 [size=3][color=#358234]Localization[/color][/size]

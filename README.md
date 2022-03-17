@@ -24,6 +24,8 @@ SMF Post Prefix mod allows you to set prefixes for your topics and easily custom
   - Use prefixes (Global permission)
 - Filter Topics by prefix
   - Enable the filter box on selected boards
+- Display prefixes in the boardindex and latest posts
+- Display prefixes in the unread posts/replies action
 
 ### Localization
 - ![English](https://www.simplemachines.org/site_images/lang/english.gif) English
