@@ -3,9 +3,9 @@
 <package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
 	<id>smftricks:postprefix</id>
 	<name>SMF Post Prefix</name>
-	<version>3.3</version>
+	<version>4.0</version>
 	<type>modification</type>
-	<install for="2.1 - 2.1.99, 2.1 RC4">
+	<install for="2.1 - 2.1.99">
 		<!-- Mod Readme -->
 		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
 		<!-- Credits -->
@@ -25,10 +25,10 @@
 		<!-- Hooks -->
 		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" />
 		<!-- Redirect -->
-		<redirect url="?action=admin;area=postprefix">redirect.txt</redirect>
+		<redirect url="?action=admin;area=postprefix" />
 	</install>
 	
-	<uninstall for="2.1 - 2.1.99, 2.1 RC4">
+	<uninstall for="2.1 - 2.1.99">
 		<!-- Hooks -->
 		<hook hook="integrate_pre_load" function="PostPrefix\PostPrefix::initialize" file="$sourcedir/PostPrefix/PostPrefix.php" reverse="true" />
 		<!-- Source Files -->
@@ -36,10 +36,9 @@
 		<!-- Languages -->
 		<remove-dir name="$languagedir/PostPrefix">Language files</remove-dir>
 		<!-- Scripts -->
-		<remove-file name="$themedir/scripts/colpick.min.js">JS files</remove-file>
+		<remove-dir name="$themedir/scripts/postprefix">JS files</remove-dir>
 		<!-- Styles -->
-		<remove-file name="$themedir/css/colpick.min.css">CSS files</remove-file>
-		<remove-file name="$themedir/css/postprefix.css">CSS file</remove-file>
+		<remove-dir name="$themedir/css/postprefix">CSS files</remove-dir>
 		<!-- Templates -->
 		<remove-file name="$themedir/PostPrefix.template.php">Template files</remove-file>
 		<!-- Database -->
