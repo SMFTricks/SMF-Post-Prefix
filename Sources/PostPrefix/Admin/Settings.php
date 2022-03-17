@@ -153,6 +153,8 @@ class Settings
 			],
 			'',
 			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
+			['check', 'PostPrefix_no_prefix_remove'],
+			'',
 			['permissions', 'postprefix_manage', 'label' => $txt['permissionname_postprefix_manage'], 'help' => $txt['permissionhelp_postprefix_manage']],
 			['permissions', 'postprefix_set', 'label' => $txt['permissionname_postprefix_set'], 'help' => $txt['permissionhelp_postprefix_set']],
 			'',

@@ -249,7 +249,7 @@ class Posting
 		}
 
 		// Remove "No Prefix" if prefixes are required on this board
-		if (!empty($board) && !empty($modSettings['PostPrefix_prefix_boards_require']) && in_array($board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])))
+		if (!empty($board) && !empty($modSettings['PostPrefix_prefix_boards_require']) && in_array($board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) && !empty($modSettings['PostPrefix_no_prefix_remove']))
 		{
 			unset($context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options']['none']);
 			unset($context['posting_fields']['topic_prefix']['input']['options']['none']);

@@ -75,6 +75,7 @@ $txt['PostPrefix_prefix_all_msgs'] = 'Display prefix for replies';
 $txt['PostPrefix_prefix_all_msgs_desc'] = 'It will display the corresponding prefix for each message and their topic. By default, only first posts display a prefix.';
 $txt['PostPrefix_prefix_recent_page'] = 'Display prefixes in recent posts';
 $txt['PostPrefix_prefix_recent_page_desc'] = 'Prefixes on this page are never cached.';
+$txt['PostPrefix_no_prefix_remove'] = 'Remove \'No prefix\' from the list when the board requires a prefix.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
