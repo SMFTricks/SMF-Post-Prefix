@@ -88,15 +88,15 @@ class Posting
 		$real_board = !empty($board) ? (int) $board : (isset($_POST['board']) ? (int) $_POST['board'] : 0);
 
 		// With a prefix set, there's nothing to do here, or if this board isn't in the settings for requiring prefixes
-		if ((isset($_POST['id_prefix']) && !empty($_POST['id_prefix'])) || !in_array($real_board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) || !isset($_REQUEST['prefix_istopic']) || !allowedTo('postprefix_set'))
+		if ((isset($_POST['id_prefix']) && !empty($_POST['id_prefix'])) || !in_array($real_board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) || (!isset($_POST['prefix_istopic']) && !empty($_POST['prefix_istopic'])) || !allowedTo('postprefix_set'))
 			return;
 
 		// Verify that the user can't set a prefix
 		foreach ($context['user_prefixes']['post'] as $prefix)
 		{
-			if (in_array($board, $prefix['boards']))
+			if (in_array($real_board, $prefix['boards']))
 			{
-				// This user can set a prefix on this board and will be getting punishment
+				// add the no_prefix error
 				$post_errors[] = 'no_prefix';
 				break;
 			}
