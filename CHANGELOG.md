@@ -1,5 +1,9 @@
 # Changelog
 
+#### 4.0.1 - 17 March 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed bug when requiring prefix/posting topic.
+- ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added a setting to disable/enable the 'No Prefix' option in the list.
+
 #### 4.0 - 16 March 2022
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added option to enable prefixes in the recent action.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) When prefixes are enabled in the boardindex, you can decide to display the prefix for replies, or only first post.
