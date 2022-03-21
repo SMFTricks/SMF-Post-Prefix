@@ -87,8 +87,12 @@ class Posting
 		// Get the real board, user might be posting from the post action only
 		$real_board = !empty($board) ? (int) $board : (isset($_POST['board']) ? (int) $_POST['board'] : 0);
 
-		// With a prefix set, there's nothing to do here, or if this board isn't in the settings for requiring prefixes
-		if ((isset($_POST['id_prefix']) && !empty($_POST['id_prefix'])) || !in_array($real_board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])) || (!isset($_POST['prefix_istopic']) && !empty($_POST['prefix_istopic'])) || !allowedTo('postprefix_set'))
+		// Is this a topic or you don't have permission to set a prefix?
+		if (!allowedTo('postprefix_set') || !isset($_POST['prefix_istopic']))
+			return;
+
+		// Requiring prefixes for this board?
+		if ((isset($_POST['id_prefix']) && !empty($_POST['id_prefix'])) || !in_array($real_board, explode(',', $modSettings['PostPrefix_prefix_boards_require'])))
 			return;
 
 		// Verify that the user can't set a prefix
@@ -257,12 +261,13 @@ class Posting
 
 		// Additional hidden input, so we now that this is a topic
 		$context['posting_fields']['prefix_istopic'] = [
+			'label' => [
+				'html' => '',
+				'text' => '',
+			],
 			'input' => [
-				'type' => 'hidden',
-				'attributes' => [
-					'name' => 'prefix_istopic',
-					'value' => 1,
-				]
+				'html' => '<input type="hidden" name="prefix_istopic" value="1">',
+				'type' => '',
 			],
 		];
 	}
