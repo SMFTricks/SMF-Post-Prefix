@@ -58,7 +58,7 @@ class Posting
 		global $topic, $context, $board;
 
 		// Is there a prefix and a topic?
-		if (!isset($_POST['id_prefix']) || !isset($topic) || empty($topic) || !allowedTo('postprefix_set') || empty($context['user_prefixes']['post']) || !isset($context['user_prefixes']['post'][$_POST['id_prefix']]['boards']) || !in_array($board, $context['user_prefixes']['post'][$_POST['id_prefix']]['boards']))
+		if (!isset($_POST['id_prefix']) || !isset($topic) || empty($topic) || !allowedTo('postprefix_set') || empty($context['user_prefixes']['post']) || (!empty($_POST['id_prefix']) && (!isset($context['user_prefixes']['post'][$_POST['id_prefix']]['boards']) || !in_array($board, $context['user_prefixes']['post'][$_POST['id_prefix']]['boards']))))
 			return;
 
 		// Always update the prefix, we don't know the current one
