@@ -1,5 +1,8 @@
 # Changelog
 
+#### 4.0.3 - 29 March 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issue when removing a prefix from topic.
+
 #### 4.0.2 - 21 March 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed wrong type for post field when checking for a topic.
 
