@@ -51,6 +51,7 @@
 [img]https://www.simplemachines.org/site_images/lang/spanish_es.gif[/img] Spanish
 [img]https://www.simplemachines.org/site_images/lang/russian.gif[/img] Russian
 [img]https://www.simplemachines.org/site_images/lang/turkish.gif[/img] Turkish
+[img]https://www.simplemachines.org/site_images/lang/french.gif[/img] French
 [hr]
 
 [size=3][url="https://crowdin.com/project/smf-post-prefix-mod"][color=#495475]Crowdin[/color][/url][/size]
