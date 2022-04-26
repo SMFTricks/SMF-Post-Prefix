@@ -1,5 +1,9 @@
 # Changelog
 
+#### 4.0.4 - 25 April 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed incorrectly adding/replacing the topic subject.
+- ![Translation](https://smftricks.com/assets/changelog/language.png) French translation provided by [Dreadaxe](https://www.simplemachines.org/community/index.php?action=profile;u=147069)
+
 #### 4.0.3 - 29 March 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issue when removing a prefix from topic.
 
