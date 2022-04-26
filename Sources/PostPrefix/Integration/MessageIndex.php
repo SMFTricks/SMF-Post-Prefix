@@ -222,7 +222,7 @@ class MessageIndex
 				continue;
 
 			// Set the prefix before the topic title.
-			$context['topics'][$id_topic]['subject'] = PostPrefix::format($pp_topic) . $pp_topic['first_post']['subject'];
+			$context['topics'][$id_topic]['first_post']['subject'] = PostPrefix::format($pp_topic) . $pp_topic['first_post']['subject'];
 
 			// Add the prefix to the link too
 			$context['topics'][$id_topic]['first_post']['link'] = PostPrefix::format($pp_topic) . $pp_topic['first_post']['link'];
