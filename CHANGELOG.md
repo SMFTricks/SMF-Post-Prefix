@@ -1,5 +1,8 @@
 # Changelog
 
+#### 4.0.6 - 20 June 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed wrong total of messages when displaying prefix for all messages.
+
 #### 4.0.5 - 20 June 2022
 - ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Remove 'redirect' boards from the list when editing/adding.
 - ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Clear cache when saving/editing prefixes.
