@@ -1,5 +1,9 @@
 # Changelog
 
+#### 4.0.5 - 20 June 2022
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Remove 'redirect' boards from the list when editing/adding.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Clear cache when saving/editing prefixes.
+
 #### 4.0.4 - 25 April 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed incorrectly adding/replacing the topic subject.
 - ![Translation](https://smftricks.com/assets/changelog/language.png) French translation provided by [Dreadaxe](https://www.simplemachines.org/community/index.php?action=profile;u=147069)

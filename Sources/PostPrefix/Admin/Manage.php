@@ -26,7 +26,7 @@ class Manage
 	/**
 	 * @var array Board columns
 	 */
-	private $_boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level'];
+	private $_boards_columns = ['b.id_board', 'b.board_order', 'b.id_cat', 'b.name', 'b.child_level', 'b.redirect'];
 
 	/**
 	 * @var array Group columns
@@ -291,7 +291,13 @@ class Manage
 		$context['forum_groups'] = $this->forumGroups();
 
 		// Boards
-		$context['forum_categories'] = Database::bNested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards', '', 'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)');
+		$context['forum_categories'] = Database::bNested('b.board_order', 'boards AS b', $this->_cats_columns, $this->_boards_columns, 'boards',
+			'WHERE b.redirect = {string:redirect}',
+			'LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
+			[
+				'redirect' => '',
+			]
+		);
 
 		// Now let's sort the list of categories into the boards for the template
 		foreach ($context['forum_categories'] as $category)
