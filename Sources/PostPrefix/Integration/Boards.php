@@ -34,6 +34,11 @@ class Boards
 	private $_first_messages = [];
 
 	/**
+	 * @var int The original total number of messages
+	 */
+	private $_total_messages = 0;
+
+	/**
 	 * Boards::edit_board()
 	 * 
 	 * Modify a specific board...
@@ -126,7 +131,6 @@ class Boards
 							if (!empty($modSettings['PostPrefix_prefix_all_msgs']))
 								$this->_topics[] = $board['last_post']['topic'];
 						}
-
 					}
 				}
 			}
@@ -151,13 +155,14 @@ class Boards
 		}
 
 		// Now, remove any duplicates.
+		$this->_total_messages = count($this->_topics) + count($this->_last_messages);
 		$this->_last_messages = array_unique($this->_last_messages);
 		$this->_topics = array_unique($this->_topics);
 
 		// Query these messages to get the prefixes if they are id_first_msg
 		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_boardindex_lastmessages_u' . $user_info['id'], 120)) === null))
 		{
-			$this->_first_messages = Database::Get(0, count($this->_last_messages), 't.id_topic',
+			$this->_first_messages = Database::Get(0, $this->_total_messages, 't.id_topic',
 				(!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 'messages AS m' : 'topics AS t'),
 				array_merge(
 					['t.id_first_msg', 't.id_last_msg', 't.id_prefix', 't.id_topic'],
@@ -241,7 +246,7 @@ class Boards
 				{
 					// Are we displaying a prefix?
 					if (!isset($this->_first_messages[$post['topic']]) || empty($modSettings['PostPrefix_prefix_all_msgs']) && $this->_first_messages[$post['topic']]['id_first_msg'] != $matches[1])
-							continue;
+						continue;
 
 					// First the subject
 					$context['latest_posts'][$key]['subject'] = PostPrefix::format($this->_first_messages[$post['topic']]) . $post['subject'];
