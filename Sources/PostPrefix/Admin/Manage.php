@@ -588,11 +588,14 @@ class Manage
 		];
 
 		// The rest of the groups, except admin
-		$groups += Database::Get(0, 10000, 'm.min_posts, m.group_name',
+		$groups = array_merge($groups, Database::Get(0, 10000, 'm.min_posts, m.group_name',
 			'membergroups AS m',
 			$this->_groups_columns,
-			'WHERE id_group != 3'
-		);
+			'WHERE id_group NOT IN ({array_int:id_groups})', false, '',
+			[
+				'id_groups' => [1, 3],
+			]
+		));
 
 		return $groups;
 	}
