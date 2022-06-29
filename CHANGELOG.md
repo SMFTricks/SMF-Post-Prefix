@@ -2,6 +2,7 @@
 
 #### 4.0.7 - 29 June 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed inconsistent listing of groups when editing.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Sort groups by visibility too.
 
 #### 4.0.6 - 20 June 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed wrong total of messages when displaying prefix for all messages.
