@@ -31,7 +31,7 @@ class Manage
 	/**
 	 * @var array Group columns
 	 */
-	private $_groups_columns = ['m.group_name', 'm.id_group', 'm.min_posts', 'm.online_color'];
+	private $_groups_columns = ['m.group_name', 'm.id_group', 'm.min_posts', 'm.online_color', 'm.hidden'];
 
 	/**
 	 * @var array Group array for showing prefix groups
@@ -588,7 +588,7 @@ class Manage
 		];
 
 		// The rest of the groups, except admin
-		$groups = array_merge($groups, Database::Get(0, 10000, 'm.min_posts, m.group_name',
+		$groups = array_merge($groups, Database::Get(0, 10000, 'm.min_posts, m.hidden, m.group_name',
 			'membergroups AS m',
 			$this->_groups_columns,
 			'WHERE id_group NOT IN ({array_int:id_groups})', false, '',
