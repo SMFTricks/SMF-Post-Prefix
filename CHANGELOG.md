@@ -1,5 +1,8 @@
 # Changelog
 
+#### 4.0.8 - 08 July 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed name sorting in prefix list.
+
 #### 4.0.7 - 29 June 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed inconsistent listing of groups when editing.
 - ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Sort groups by visibility too.
