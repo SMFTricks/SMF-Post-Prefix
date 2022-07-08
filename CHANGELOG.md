@@ -1,5 +1,8 @@
 # Changelog
 
+#### 4.0.9 - 08 July 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed another issue displaying prefixes in boardindex and recent topics.
+
 #### 4.0.8 - 08 July 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed name sorting in prefix list.
 
