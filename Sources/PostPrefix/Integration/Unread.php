@@ -83,7 +83,7 @@ class Unread
 		// Query these messages to get the prefixes if they are id_first_msg
 		if (!empty($this->_topics))
 		{
-			$this->_prefixes = Database::Get(0, count($this->_topics), 't.id_topic',
+			$this->_prefixes = Database::Get(0, count($this->_topics), 't.id_topic DESC',
 				'topics AS t',
 				array_merge(
 					['t.id_prefix', 't.id_topic'],

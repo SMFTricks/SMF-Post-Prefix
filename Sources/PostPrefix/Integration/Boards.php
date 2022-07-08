@@ -162,7 +162,7 @@ class Boards
 		// Query these messages to get the prefixes if they are id_first_msg
 		if (!empty($this->_last_messages) && (($this->_first_messages = cache_get_data('pp_boardindex_lastmessages_u' . $user_info['id'], 120)) === null))
 		{
-			$this->_first_messages = Database::Get(0, $this->_total_messages, 't.id_topic',
+			$this->_first_messages = Database::Get(0, $this->_total_messages, 't.id_topic DESC',
 				(!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 'messages AS m' : 'topics AS t'),
 				array_merge(
 					['t.id_first_msg', 't.id_last_msg', 't.id_prefix', 't.id_topic'],
