@@ -113,8 +113,8 @@ class Manage
 						'style' => 'width: 15%',
 					],
 					'sort' =>  [
-						'default' => 'prefix_name DESC',
-						'reverse' => 'prefix_name',
+						'default' => 'prefix_name',
+						'reverse' => 'prefix_name DESC',
 					],
 				],
 				'boards' => [
