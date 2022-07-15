@@ -20,14 +20,20 @@ class Permissions
 	 *
 	 * @param array $permissionGroups An array containing all possible permissions groups.
 	 * @param array $permissionList An associative array with all the possible permissions.
+	 * @param array $leftPermissionGroups An array containing the groups that are on the left side of the permissions page layout
 	 * @return void
 	 */
-	public static function load_permissions(array &$permissionGroups, array &$permissionList) : void
+	public static function load_permissions(array &$permissionGroups, array &$permissionList, &$leftPermissions) : void
 	{
+		// PP Group
+		$permissionGroups['membergroup'][] = 'postprefix';
 		// Manage prefix
-		$permissionList['membergroup']['postprefix_manage'] = [false, 'maintenance'];
+		$permissionList['membergroup']['postprefix_manage'] = [false, 'postprefix'];
 		// Topic?
-		$permissionList['board']['postprefix_set'] = [false, 'topic'];
+		$permissionList['membergroup']['postprefix_set'] = [false, 'postprefix'];
+
+		// Onto the left!
+		$leftPermissions[] = 'postprefix';
 	}
 
 	/**

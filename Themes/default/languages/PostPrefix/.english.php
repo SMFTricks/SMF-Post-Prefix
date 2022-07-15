@@ -86,6 +86,7 @@ $txt['PostPrefix_empty_boards'] = 'No boards for this prefix.';
 
 // Permissions
 $txt['PostPrefix_permissions'] = 'Permissions for Prefixes';
+$txt['permissiongroup_postprefix'] = 'Topic Prefixes';
 $txt['permissionname_postprefix_manage'] = 'Manage Prefixes';
 $txt['permissionhelp_postprefix_manage'] = 'If the user can manage prefixes.';
 $txt['cannot_postprefix_manage'] = 'You\'re not allowed to manage the prefixes.';
