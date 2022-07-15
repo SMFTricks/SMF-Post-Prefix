@@ -1,6 +1,6 @@
 # Changelog
 
-#### 4.0.10 - 14 July 2022
+#### 4.0.10 - 15 July 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed using board permission for set prefixes, instead of global.
 
 #### 4.0.9 - 08 July 2022
