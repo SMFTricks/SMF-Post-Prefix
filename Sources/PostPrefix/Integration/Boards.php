@@ -111,7 +111,7 @@ class Boards
 	 */
 	private function get_last_messages() : void
 	{
-		global $context, $board, $modSettings, $user_info;
+		global $context, $modSettings, $user_info;
 
 		// Get the last messages from the boardindex.
 		if (!empty($context['categories']))

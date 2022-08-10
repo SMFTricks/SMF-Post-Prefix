@@ -1,5 +1,8 @@
 # Changelog
 
+#### 4.0.11 - 09 August 2022
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issue when looping through the prefixes for recent posts.
+
 #### 4.0.10 - 17 July 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed using board permission for set prefixes, instead of global.
 
