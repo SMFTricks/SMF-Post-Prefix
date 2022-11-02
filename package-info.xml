@@ -6,6 +6,19 @@
 	<version>4.0.11</version>
 	<type>modification</type>
 	<install for="2.1 - 2.1.99">
+		<!-- Throw error if PHP version too old -->
+		<code type="inline"><![CDATA[<?php
+			define('REQUIRED_PHP_VERSION', '7.3.0');
+			if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<'))
+				fatal_error(
+					sprintf(
+						'This mod requires a minimum of PHP %s in order to function. (You are currently running PHP %s)',
+						REQUIRED_PHP_VERSION,
+						PHP_VERSION
+					),
+					false
+				);
+		?>]]></code>
 		<!-- Mod Readme -->
 		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
 		<!-- Credits -->
