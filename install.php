@@ -189,21 +189,6 @@
 		// We could check for specific columns and decide...
 		if (!empty($prefix_columns) && isset($prefix_columns['icon_url']) && isset($prefix_columns['boards']) && isset($prefix_columns['groups']))
 		{
-			// ID
-			if (isset($prefix_columns['id']))
-			{
-				$smcFunc['db_change_column'](
-					'{db_prefix}postprefixes',
-					'id',
-					[
-						'type' => 'smallint',
-						'size' => 5,
-						'auto' => true,
-						'not_null' => true,
-						'unsigned' => true,
-					]
-				);
-			}
 			// Name
 			if (isset($prefix_columns['name']))
 			{
