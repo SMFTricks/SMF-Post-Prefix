@@ -1,5 +1,11 @@
 # Changelog
 
+#### 4.1.0 - 07 January 2023
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Allow passing prefixes in the URL when posting to have them pre-selected.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Deleting groups will now drop them from the table.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Deleting boards will now drop them from the table.
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed query for getting prefixes when boards are missing.
+---
 #### 4.0.11 - 09 August 2022
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issue when looping through the prefixes for recent posts.
 
