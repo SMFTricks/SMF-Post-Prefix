@@ -64,6 +64,31 @@ class Boards
 	}
 
 	/**
+	 * Boards::delete_board() : void
+	 * 
+	 * Drop the prefixes linked to these boards.
+	 * 
+	 * @param array $boards The boards that are being deleted
+	 * @return void
+	 */
+	public static function delete_board(array $boards) : void
+	{
+		global $modSettings;
+
+		// Delete the prefixes linked to these boards
+		Database::Delete(
+			'postprefixes_boards', 
+			'id_board',
+			$boards,
+			'',
+			'IN',
+		);
+
+		// And update the boards that require prefixes
+		updateSettings(['PostPrefix_prefix_boards_require' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_prefix_boards_require']), $boards))], true);
+	}
+
+	/**
 	 * Boards::modify_board()
 	 * 
 	 * @param int $id The board ID

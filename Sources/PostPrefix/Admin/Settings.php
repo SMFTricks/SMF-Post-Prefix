@@ -36,7 +36,7 @@ class Settings
 		$insert = 'postsettings';
 		$counter = 0;
 		foreach ($admin_areas['layout']['areas'] as $area => $dummy)
-			if (++$counter && $area == $insert )
+			if (++$counter && $area == $insert)
 				break;
 
 		// Add the prefixes area to the menu
@@ -58,6 +58,19 @@ class Settings
 			array_slice($admin_areas['layout']['areas'], $counter)
 		);
 
+		// Admin hooks
+		self::adminHooks();
+	}
+
+	/**
+	 * Settings::adminHooks()
+	 * 
+	 * Adding some administrative hooks
+	 * 
+	 * @return void
+	 */
+	public static function adminHooks() : void
+	{
 		// Permissions
 		add_integration_function('integrate_load_permissions', 'PostPrefix\Integration\Permissions::load_permissions', false);
 		add_integration_function('integrate_load_illegal_guest_permissions', 'PostPrefix\Integration\Permissions::illegal_guest', false);
@@ -70,6 +83,13 @@ class Settings
 		{
 			add_integration_function('integrate_edit_board', 'PostPrefix\Integration\Boards::edit_board', false);
 			add_integration_function('integrate_modify_board', 'PostPrefix\Integration\Boards::modify_board', false);
+			add_integration_function('integrate_delete_board', 'PostPrefix\Integration\Boards::delete_board', false);
+		}
+
+		// Membergroups
+		if (isset($_REQUEST['area']) && $_REQUEST['area'] == 'membergroups')
+		{
+			add_integration_function('integrate_delete_membergroups', 'PostPrefix\Integration\Groups::delete_group', false);
 		}
 	}
 
