@@ -189,7 +189,7 @@ class PostPrefix
 				), 
 				'LEFT JOIN {db_prefix}postprefixes_groups AS ppg ON (ppg.id_prefix = pp.id)
 				LEFT JOIN {db_prefix}postprefixes_boards AS ppb ON (ppb.id_prefix = pp.id)
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
+				RIGHT JOIN {db_prefix}boards AS b ON (b.id_board = ppb.id_board)',
 				[
 					'groups' => array_unique(array_merge($user_info['groups'], [0])),
 					'guest' => -1,
