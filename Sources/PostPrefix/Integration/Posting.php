@@ -233,13 +233,14 @@ class Posting
 		// Add the list of prefixes to the options
 		if (!empty($context['user_prefixes']['post']))
 		{
+			$selected_prefix = (int) isset($_REQUEST['prefix']) ? $_REQUEST['prefix'] : 0;
 			foreach ($context['user_prefixes']['post'] as $prefix_id => $prefix)
 			{
 				$context['posting_fields']['topic_prefix']['input']['options']['PostPrefix_select_prefix']['options'][$prefix_id] = [
 					'label' => !empty($modSettings['PostPrefix_post_selecttype']) ? PostPrefix::format($prefix) : $prefix['name'],
 					'value' => $prefix_id,
 					'id' => 'prefix_' . $prefix_id,
-					'selected' => $prefix_id == $context['post_prefix_id'] ? true : false,
+					'selected' => $prefix_id == $context['post_prefix_id'] ? true : ($prefix_id == $selected_prefix ? true : false),
 					'data-boards' => '' . implode(',', $prefix['boards']) . '',
 				];
 			}
