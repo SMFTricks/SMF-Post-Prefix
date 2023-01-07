@@ -374,7 +374,7 @@ class Manage
 			// Drop the groups too
 			Database::Delete('postprefixes_groups', 
 				'id_group',
-				(array) (isset($_REQUEST['groups']) ? $_REQUEST['groups'] : [-10]),
+				(array) (isset($_REQUEST['groups']) ? $_REQUEST['groups'] : [-10]), // no group will ever be -10
 				' AND id_prefix = {int:prefix}',
 				'NOT IN',
 				[
