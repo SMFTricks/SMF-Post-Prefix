@@ -3,7 +3,7 @@
 #### 4.2.0 - 19 March 2023
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added prefixes to recent posts page/action.
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issues with help texts in the settings.
-- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Prevented uunexpected behavior with actions.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Prevented unexpected behavior with actions.
 - ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Improved phrasing and description of settings.
 ---
 #### 4.1.0 - 07 January 2023
