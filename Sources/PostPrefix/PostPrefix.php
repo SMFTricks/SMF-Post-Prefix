@@ -85,8 +85,10 @@ class PostPrefix
 	 */
 	public static function boardHooks() : void
 	{
+		global $modSettings;
+
 		// Nothing or you get nada.
-		if (isset($_REQUEST['action']) || !empty($_REQUEST['action']))
+		if (isset($_REQUEST['action']) && !empty($_REQUEST['action']) && empty($modSettings['integrate_default_action']) && $_REQUEST['action'] !== 'forum')
 			return;
 
 		// Board Index
