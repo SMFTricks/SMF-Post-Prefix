@@ -164,6 +164,9 @@ class PostPrefix
 			case 'unreadreplies':
 				add_integration_function('integrate_unread_list', __NAMESPACE__ . '\Integration\Unread::unread_topics#', false);
 				break;
+			case 'recent':
+				add_integration_function('integrate_recent_RecentPosts', __NAMESPACE__ . '\Integration\Recent::recent_posts#', false);
+				break;
 		}
 	}
 
