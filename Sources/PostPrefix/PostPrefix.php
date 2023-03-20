@@ -72,7 +72,7 @@ class PostPrefix
 			'menu_buttons',
 			'load_theme',
 		];
-		foreach ($hooks as $point )
+		foreach ($hooks as $point)
 			add_integration_function('integrate_' . $point, __CLASS__ . '::' . $point, false);
 	}
 
@@ -85,12 +85,6 @@ class PostPrefix
 	 */
 	public static function boardHooks() : void
 	{
-		global $modSettings;
-
-		// Nothing or you get nada.
-		if (isset($_REQUEST['action']) && !empty($_REQUEST['action']) && empty($modSettings['integrate_default_action']) && $_REQUEST['action'] !== 'forum')
-			return;
-
 		// Board Index
 		add_integration_function('integrate_mark_read_button', __NAMESPACE__ . '\Integration\Boards::recentPosts#', false);
 
