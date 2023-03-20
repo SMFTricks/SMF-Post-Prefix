@@ -40,7 +40,7 @@ class Unread
 		global $context, $modSettings;
 
 		// Any topics?
-		if (empty($context['topics']) || empty($modSettings['PostPrefix_prefix_recent_page']))
+		if (empty($context['topics']) || empty($modSettings['PostPrefix_prefix_unread_page']))
 			return;
 
 		// More prefixes?
