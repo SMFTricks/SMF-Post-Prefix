@@ -1,6 +1,7 @@
 # Changelog
 
 #### 4.2.0 - 19 March 2023
+- ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Pre-select filtered prefixes when posting a new topic in boards.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added prefixes to recent posts page/action.
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed issues with help texts in the settings.
 - ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Prevented unexpected behavior with actions.
