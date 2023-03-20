@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 4.0
+ * @version 4.2
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2022, SMF Tricks
+ * @copyright Copyright (c) 2023, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -232,6 +232,10 @@ class MessageIndex
 		if (empty($modSettings['PostPrefix_enable_filter']) || !in_array($board, explode(',', $modSettings['PostPrefix_filter_boards'])))
 			return;
 
+		// If there's a prefix filtered, pre-select it for a new topic.
+		if (isset($_REQUEST['prefix']) && !empty($_REQUEST['prefix']))
+			$context['normal_buttons']['new_topic']['url'] .= ';prefix=' . $_REQUEST['prefix'];
+
 		// Okay, search the prefixes
 		if (($context['prefixes']['filter'] = cache_get_data('prefix_filter_b' . $board, 3600)) === null)
 		{
@@ -259,7 +263,7 @@ class MessageIndex
 			$context['prefixes']['filter'][$id_prefix]['real_prefix'] = PostPrefix::format($prefix);
 
 		// Language file
-		loadLanguage('PostPrefix/');
+		Permissions::language();
 
 		// Template
 		loadTemplate('PostPrefix');
