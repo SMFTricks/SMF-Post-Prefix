@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 4.0
+ * @version 4.2
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2022, SMF Tricks
+ * @copyright Copyright (c) 2023, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -20,8 +20,6 @@ $txt['PostPrefix_tab_prefixes_edit_desc'] = 'Edit the current prefix, you can se
 $txt['PostPrefix_tab_options'] = 'Settings';
 $txt['PostPrefix_tab_options_desc'] = 'Settings for Post Prefix mod.';
 $txt['PostPrefix_tab_prefixes_edit'] = 'Edit Prefix';
-$txt['PostPrefix_tab_require'] = 'Require';
-$txt['PostPrefix_tab_require_desc'] = 'Here you can select on which boards the prefix will be required.';
 $txt['PostPrefix_tab_permissions'] = 'Post Prefix permissions';
 
 // Prefixes main
@@ -54,28 +52,22 @@ $txt['PostPrefix_prefix_delete_sure'] = 'Are you sure you want to delete the sel
 $txt['PostPrefix_prefix_deleted'] = 'The prefix was deleted successfully.';
 
 // Settings
-$txt['PostPrefix_enable_filter'] = 'Filter Post Prefix';
-$txt['PostPrefix_enable_filter_desc'] = 'Enable this option to display a box to filter topics by prefix.';
+$txt['PostPrefix_filter_settings'] = 'Prefix Filter Settings';
+$txt['PostPrefix_enable_filter'] = 'Enable Filter Box';
+$txt['PostPrefix_enable_filter_desc'] = 'Display a filter box inside the boards, allowing users to filter topics by prefix.';
 $txt['PostPrefix_filter_boards'] = 'Boards to display filter';
 $txt['PostPrefix_filter_boards_desc'] = 'Select the boards where you want to display the filter box';
 $txt['PostPrefix_select_order'] = 'Order by';
-$txt['PostPrefix_select_order_desc'] = 'Select default order of prefixes everywhere';
+$txt['PostPrefix_select_order_desc'] = 'Select default order for the prefixes. This applies to every list of prefixes.';
 $txt['PostPrefix_prefix_boards_require'] = 'Require prefixes';
 $txt['PostPrefix_prefix_boards_require_desc'] = 'Boards where a prefix is required when posting/editing a topic';
-$txt['PostPrefix_post_selecttype'] = 'Select type';
+$txt['PostPrefix_post_selecttype'] = 'Selection style';
 $txt['PostPrefix_post_selecttype_desc1'] = 'This is the style of prefix selection when posting/editing a new topic.';
-$txt['PostPrefix_post_selecttype_desc2'] = 'Select will only display prefix names, radio will display each prefix with the corresponding style.';
+$txt['PostPrefix_post_selecttype_desc2'] = '- Select: It will only display prefix names<br>- Radio: It will display each prefix with the corresponding style.';
 $txt['PostPrefix_post_selecttype_select'] = 'Select';
 $txt['PostPrefix_post_selecttype_radio'] = 'Radio';
-$txt['PostPrefix_prefix_linktree'] = 'Add prefix to linktree';
-$txt['PostPrefix_prefix_linktree_desc'] = 'When viewing a topic, include the prefix in the linktree.';
-$txt['PostPrefix_prefix_boardindex'] = 'Enable prefixes in boards and last posts';
-$txt['PostPrefix_prefix_boardindex_desc'] = 'It will display the prefixes in the boards and the recent posts in the info center.';
-$txt['PostPrefix_prefix_all_msgs'] = 'Display prefix for replies';
-$txt['PostPrefix_prefix_all_msgs_desc'] = 'It will display the corresponding prefix for each message and their topic. By default, only first posts display a prefix.';
-$txt['PostPrefix_prefix_recent_page'] = 'Display prefixes in recent posts';
-$txt['PostPrefix_prefix_recent_page_desc'] = 'Prefixes on this page are never cached.';
 $txt['PostPrefix_no_prefix_remove'] = 'Remove \'No prefix\' from the list when the board requires a prefix.';
+$txt['PostPrefix_no_prefix_remove_desc'] = 'This setting is not recommended. Users that are careless will submit topics with the first prefix listed/selected.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
@@ -103,3 +95,15 @@ $txt['PostPrefix_prefix_none'] = '[No Prefix]';
 $txt['PostPrefix_filter'] = 'Filter by prefix';
 $txt['PostPrefix_filter_noprefix'] = 'No prefix';
 $txt['PostPrefix_filter_all'] = 'Show all topics';
+
+// Display Prefixes
+$txt['PostPrefix_prefix_display_settings'] = 'Displaying Prefixes';
+$txt['PostPrefix_prefix_linktree'] = 'Add prefix to linktree';
+$txt['PostPrefix_prefix_linktree_desc'] = 'When viewing a topic, include the prefix in the linktree.';
+$txt['PostPrefix_prefix_boardindex'] = 'Enable prefixes in boards and last posts';
+$txt['PostPrefix_prefix_boardindex_desc'] = 'It will display the prefixes in the boards and the recent posts in the info center.';
+$txt['PostPrefix_prefix_all_msgs'] = 'Display prefix for replies';
+$txt['PostPrefix_prefix_all_msgs_desc'] = 'It will display the corresponding prefix for each message and their topic. By default, only first posts display a prefix.';
+$txt['PostPrefix_prefix_unread_page'] = 'Display prefixes in unread posts/topics page';
+$txt['PostPrefix_prefix_recent_page'] = 'Display prefixes in recent posts page';
+$txt['PostPrefix_prefix_not_cached'] = 'Prefixes on this page are never cached.';
