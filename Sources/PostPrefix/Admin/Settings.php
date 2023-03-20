@@ -2,9 +2,9 @@
 
 /**
  * @package SMF Post Prefix
- * @version 4.0
+ * @version 4.2
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2022, SMF Tricks
+ * @copyright Copyright (c) 2023, SMF Tricks
  * @license https://www.mozilla.org/en-US/MPL/2.0/
  */
 
@@ -74,9 +74,6 @@ class Settings
 		// Permissions
 		add_integration_function('integrate_load_permissions', 'PostPrefix\Integration\Permissions::load_permissions', false);
 		add_integration_function('integrate_load_illegal_guest_permissions', 'PostPrefix\Integration\Permissions::illegal_guest', false);
-
-		// Language
-		add_integration_function('integrate_helpadmin', 'PostPrefix\Integration\Permissions::language', false);
 
 		// Boards settings
 		if (isset($_REQUEST['area']) && $_REQUEST['area'] == 'manageboards')
@@ -155,33 +152,37 @@ class Settings
 
 		// Settings
 		$config_vars = [
-			['title', 'PostPrefix_tab_options'],
-			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
-			['boards', 'PostPrefix_filter_boards', 'subtext' => $txt['PostPrefix_filter_boards_desc']],
+			['title', 'PostPrefix_tab_options',],
 			['select', 'PostPrefix_select_order', [
 					$txt['PostPrefix_prefix_name'],
 					$txt['PostPrefix_prefix_id'],
 				],
-				'help' => $txt['PostPrefix_select_order_desc']
+				'subtext' => $txt['PostPrefix_select_order_desc']
 			],
 			['select', 'PostPrefix_post_selecttype', [
 					$txt['PostPrefix_post_selecttype_select'],
 					$txt['PostPrefix_post_selecttype_radio'],
 				],
 				'subtext' => $txt['PostPrefix_post_selecttype_desc1'],
-				'help' => $txt['PostPrefix_post_selecttype_desc2']
+				'help' => 'PostPrefix_post_selecttype_desc2'
 			],
 			'',
 			['boards', 'PostPrefix_prefix_boards_require', 'subtext' => $txt['PostPrefix_prefix_boards_require_desc']],
-			['check', 'PostPrefix_no_prefix_remove'],
+			['check', 'PostPrefix_no_prefix_remove', 'subtext' => $txt['PostPrefix_no_prefix_remove_desc']],
+			['title', 'PostPrefix_permissions',],
+			['permissions', 'postprefix_manage', 'label' => $txt['permissionname_postprefix_manage'], 'help' => 'permissionhelp_postprefix_manage'],
+			['permissions', 'postprefix_set', 'label' => $txt['permissionname_postprefix_set'], 'help' => 'permissionhelp_postprefix_set'],
 			'',
-			['permissions', 'postprefix_manage', 'label' => $txt['permissionname_postprefix_manage'], 'help' => $txt['permissionhelp_postprefix_manage']],
-			['permissions', 'postprefix_set', 'label' => $txt['permissionname_postprefix_set'], 'help' => $txt['permissionhelp_postprefix_set']],
+			['title', 'PostPrefix_filter_settings'],
+			['check', 'PostPrefix_enable_filter', 'subtext' => $txt['PostPrefix_enable_filter_desc']],
+			['boards', 'PostPrefix_filter_boards', 'subtext' => $txt['PostPrefix_filter_boards_desc']],
 			'',
+			['title', 'PostPrefix_prefix_display_settings'],
 			['check', 'PostPrefix_prefix_linktree', 'subtext' => $txt['PostPrefix_prefix_linktree_desc']],
+			['check', 'PostPrefix_prefix_all_msgs', 'subtext' => $txt['PostPrefix_prefix_all_msgs_desc']],
 			['check', 'PostPrefix_prefix_boardindex', 'subtext' => $txt['PostPrefix_prefix_boardindex_desc']],
-			['check', 'PostPrefix_prefix_all_msgs', 'subtext' => $txt['PostPrefix_prefix_all_msgs_desc'], 'disabled' => empty($modSettings['PostPrefix_prefix_boardindex'])],
-			['check', 'PostPrefix_prefix_recent_page', 'subtext' => $txt['PostPrefix_prefix_recent_page_desc']],
+			['check', 'PostPrefix_prefix_unread_page', 'subtext' => $txt['PostPrefix_prefix_not_cached']],
+			['check', 'PostPrefix_prefix_recent_page', 'subtext' => $txt['PostPrefix_prefix_not_cached']],
 		];
 
 		// Post URL
