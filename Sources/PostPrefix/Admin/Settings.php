@@ -78,7 +78,7 @@ class Settings
 		// Boards settings
 		if (isset($_REQUEST['area']) && $_REQUEST['area'] == 'manageboards')
 		{
-			add_integration_function('integrate_edit_board', 'PostPrefix\Integration\Boards::edit_board', false);
+			add_integration_function('integrate_edit_board', 'PostPrefix\Integration\Boards::edit_board#', false);
 			add_integration_function('integrate_modify_board', 'PostPrefix\Integration\Boards::modify_board', false);
 			add_integration_function('integrate_delete_board', 'PostPrefix\Integration\Boards::delete_board', false);
 		}
@@ -87,6 +87,8 @@ class Settings
 		if (isset($_REQUEST['area']) && $_REQUEST['area'] == 'membergroups')
 		{
 			add_integration_function('integrate_delete_membergroups', 'PostPrefix\Integration\Groups::delete_group', false);
+			add_integration_function('integrate_view_membergroup', 'PostPrefix\Integration\Groups::edit_group', false);
+			add_integration_function('integrate_save_membergroup', 'PostPrefix\Integration\Groups::save_group', false);
 		}
 	}
 
