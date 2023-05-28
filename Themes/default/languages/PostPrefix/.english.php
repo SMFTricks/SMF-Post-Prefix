@@ -68,6 +68,8 @@ $txt['PostPrefix_post_selecttype_select'] = 'Select';
 $txt['PostPrefix_post_selecttype_radio'] = 'Radio';
 $txt['PostPrefix_no_prefix_remove'] = 'Remove \'No prefix\' from the list when the board requires a prefix.';
 $txt['PostPrefix_no_prefix_remove_desc'] = 'This setting is not recommended. Users that are careless will submit topics with the first prefix listed/selected.';
+$txt['PostPrefix_prefix_selection_prefixes'] = 'Select the available prefixes';
+$txt['PostPrefix_prefix_selection_prefixes_desc'] = 'The prefixes that are available to be used.';
 
 // Error
 $txt['PostPrefix_error_noprefix'] = 'You need to specify a name for the prefix.';
