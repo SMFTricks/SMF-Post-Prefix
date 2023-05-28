@@ -168,8 +168,10 @@ class PostPrefix
 	 * PostPrefix::load_prefixes()
 	 * 
 	 * Loads the list of prefixes
+	 * 
+	 * @return void
 	 */
-	public static function load_theme()
+	public static function load_theme() : void
 	{
 		global $user_info, $context, $modSettings;
 
@@ -256,9 +258,66 @@ class PostPrefix
 		return $format;
 	}
 
-	public static function menu_buttons(array &$buttons)
+	/**
+	 * PostPrefix::menu_buttons()
+	 * 
+	 * Display the admin button if they can at least manage prefixes
+	 * 
+	 * @param bool $buttons The main menu buttons
+	 * @return void
+	 */
+	public static function menu_buttons(array &$buttons) : void
 	{
 		// Add the prefix permission to the admin button
 		$buttons['admin']['show'] = $buttons['admin']['show']  || allowedTo('postprefix_manage');
+	}
+
+	/**
+	 * PostPrefix::board_group_prefixes()
+	 * 
+	 * Display a list of prefixes for board or group selection/edition
+	 * 
+	 * @param bool $groups If the list will query groups or boards
+	 * @return array
+	 */
+	public static function board_group_prefixes(bool $groups, int $active_for = 0) : void
+	{
+		global $context;
+
+		// Groups or boards?
+		$join = 'LEFT JOIN {db_prefix}postprefixes_';
+		$join .= !empty($groups) ? 'groups' : 'boards';
+		$column = 'ppa.' . (!empty($groups) ? 'id_group' : 'id_board') . ' AS selection';
+		$join .= ' AS ppa ON (ppa.id_prefix = pp.id)';
+
+		// Get the prefixes
+		$prefixes = Database::Get(0, 1000000, 'pp.name',
+			'postprefixes AS pp',
+			['pp.id', 'pp.name', $column], '
+			WHERE pp.status = {int:active}', false,
+			$join,
+			[
+				'active' => 1,
+			]
+		);
+
+		// Prefixes?
+		if (empty($prefixes))
+			return;
+
+		// Selection
+		$context['PostPrefix_prefixes_selection'] = [];
+
+		// Template
+		loadTemplate('PostPrefix');
+
+		// Set the prefixes
+		foreach ($prefixes as $selected_prefix)
+		{
+			$context['PostPrefix_prefixes_selection'][$selected_prefix['id']] = [
+				'name' => $selected_prefix['name'],
+				'active' => (!empty($active_for) && !empty($selected_prefix['selection']) && $selected_prefix['selection'] == $active_for) ? true : (!empty($context['PostPrefix_prefixes_selection'][$selected_prefix['id']]['active']) ? true : false),
+			];
+		}
 	}
 }
