@@ -45,14 +45,14 @@ class Boards
 	 * 
 	 * @return void
 	 */
-	public static function edit_board() : void
+	public function edit_board() : void
 	{
 		global $context, $txt, $modSettings;
 
 		// Require prefix
 		$context['custom_board_settings']['PostPrefix_prefix_boards_require'] = [
-			'dt' => '<strong>'. $txt['PostPrefix_prefix_boards_require']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_prefix_boards_require_desc']. '</span>',
-			'dd' => '<input type="checkbox" name="PostPrefix_prefix_boards_require" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? ' checked="checked"' : ''). '>',
+			'dt' => '<strong>' . $txt['PostPrefix_prefix_boards_require'] . '</strong><br /><span class="smalltext">' . $txt['PostPrefix_prefix_boards_require_desc'] . '</span>',
+			'dd' => '<input type="checkbox" name="PostPrefix_prefix_boards_require" class="input_check"' . (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_prefix_boards_require'])) ? ' checked="checked"' : '') . '>',
 		];
 
 		// Enable filter
@@ -61,6 +61,32 @@ class Boards
 				'dt' => '<strong>'. $txt['PostPrefix_enable_filter']. '</strong><br /><span class="smalltext">'. $txt['PostPrefix_enable_filter_desc']. '</span>',
 				'dd' => '<input type="checkbox" name="PostPrefix_enable_filter" class="input_check"'. (in_array($context['board']['id'], explode(',', $modSettings['PostPrefix_filter_boards'])) ? ' checked="checked"' : ''). '>',
 			];
+
+		// Get the prefixes selection
+		PostPrefix::board_group_prefixes(false, $context['board']['id']);
+
+		// Any prefixes?
+		if (empty($context['PostPrefix_prefixes_selection']))
+			return;
+
+		// toggle all
+		addInlineJavaScript('
+			function togglePrefixes()
+			{
+				let checkboxes = document.querySelectorAll(\'#prefixes_list_selection input[type="checkbox"]\');
+				let selectAllCheckbox = document.getElementById(\'checkall_prefixes\');
+
+				for (var i = 0; i < checkboxes.length; i++) {
+					checkboxes[i].checked = selectAllCheckbox.checked;
+				}
+			}
+		');
+
+		// Display the setting
+		$context['custom_board_settings']['PostPrefix_prefix_boards_prefixes'] = [
+			'dt' => '<strong>' . $txt['PostPrefix_prefix_selection_prefixes'] . '</strong><br><span class="smalltext">' . $txt['PostPrefix_prefix_selection_prefixes_desc'] . '</span>',
+			'dd' => template_postprefix_board_group_list_below(false)
+		];
 	}
 
 	/**
@@ -125,6 +151,49 @@ class Boards
 					updateSettings(['PostPrefix_filter_boards' => implode(',', array_diff(explode(',', $modSettings['PostPrefix_filter_boards']), [$id]))]);
 			}
 		}
+
+		// Select the prefixes
+		$boardOptions['PostPrefix_prefix_boards_prefixes'] = isset($_POST['postprefixSelect']) ? array_values($_POST['postprefixSelect']) : [0];
+
+		// Drop the prefixes
+		Database::Delete('postprefixes_boards', 
+			'id_prefix',
+			(array) $boardOptions['PostPrefix_prefix_boards_prefixes'],
+			' AND id_board = {int:board}',
+			'NOT IN',
+			[
+				'board' => $id,
+			],
+		);
+
+		// Add them...
+		if (!empty($boardOptions['PostPrefix_prefix_boards_prefixes']))
+		{
+			// Set boards
+			$prefixes = [];
+			foreach ($boardOptions['PostPrefix_prefix_boards_prefixes'] as $prefix_id)
+				$prefixes[] = [
+					'id_prefix' => $prefix_id,
+					'id_board' => $id,
+				];
+			
+			// Insert boards
+			Database::Insert('postprefixes_boards',
+				$prefixes,
+				[
+					'id_prefix' => 'int',
+					'id_board' => 'int'
+				],
+				[
+					'id_board',
+					'id_prefix'
+				],
+				'ignore'
+			);
+		}
+
+		// clean cache
+		clean_cache();
 	}
 
 	/**
