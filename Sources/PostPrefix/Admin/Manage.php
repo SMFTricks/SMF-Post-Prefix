@@ -393,7 +393,7 @@ class Manage
 					'id_prefix' => $this->_fields_data['id'],
 					'id_board' => $board,
 				];
-			
+
 			// Insert boards
 			Database::Insert('postprefixes_boards',
 				$this->_fields_data['boards'],
@@ -419,7 +419,7 @@ class Manage
 					'id_prefix' => $this->_fields_data['id'],
 					'id_group' => $group,
 				];
-			
+
 			// Insert groups
 			Database::Insert('postprefixes_groups',
 				$this->_fields_data['groups'],
@@ -587,7 +587,7 @@ class Manage
 			]
 		];
 
-		// The rest of the groups, except admin
+		// The rest of the groups, except admin and moderator
 		$groups = array_merge($groups, Database::Get(0, 10000, 'm.min_posts, m.hidden, m.group_name',
 			'membergroups AS m',
 			$this->_groups_columns,
