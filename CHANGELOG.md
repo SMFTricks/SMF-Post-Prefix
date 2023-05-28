@@ -1,5 +1,10 @@
 # Changelog
 
+#### 4.3.0 - 27 May 2023
+- ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Select prefixes for a group when editing a group.
+- ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Select prefixes for a board when editing a board.
+- ![Improvement](https://smftricks.com/assets/changelog/tag--pencil.png) Improved settings HTML markup.
+
 #### 4.2.0 - 19 March 2023
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Pre-select filtered prefixes when posting a new topic in boards.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Added prefixes to recent posts page/action.
