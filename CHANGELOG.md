@@ -1,5 +1,9 @@
 # Changelog
 
+### 4.3.1 - 02 June 2023
+- ![Translation](https://smftricks.com/assets/changelog/language.png) Italian translation provided by [Darknico](https://www.simplemachines.org/community/index.php?action=profile;u=29200)
+- ![Translation](https://smftricks.com/assets/changelog/language.png) Updated translations.
+
 #### 4.3.0 - 27 May 2023
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Select prefixes for a group when editing a group.
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Select prefixes for a board when editing a board.
