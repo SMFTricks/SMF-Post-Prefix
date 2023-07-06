@@ -1,5 +1,8 @@
 # Changelog
 
+### 4.3.2 - 05 July 2023
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed modifying 'New Topic' url when it's not set.
+
 ### 4.3.1 - 02 June 2023
 - ![Translation](https://smftricks.com/assets/changelog/language.png) Italian translation provided by [Darknico](https://www.simplemachines.org/community/index.php?action=profile;u=29200)
 - ![Translation](https://smftricks.com/assets/changelog/language.png) Updated translations.

@@ -233,7 +233,7 @@ class MessageIndex
 			return;
 
 		// If there's a prefix filtered, pre-select it for a new topic.
-		if (isset($_REQUEST['prefix']) && !empty($_REQUEST['prefix']))
+		if (isset($_REQUEST['prefix']) && !empty($_REQUEST['prefix']) && $context['can_post_new'])
 			$context['normal_buttons']['new_topic']['url'] .= ';prefix=' . $_REQUEST['prefix'];
 
 		// Okay, search the prefixes
