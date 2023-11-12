@@ -3,7 +3,7 @@
 <package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
 	<id>smftricks:postprefix</id>
 	<name>SMF Post Prefix</name>
-	<version>4.3.2</version>
+	<version>4.3.3</version>
 	<type>modification</type>
 	<install for="2.1 - 2.1.99">
 		<!-- Throw error if PHP version too old -->

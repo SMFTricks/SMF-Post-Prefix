@@ -236,6 +236,10 @@ class MessageIndex
 		if (isset($_REQUEST['prefix']) && !empty($_REQUEST['prefix']) && $context['can_post_new'])
 			$context['normal_buttons']['new_topic']['url'] .= ';prefix=' . $_REQUEST['prefix'];
 
+		// Do the same for polls
+		if (isset($_REQUEST['prefix']) && !empty($_REQUEST['prefix']) && $context['can_post_poll'])
+			$context['normal_buttons']['post_poll']['url'] .= ';prefix=' . $_REQUEST['prefix'];
+
 		// Okay, search the prefixes
 		if (($context['prefixes']['filter'] = cache_get_data('prefix_filter_b' . $board, 3600)) === null)
 		{

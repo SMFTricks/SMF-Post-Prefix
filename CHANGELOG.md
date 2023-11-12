@@ -1,5 +1,8 @@
 # Changelog
 
+### 4.3.3 - 12 November 2023
+- ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Pre-select filtered prefixes when posting a new poll in boards.
+
 ### 4.3.2 - 05 July 2023
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed modifying 'New Topic' url when it's not set.
 
