@@ -262,7 +262,7 @@ class Boards
 					['t.id_first_msg', 't.id_last_msg', 't.id_prefix', 't.id_topic'],
 					Database::$_prefix_columns
 				),
-				'WHERE ' . (empty($modSettings['PostPrefix_prefix_all_msgs']) ? 't.id_first_msg IN ({array_int:messages})' : 'm.id_topic IN ({array_int:topics})') . '
+				'WHERE ' . (empty($modSettings['PostPrefix_prefix_all_msgs']) ? 't.id_first_msg IN ({array_int:messages})' : 'm.id_msg IN ({array_int:messages})') . '
 					AND t.id_prefix > {int:prefix_zero}
 					AND pp.status = {int:status}', false, (!empty($modSettings['PostPrefix_prefix_all_msgs']) ? 
 				'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . 

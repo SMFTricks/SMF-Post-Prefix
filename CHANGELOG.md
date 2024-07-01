@@ -1,5 +1,8 @@
 # Changelog
 
+### 4.3.4 - 30 June 2024
+- ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed wrong query when getting the list of messages.
+
 ### 4.3.3 - 12 November 2023
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Pre-select filtered prefixes when posting a new poll in boards.
 

@@ -1,52 +1,52 @@
-[center][url="https://smftricks.com/"][img]https://smftricks.com/logos/logo.png[/img][/url][/center]
-
-[img]https://img.shields.io/badge/License-MPL%202.0-248049[/img] [img]https://img.shields.io/badge/Hooks%20Only-Yes-6041a3[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0[/img]
+[center]
+[url="https://smftricks.com/"][img]https://smftricks.com/logos/logo.png[/img][/url]
+[i]Free & Premium MODs for SMF[/i]
+[/center]
 
 [b][size=5]SMF Post Prefix[/size][/b]
-[size=0.8em]Developed by [url="https://smftricks.com/index.php?action=profile;u=1"]Diego Andrés[/url][/size]
+[size=3]Allows you to set prefixes for topics and easily customize them with colors and icons.[/size]
+[size=2]Developed by [url="https://smftricks.com/index.php?action=profile;u=1"]Diego Andrés[/url][/size]
 
-[hr]
+[img]https://img.shields.io/github/v/release/SMFTricks/SMF-Post-Prefix.svg?style=flat&logo=github&color=green[/img] [img]https://img.shields.io/badge/License-MPL%202.0-248049[/img] [img]https://img.shields.io/badge/Hooks%20Only-Yes-6041a3[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0[/img]
 
-[size=4][color=#bf307a]Introduction[/color][/size]
-[size=1em]SMF Post Prefix mod allows you to set prefixes for your topics and easily customize them with colors and icons.[/size]
-
-[size=3][color=#1f4882]Features[/color][/size]
+[color=#2346CD][size=4]☑️ Features[/size][/color]
 [list]
-[li][size=0.9em]Add/Edit prefixes[/size]
-[list]
-[li][size=0.8em]Enable/Disable prefix[/size]
-[list]
-[li][size=0.8em]Enable/Disable prefix[/size][/li]
+[li][font=Sans-serif]Add/Edit prefixes[/font]
+[list type=circle]
+[li][font=Sans-serif]Enable/Disable prefix[/font][/li]
+[li][font=Sans-serif]Select a color for the prefix[/font]
+[list type=circle]
+[li][font=Sans-serif]Text color[/font][/li]
+[li][font=Sans-serif]Background color[/font][/li]
 [/list]
 [/li]
-[li][size=0.8em]Select a color for the prefix[/size]
-[list]
-[li][size=0.8em]Text color[/size][/li]
-[li][size=0.8em]Background color[/size][/li]
+[li][font=Sans-serif]Add a class for an icon[/font][/li]
+[li][font=Sans-serif]Select allowed groups to use specific prefix[/font][/li]
+[li][font=Sans-serif]Select boards where the prefix can be used[/font][/li]
 [/list]
 [/li]
-[li][size=0.8em]Add a class for an icon[/size][/li]
-[li][size=0.8em]Select allowed groups to use specific prefix[/size][/li]
-[li][size=0.8em]Select boards where the prefix can be used[/size][/li]
+[li][font=Sans-serif]Select boards where the prefix will be required (forced)[/font][/li]
+[li][font=Sans-serif]Permissions[/font]
+[list type=circle]
+[li][font=Sans-serif]Manage prefixes[/font][/li]
+[li][font=Sans-serif]Use prefixes (Global permission)[/font][/li]
 [/list]
 [/li]
-[li][size=0.9em]Select boards where the prefix will be required (forced)[/size][/li]
-[li][size=0.9em]Permissions[/size]
-[list]
-[li][size=0.8em]Manage prefixes[/size][/li]
-[li][size=0.8em]Use prefixes (Global permission)[/size][/li]
+[li][font=Sans-serif]Filter Topics by prefix[/font]
+[list type=circle]
+[li][font=Sans-serif]Enable the filter box on selected boards[/font][/li]
 [/list]
 [/li]
-[li][size=0.9em]Filter Topics by prefix[/size]
-[list]
-[li][size=0.8em]Enable the filter box on selected boards[/size][/li]
-[/list]
-[/li]
-[li][size=0.9em]Display prefixes in the boardindex and latest posts[/size][/li]
-[li][size=0.9em]Display prefixes in the unread posts/replies action[/size][/li]
+[li][font=Sans-serif]Display prefixes in the boardindex and latest posts[/font][/li]
+[li][font=Sans-serif]Display prefixes in the unread posts/replies action[/font][/li]
 [/list]
 
-[size=3][color=#358234]Localization[/color][/size]
+[size=4][color=#bf307a]📦 Installation[/color][/size]
+It is installed as a traditional SMF MOD for SMF 2.1.x, just grab the latest release of the package and go to: [i]Admin > Main > Package Manager > Add Packages > Package to Upload > Select File > Upload[/i].
+
+You can find detailed instructions and/or more documentation about the process in [url="https://wiki.simplemachines.org/smf/SMF2.1:Package_manager#Installing_a_Package"]Package Manager - Installing a Package[/url].
+
+[size=4][color=#315CFB]🌐 Localization[/color][/size]
 [img]https://www.simplemachines.org/site_images/lang/english.gif[/img] English
 [img]https://www.simplemachines.org/site_images/lang/spanish_es.gif[/img] Spanish
 [img]https://www.simplemachines.org/site_images/lang/russian.gif[/img] Russian
@@ -54,8 +54,7 @@
 [img]https://www.simplemachines.org/site_images/lang/french.gif[/img] French
 [img]https://www.simplemachines.org/site_images/lang/italian.gif[/img] Italian
 
-[hr]
+You can contribute with your translation on the [url=https://crowdin.com/project/smf-post-prefix-mod]Crowdin Project[/url].
 
-[size=3][url="https://crowdin.com/project/smf-post-prefix-mod"][color=#495475]Crowdin[/color][/url][/size]
-[size=3][url="https://github.com/SMFTricks/SMF-Post-Prefix/blob/master/CHANGELOG.md"][color=#cc5d31]Changelog[/color][/url][/size]
-[size=3][url="https://github.com/SMFTricks/SMF-Post-Prefix"][color=#5e2b82]GitHub[/color][/url][/size]
+[size=4][color=#cc5d31]🔨 Changelog[/color][/size]
+Review the changes and patches from the different releases/versions of the package in the [url="https://github.com/SMFTricks/SMF-Post-Prefix/blob/master/CHANGELOG.md"]Changelog[/url].
