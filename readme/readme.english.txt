@@ -7,7 +7,7 @@
 [size=3]Allows you to set prefixes for topics and easily customize them with colors and icons.[/size]
 [size=2]Developed by [url="https://smftricks.com/index.php?action=profile;u=1"]Diego Andrés[/url][/size]
 
-[img]https://img.shields.io/github/v/release/SMFTricks/SMF-Post-Prefix.svg?style=flat&logo=github&color=green[/img] [img]https://img.shields.io/badge/License-MPL%202.0-248049[/img] [img]https://img.shields.io/badge/Hooks%20Only-Yes-6041a3[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0[/img]
+[url=https://github.com/SMFTricks/SMF-Post-Prefix][img]https://img.shields.io/github/v/release/SMFTricks/SMF-Post-Prefix.svg?style=flat&logo=github&color=green[/img][/url] [img]https://img.shields.io/badge/License-MPL%202.0-248049[/img] [img]https://img.shields.io/badge/Hooks%20Only-Yes-6041a3[/img] [img]https://img.shields.io/badge/SMF-2.1-3f73a0[/img]
 
 [color=#2346CD][size=4]☑️ Features[/size][/color]
 [list]
