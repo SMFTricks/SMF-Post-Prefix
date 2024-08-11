@@ -1,15 +1,15 @@
 # Changelog
 
-### 4.3.4 - 30 June 2024
+#### 4.3.4 - 30 June 2024
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed wrong query when getting the list of messages.
 
-### 4.3.3 - 12 November 2023
+#### 4.3.3 - 12 November 2023
 - ![New Feature](https://smftricks.com/assets/changelog/tag--plus.png) Pre-select filtered prefixes when posting a new poll in boards.
 
-### 4.3.2 - 05 July 2023
+#### 4.3.2 - 05 July 2023
 - ![Bug Fix](https://smftricks.com/assets/changelog/bug--minus.png) Fixed modifying 'New Topic' url when it's not set.
 
-### 4.3.1 - 02 June 2023
+#### 4.3.1 - 02 June 2023
 - ![Translation](https://smftricks.com/assets/changelog/language.png) Italian translation provided by [Darknico](https://www.simplemachines.org/community/index.php?action=profile;u=29200)
 - ![Translation](https://smftricks.com/assets/changelog/language.png) Updated translations.
 
