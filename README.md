@@ -3,7 +3,7 @@
 # SMF Post Prefix
 > Allows you to set prefixes for topics and easily customize them with colors and icons.
 
-![Latest Release](https://img.shields.io/github/v/release/SMFTricks/SMF-Post-Prefix.svg?style=flat&logo=github&color=green) ![License](https://img.shields.io/badge/License-MIT-248049) ![License](https://img.shields.io/badge/License-MPL%202.0-248049) ![Hooks Only](https://img.shields.io/badge/Hooks%20Only-Yes-6041a3) ![SMF 2.1](https://img.shields.io/badge/SMF-2.1-3f73a0)
+![Latest Release](https://img.shields.io/github/v/release/SMFTricks/SMF-Post-Prefix.svg?style=flat&logo=github&color=green) ![License](https://img.shields.io/badge/License-MPL%202.0-248049) ![Hooks Only](https://img.shields.io/badge/Hooks%20Only-Yes-6041a3) ![SMF 2.1](https://img.shields.io/badge/SMF-2.1-3f73a0)
 * Developed by [Diego Andrés](https://github.com/DiegoAndresCortes)
 ---
 ## ☑️ Features
